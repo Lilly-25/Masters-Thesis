@@ -88,16 +88,16 @@ def create_heterograph(file_path):
 
         G.graph['mgrenz_values'] = mgrenz_values
         
-        print("\nNode features:")
-        for node, data in G.nodes(data=True):
-            print(f"Node {node} ({data['node_type']}): {data['features']}")
+        # print("\nNode features:")
+        # for node, data in G.nodes(data=True):
+        #     print(f"Node {node} ({data['node_type']}): {data['features']}")
         
-        print("\nEdge features:")
-        for u, v, data in G.edges(data=True):
-            print(f"Edge ({u}, {v}) ({data['edge_type']}): {data['features']}")
+        # print("\nEdge features:")
+        # for u, v, data in G.edges(data=True):
+        #     print(f"Edge ({u}, {v}) ({data['edge_type']}): {data['features']}")
         
-        print(f"\nmgrenz_values: {G.graph['mgrenz_values'][:5]}... (showing first 5)")
-        print(f"Global attributes: r_a={G.graph['r_a']}, r_i={G.graph['r_i']}, r_r={G.graph['r_r']}")
+        # print(f"\nmgrenz_values: {G.graph['mgrenz_values'][:5]}... (showing first 5)")
+        # print(f"Global attributes: r_a={G.graph['r_a']}, r_i={G.graph['r_i']}, r_r={G.graph['r_r']}")
 
         return G
         

@@ -78,4 +78,51 @@ class HeterogeneousGraphDataset(Dataset):
         else:
             file_path = os.path.join(self.processed_dir, self.processed_file_names[idx])
             return torch.load(file_path)
+        
+    def inspect_dataset(self):
+        print(f"Dataset contains {len(self.data_list)} graphs")
+
+        # Inspect the first graph in detail
+        sample_graph = self.data_list[0]
+        print("\nDetailed information for the first graph:")
+
+        # Node types and features
+        print("\nNode Types and Features:")
+        for node_type in sample_graph.node_types:
+            num_nodes = sample_graph[node_type].num_nodes
+            feature_dim = sample_graph[node_type].num_features
+            print(f"  {node_type}: {num_nodes} nodes, {feature_dim} features")
+            if num_nodes > 0:
+                print(f"    Sample features: {sample_graph[node_type].x[0][:5]}...")  # Print first 5 features of first node
+
+        # Edge types and structure
+        print("\nEdge Types and Structure:")
+        for edge_type in sample_graph.edge_types:
+            num_edges = sample_graph[edge_type].num_edges
+            print(f"  {edge_type}: {num_edges} edges")
+            if num_edges > 0:
+                print(f"    Edge indices: {sample_graph[edge_type].edge_index[:, :5]}")  # Print first 5 edge indices
+                if hasattr(sample_graph[edge_type], 'edge_attr'):
+                    edge_attr_dim = sample_graph[edge_type].edge_attr.size(1)
+                    print(f"    Edge features: {edge_attr_dim} dimensions")
+                    print(f"    Sample edge features: {sample_graph[edge_type].edge_attr[0][:5]}...")  # Print first 5 features of first edge
+
+        # Global attributes
+        if hasattr(sample_graph, 'global_attr'):
+            print("\nGlobal Attributes:")
+            print(f"  {sample_graph.global_attr}")
+
+        # Labels
+        if hasattr(sample_graph, 'y'):
+            print("\nLabels:")
+            print(f"  Shape: {sample_graph.y.shape}")
+            print(f"  Sample labels: {sample_graph.y[:5]}...")  # Print first 5 labels
+
+        # Additional statistics
+        print("\nAdditional Statistics:")
+        total_nodes = sum(sample_graph[nt].num_nodes for nt in sample_graph.node_types)
+        total_edges = sum(sample_graph[et].num_edges for et in sample_graph.edge_types)
+        print(f"  Total nodes: {total_nodes}")
+        print(f"  Total edges: {total_edges}")
+
 
