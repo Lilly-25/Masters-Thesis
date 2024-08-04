@@ -24,17 +24,18 @@ def create_heterograph(file_path):
 
         # Define node types and their features
         node_types = {
-            'v1': ['v1m1', 'v1m2'],
-            'v2': ['v2m1', 'v2m2'],
-            'rotor': ['rr'],
-            'stator': ['s']
+            'v1': ['v1m1', 'v1m2'],##Automate to take based on topology type V1, V3?
+            'v2': ['v2m1', 'v2m2'],##Automate to take based on topology type V1, V3?
+            'ri':['ri'],
+            'stator': ['s1', 's2', 's3', 's4', 's5', 's6']##Automate to take from N?
         }
 
+        #Automate to take based on naming convention maybe?
         node_features = {
             'v1': ['mbv1', 'mhv1', 'lmsov1', 'lth1v1', 'lth2v1', 'lmov1', 'lmuv1', 'r1v1', 'r11v1', 'r2v1', 'r3v1', 'r4v1', 'rmt1v1', 'rmt4v1', 'rlt1v1', 'rlt4v1', 'lmiv1', 'lmav1', 'rmagv1'],
             'v2': ['mbv2', 'mhv2', 'lmsov2', 'lth1v2', 'lth2v2', 'lmov2', 'lmuv2', 'r1v2', 'r11v2', 'r2v2', 'r3v2', 'r4v2', 'rmt1v2', 'rmt4v2', 'rlt1v2', 'rlt4v2', 'lmiv2', 'lmav2', 'rmagv2'],
-            'rotor': [],
-            'stator': ['b_nng', 'b_nzk', 'b_s', 'h_n', 'h_s', 'h_zk', 'r_sn', 'r_zk', 'r_ng', 'bhp', 'hhp', 'rhp']
+            'ri':['b_s', 'h_s', 'r_sn', 'r_zk'],
+            'stator': ['b_nng', 'b_nzk',  'h_n', 'r_ng', 'bhp', 'hhp', 'rhp']
         }
 
         # Add nodes with their types and features
@@ -45,37 +46,48 @@ def create_heterograph(file_path):
 
         # Define edge types and their features
         edge_types = {
-            'vm1_vm2': [('v2m2', 'v2m1'), ('v1m2', 'v1m1')],
-            'v_rotor': [('v1m2', 'rr'), ('v1m1', 'rr'), ('v2m2', 'rr'), ('v2m1', 'rr')],
-            'v1_v2': [('v2m2', 'v1m2'), ('v2m1', 'v1m1')],
-            'stator_rotor': [('s', 'rr')]
+            'vm1_vm2': [('v1m1', 'v1m2'), ('v2m1', 'v2m2')],
+            'v_ri': [('v1m1', 'ri'), ('v1m2', 'ri'), ('v2m1', 'ri'), ('v2m2', 'ri')],
+            'v1_v2': [('v1m2', 'v2m2'), ('v1m1', 'v2m1')],
+            'ri_s' : [('ri', 's1'), ('ri', 's2'), ('ri', 's3'), ('ri', 's4'), ('ri', 's5'), ('ri', 's6')],
+            's_s': [('s1', 's2'), ('s2', 's3'), ('s3', 's4'), ('s4', 's5'), ('s5', 's6')],
+            
         }
 
         edge_features = {
             'vm1_vm2': ['dsm', 'dsmu', 'ha', 'deg_phi'],
-            'v_rotor': ['amtr', 'dsr'],
+            'v_ri': ['amtr + airgap', 'dsr + airgap'],
             'v1_v2': ['amtr_diff'],
-            'stator_rotor': ['airgap']
+            's_s': ['b_z'],##b_z is 0 for some reason, need to check with Leo
+            'ri_s': ['h_zk'],   
         }
 
         #Add edges with their types and features
                 
         for edge_type, edges in edge_types.items():
-                for edge in edges:
-                    features = []
-                    for feature in edge_features[edge_type]:
+            for edge in edges:
+                features = []
+                for feature in edge_features[edge_type]:
+                    if edge_type == 'v_ri':
+                        if '+' in feature:
+                            feat1, feat2 = feature.split('+')
+                            value = params_dict.get(f"{feat1.strip()}v1", 0) + params_dict.get(feat2.strip(), 0)
+                        else:
+                            value = params_dict.get(f"{feature}v1", 0)
+                    elif edge_type == 'v1_v2':
+                        value = params_dict.get('amtrv2', 0) - params_dict.get('amtrv1', 0)
+                    elif edge_type == 's_s' or edge_type == 'ri_s':
+                        value = params_dict.get(feature, 0)
+                    else:  # vm1_vm2
                         if edge[0].startswith('v1'):
                             value = params_dict.get(f"{feature}v1", 0)
                         elif edge[0].startswith('v2'):
                             value = params_dict.get(f"{feature}v2", 0)
                         else:
                             value = params_dict.get(feature, 0)
-                        features.append(value)
-                    
-                    if edge_type == 'v1_v2':
-                        features = [params_dict.get('amtrv2', 0) - params_dict.get('amtrv1', 0)]
-                    
-                    G.add_edge(edge[0], edge[1], edge_type=edge_type, features=features)
+                    features.append(value)
+                
+                G.add_edge(edge[0], edge[1], edge_type=edge_type, features=features)
 
         G.graph['r_a'] = params_dict.get('r_a', 0)
         G.graph['r_i'] = params_dict.get('r_i', 0)
@@ -89,6 +101,8 @@ def create_heterograph(file_path):
         G.graph['mgrenz_values'] = mgrenz_values
         
         # print("\nNode features:")
+        
+        # print(G.nodes)
         # for node, data in G.nodes(data=True):
         #     print(f"Node {node} ({data['node_type']}): {data['features']}")
         
@@ -109,24 +123,20 @@ def create_heterograph(file_path):
 def visualize_heterograph(G):
     
     plt.figure(figsize=(12, 8)) 
-    # Define color map for node types
-    color_map = {'v1': 'red', 'v2': 'blue', 'rotor': 'green', 'stator': 'yellow'}
-    # Get node colors based on node type
+ 
+    color_map = {'v1': 'red', 'v2': 'blue', 'stator': 'yellow', 'ri': 'green'}
     node_colors = [color_map[G.nodes[node]['node_type']] for node in G.nodes()]
-    # Define edge color map
-    edge_color_map = {'vm1_vm2': 'red', 'v_rotor': 'blue', 
-                      'v1_v2': 'green', 'stator_rotor': 'yellow'}
-    # Get edge colors based on edge type
+
+    edge_color_map = {'vm1_vm2': 'pink', 'v_ri': 'gray', 
+                      'v1_v2': 'green', 'ri_s': 'orange', 's_s': 'purple'}
     edge_colors = [edge_color_map[G[u][v][0]['edge_type']] for u, v in G.edges()]
-    # Create layout
+
     pos = nx.spring_layout(G)
-    # Draw nodes
+
     nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=700)
-    # Draw edges
     nx.draw_networkx_edges(G, pos, edge_color=edge_colors, width=2, arrows=True)
-    # Draw labels
+   
     nx.draw_networkx_labels(G, pos)
-    # Add a legend for node types
     legend_elements = [plt.Line2D([0], [0], marker='o', color='w', label=node_type,
                                   markerfacecolor=color, markersize=10)
                        for node_type, color in color_map.items()]
