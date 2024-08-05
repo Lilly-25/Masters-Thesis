@@ -27,7 +27,7 @@ def create_heterograph(file_path):
             'v1': ['v1m1', 'v1m2'],##Automate to take based on topology type V1, V3?
             'v2': ['v2m1', 'v2m2'],##Automate to take based on topology type V1, V3?
             'ri':['ri'],
-            'stator': ['s1', 's2', 's3', 's4', 's5', 's6']##Automate to take from N?
+            's': ['s1', 's2', 's3', 's4', 's5', 's6']##Automate to take from N?
         }
 
         #Automate to take based on naming convention maybe?
@@ -35,7 +35,7 @@ def create_heterograph(file_path):
             'v1': ['mbv1', 'mhv1', 'lmsov1', 'lth1v1', 'lth2v1', 'lmov1', 'lmuv1', 'r1v1', 'r11v1', 'r2v1', 'r3v1', 'r4v1', 'rmt1v1', 'rmt4v1', 'rlt1v1', 'rlt4v1', 'lmiv1', 'lmav1', 'rmagv1'],
             'v2': ['mbv2', 'mhv2', 'lmsov2', 'lth1v2', 'lth2v2', 'lmov2', 'lmuv2', 'r1v2', 'r11v2', 'r2v2', 'r3v2', 'r4v2', 'rmt1v2', 'rmt4v2', 'rlt1v2', 'rlt4v2', 'lmiv2', 'lmav2', 'rmagv2'],
             'ri':['b_s', 'h_s', 'r_sn', 'r_zk'],
-            'stator': ['b_nng', 'b_nzk',  'h_n', 'r_ng', 'bhp', 'hhp', 'rhp']
+            's': ['b_nng', 'b_nzk',  'h_n', 'r_ng', 'bhp', 'hhp', 'rhp']
         }
 
         # Add nodes with their types and features
@@ -46,17 +46,19 @@ def create_heterograph(file_path):
 
         # Define edge types and their features
         edge_types = {
-            'vm1_vm2': [('v1m1', 'v1m2'), ('v2m1', 'v2m2')],
-            'v_ri': [('v1m1', 'ri'), ('v1m2', 'ri'), ('v2m1', 'ri'), ('v2m2', 'ri')],
-            'v1_v2': [('v1m2', 'v2m2'), ('v1m1', 'v2m1')],
+            'v_v': [('v1m1', 'v1m2'), ('v2m1', 'v2m2')],
+            'v1_ri': [('v1m1', 'ri'), ('v1m2', 'ri')],
+            'v2_ri': [('v2m1', 'ri'), ('v2m2', 'ri')],
+            'v1_v2': [('v1m1', 'v2m1'), ('v1m2', 'v2m2')],
             'ri_s' : [('ri', 's1'), ('ri', 's2'), ('ri', 's3'), ('ri', 's4'), ('ri', 's5'), ('ri', 's6')],
             's_s': [('s1', 's2'), ('s2', 's3'), ('s3', 's4'), ('s4', 's5'), ('s5', 's6')],
             
         }
 
         edge_features = {
-            'vm1_vm2': ['dsm', 'dsmu', 'ha', 'deg_phi'],
-            'v_ri': ['amtr + airgap', 'dsr + airgap'],
+            'v_v': ['dsm', 'dsmu', 'ha', 'deg_phi'],
+            'v1_ri': ['amtrv1 + airgap', 'dsrv1 + airgap'],
+            'v2_ri': ['dsrv2 + airgap'],
             'v1_v2': ['amtr_diff'],
             's_s': ['b_z'],##b_z is 0 for some reason, need to check with Leo
             'ri_s': ['h_zk'],   
@@ -68,12 +70,12 @@ def create_heterograph(file_path):
             for edge in edges:
                 features = []
                 for feature in edge_features[edge_type]:
-                    if edge_type == 'v_ri':
+                    if edge_type == 'v1_ri' or edge_type == 'v2_ri':
                         if '+' in feature:
                             feat1, feat2 = feature.split('+')
-                            value = params_dict.get(f"{feat1.strip()}v1", 0) + params_dict.get(feat2.strip(), 0)
+                            value = params_dict.get(feat1.strip(), 0) + params_dict.get(feat2.strip(), 0)
                         else:
-                            value = params_dict.get(f"{feature}v1", 0)
+                            value = params_dict.get(feature, 0)
                     elif edge_type == 'v1_v2':
                         value = params_dict.get('amtrv2', 0) - params_dict.get('amtrv1', 0)
                     elif edge_type == 's_s' or edge_type == 'ri_s':
@@ -124,10 +126,10 @@ def visualize_heterograph(G):
     
     plt.figure(figsize=(12, 8)) 
  
-    color_map = {'v1': 'red', 'v2': 'blue', 'stator': 'yellow', 'ri': 'green'}
+    color_map = {'v1': 'red', 'v2': 'blue', 's': 'yellow', 'ri': 'green'}
     node_colors = [color_map[G.nodes[node]['node_type']] for node in G.nodes()]
 
-    edge_color_map = {'vm1_vm2': 'pink', 'v_ri': 'gray', 
+    edge_color_map = {'v_v': 'pink', 'v1_ri': 'gray', 'v2_ri': 'violet', 
                       'v1_v2': 'green', 'ri_s': 'orange', 's_s': 'purple'}
     edge_colors = [edge_color_map[G[u][v][0]['edge_type']] for u, v in G.edges()]
 
