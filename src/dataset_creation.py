@@ -1,8 +1,8 @@
 import os
 import torch
-from torch_geometric.data import Dataset, HeteroData
+from torch_geometric.data import Dataset
 import pandas as pd
-from tqdm import tqdm
+from tqdm.notebook import tqdm
 import traceback
 from src.graph_creation import create_heterograph, visualize_heterograph
 from src.data_preprocessing import pyg_graph
