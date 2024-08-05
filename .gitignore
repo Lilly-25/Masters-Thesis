@@ -13,3 +13,4 @@ data/
 .vscode/
 node_modules/
 dist/
+src/__pycache__/
