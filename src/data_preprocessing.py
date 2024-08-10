@@ -73,7 +73,7 @@ def pyg_graph(G):
                 data[src_type, edge_type, dst_type].edge_attr = edge_attr
         
         # Global attributes and labels
-        data.global_attr = torch.tensor([G.graph['r_a'], G.graph['r_i'], G.graph['r_r']], dtype=torch.float)
+        data.global_attr = torch.tensor([G.graph['r_a'], G.graph['r_i']], dtype=torch.float)
         data.y = torch.tensor(G.graph['mgrenz_values'], dtype=torch.float)
         
         return data
