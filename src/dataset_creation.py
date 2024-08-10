@@ -1,16 +1,18 @@
+
 import os
 import torch
-from torch_geometric.data import Dataset, HeteroData
+from torch_geometric.data import Dataset
 import pandas as pd
 from tqdm import tqdm
 import traceback
 from src.graph_creation import create_heterograph, visualize_heterograph
 from src.data_preprocessing import pyg_graph
 
-class HeterogeneousGraphDataset(Dataset):
+class HeterogeneousGraphDataset(Dataset):  # Changed from Dataset to HeteroData
     def __init__(self, root, transform=None, pre_transform=None, force_process=False):
         self.root = root
         self.force_process = force_process
+        self.edge_types=[]
         super(HeterogeneousGraphDataset, self).__init__(root, transform, pre_transform)
         
         # Create directories if they don't exist
@@ -62,9 +64,9 @@ class HeterogeneousGraphDataset(Dataset):
                 except Exception as e:
                     print(f"\nError processing file {os.path.basename(raw_path)}: {str(e)}")
                     traceback.print_exc()
-                
-                # Update the progress bar
                 pbar.update(1)
+        #self.edge_types= [t[1] for t in data.edge_types]
+        print(data.edge_types)
         print("Finished process method")
         print('Visualizing sample heterograph')
         visualize_heterograph(nx_graph)
@@ -124,5 +126,3 @@ class HeterogeneousGraphDataset(Dataset):
         total_edges = sum(sample_graph[et].num_edges for et in sample_graph.edge_types)
         print(f"  Total nodes: {total_nodes}")
         print(f"  Total edges: {total_edges}")
-
-
