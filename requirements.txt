@@ -55,14 +55,12 @@ importlib_metadata=8.0.0=hd8ed1ab_0
 intel-openmp=2023.1.0=hdb19cb5_46306
 ipykernel=6.29.5=pyh3099207_0
 ipython=8.26.0=pyh707e725_0
-ipywidgets=8.1.3=pyhd8ed1ab_0
 jedi=0.19.1=pyhd8ed1ab_0
 jinja2=3.1.4=py310h06a4308_0
 joblib=1.4.2=py310h06a4308_0
 jpeg=9e=h5eee18b_1
 jupyter_client=8.6.2=pyhd8ed1ab_0
 jupyter_core=5.7.2=py310hff52083_0
-jupyterlab_widgets=3.0.11=pyhd8ed1ab_0
 kiwisolver=1.4.4=py310h6a678d5_0
 krb5=1.20.1=h143b758_1
 lcms2=2.12=h3be6417_0
@@ -184,7 +182,6 @@ urllib3=2.2.2=py310h06a4308_0
 wandb=0.16.6=pyhd8ed1ab_0
 wcwidth=0.2.13=pyhd8ed1ab_0
 wheel=0.43.0=py310h06a4308_0
-widgetsnbextension=4.0.11=pyhd8ed1ab_0
 xz=5.4.6=h5eee18b_1
 yaml=0.2.5=h7b6447c_0
 yarl=1.9.3=py310h5eee18b_0
