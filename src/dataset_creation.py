@@ -66,7 +66,7 @@ class HeterogeneousGraphDataset(Dataset):  # Changed from Dataset to HeteroData
                     traceback.print_exc()
                 pbar.update(1)
         #self.edge_types= [t[1] for t in data.edge_types]
-        print(data.edge_types)
+        #print(data.edge_types)
         print("Finished process method")
         print('Visualizing sample heterograph')
         visualize_heterograph(nx_graph)
