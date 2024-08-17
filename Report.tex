@@ -1,0 +1,212 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{graphicx} % For including graphics like logos
+\usepackage{lipsum}   % For dummy text
+\usepackage{setspace} % For line spacing
+\usepackage{fancyhdr} % For custom headers and footers
+\usepackage{geometry} % For page margins
+
+\geometry{top=1in, bottom=1in, left=1in, right=1in} % Set page margins
+
+% Set up the header and footer using fancyhdr
+% \pagestyle{fancy}
+% \fancyhf{} % Clear all header and footer fields
+
+% % Define the header
+% \fancyhead[L]{
+%     \small
+%     Technical University of Applied Sciences Würzburg-Schweinfurt (THWS)\\
+%     Faculty of Computer Science and Business Information Systems
+% }
+
+% % Adjust the header position
+% \renewcommand{\headrulewidth}{0pt} % Remove the header rule line
+
+
+\begin{document}
+% Title Page
+\begin{titlepage}
+    \centering
+    \vspace*{1cm}
+    
+    \Large \textbf{Technical University of Applied Sciences Würzburg-Schweinfurt (THWS)}\\
+    \vspace{0.5cm}
+    \Large Faculty of Computer Science and Business Information Systems\\
+    \vspace{1cm}
+    
+    \huge \textbf{Master Thesis}\\
+    \vspace{1.5cm}
+    
+    \Huge \textbf{Electric Motor Modelling via Graph Neural Networks}\\
+    \vspace{2cm}
+    
+    \large \textbf{Submitted to the Technical University of Applied Sciences Würzburg-Schweinfurt in the Faculty of Computer Science and Business Information Systems to
+    complete a course of studies in Master of Artificial Intelligence}
+    
+    \vspace{1cm}
+    
+    \huge Lilly Abraham\\
+    \huge K64889\\
+    \vspace{1cm}
+    \large To be Submitted on: 11.12.2024\\ % replace with Submitted on
+    
+    \vfill
+    
+    \large
+    Initial examiner: Prof. Dr. Magda Gregorova\\
+    Secondary examiner: Prof. Gracia Herranz Mercedes\\
+
+\end{titlepage}
+
+\newpage % Start a new page
+
+
+% Including an image on this page
+\begin{figure}[h]
+    \includegraphics[width=0.8\textwidth]{./ReportImages/qrcode.png} % Adjust path and filename
+    \label{fig:your-image}
+\end{figure}
+
+\newpage % Start a new page
+
+\section*{Abstract}
+The aim of the Master Thesis is to train a neural network to learn the parameters of Electric Motors and thus be able to predict its Key Performance Indicators(KPIs).
+The KPIs are 2D and 3D plots on Torque(Mgrenz) and Efficiency(ETA). Other KPIs can be calculated from these two KPIs.
+For instance the Vibration Costs are inversely proportional to the Efficieny values predicted. 
+
+\section*{Abstrakt}
+The aim of the Master Thesis is to train a neural network to learn the parameters of Electric Motors and thus be able to predict its Key Performance Indicators(KPIs).
+The KPIs are 2D and 3D plots on Torque(Mgrenz) and Efficiency(ETA). Other KPIs can be calculated from these two KPIs.
+For instance the Vibration Costs are inversely proportional to the Efficieny values predicted. 
+
+\newpage 
+
+\newpage 
+
+\section*{Acknowledgement}
+I would like to thank my supervisor Prof. Dr. Magda Gregorova for her guidance and support throughout the course of this thesis and Valeo for providing the data.
+Special thanks to Mr Daniel and Leo for sharing valuable insights of the data from a electromechanincal standpoint
+
+\newpage
+
+\newpage
+
+\section*{Contents} 
+
+\newpage
+
+\newpage
+
+\section*{Introduction} 
+KPIs of an Electric Motor are essential to judge the performance of the motor before it is manufactured. 
+Currently the KPIs are calculated by simulating the motor using an appropriate software. 
+Although this works yet it is a very time consuming and expensive process as simulation is carried out in different iterations and optimized using a genetic algorithm.
+
+\newpage 
+
+\section*{Background} 
+There has been extensive research in modeling the Electric Motor with Convolution Neural Networks(CNN) based on the images of the motor cross-section. 
+However our approach is progressive in the sense that once the KPIs are predicted we would like to be able to generate the inputs and generating images is not ideal for our usecase.
+Instead by generating the parameters of the motor we can be rest assured of more precise results. Hence the need to focus on the inputs as they are with their parametric description.
+Literature also covers works on modelling this work as tabular data using MLPs. Although this is fairly good forseeing the impact of generating the inverse process yet MLPs cannot necessarily learn all the intricacies within motor components.
+Hence the need to better represent the data typically in the form of graphs and model Graph Neural Networks to achieve the desired results. There has been close to no work of GNNs in this domain.
+Although we see progress of GNNs in molecular chemistry, social networks usecases from which we draw inspiration from.
+
+\newpage 
+
+\section*{Dataset} 
+
+Valeo an automotive company has supplied the dataset consisting of close to 1500 Double V Electric Motor parameters. 
+There are close to 196 parameters which comprises of the geometric, physical and simulation properties of the motor.
+
+The geometry of a whole Double V motor is as below
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./ReportImages/FullMotor.png} 
+    \caption{EM Geometry}
+    \label{fig:Full Motor}
+\end{figure}
+
+Below is the geometry of 1/8 cross-section of the same motor.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./ReportImages/EMCrosssection.jpg} 
+    \caption{1/8 Motor Crossection}
+    \label{fig:1/8 Motor Crossection}
+\end{figure}
+
+\newpage 
+
+\section*{Modelling}
+
+\newpage 
+
+\section*{Experiments and Results}
+
+\newpage 
+
+\section*{Conclusion}
+
+\newpage 
+
+\newpage 
+
+\section*{List of Figures}
+
+\newpage 
+
+\newpage 
+
+\section*{List of Tables}
+
+\newpage 
+
+\newpage 
+
+\section*{Appendix}
+
+\newpage 
+
+\newpage 
+
+\section*{Bibliography}
+
+\newpage 
+
+\newpage 
+
+\section*{Declaration on oath}
+
+\vspace{1cm}
+
+\noindent I hereby certify that I have written my master thesis independently and have not yet submitted it for examination purposes elsewhere. All sources and aids used are listed, literal and meaningful quotations have been marked as such.
+
+\vspace{3cm}
+\hfill\rule{15cm}{0.4pt} % Horizontal line for the signature aligned to the right
+
+\begin{center}
+    Lilly Abraham K64889, 11.12.2024 % Placeholder for the signature and date
+\end{center}
+
+\newpage 
+
+\section*{Consent to Plagiarism Check}
+
+\vspace{1cm}
+
+\noindent I hereby agree that my submitted work may be sent to PlagScan (www.plagscan.com) in digital form for the purpose of checking for plagiarism and that it may be temporarily (max. 5 years) stored in the database maintained by PlagScan as well as personal data which are part of this work may be stored there.
+
+\vspace{0.5cm}
+
+\noindent Consent is voluntary. Without this consent, the plagiarism check cannot be prevented by removing all personal data and protecting the copyright requirements. Consent to the storage and use of personal data may be revoked at any time by notifying the faculty.
+
+
+\vspace{3cm}
+\hfill\rule{15cm}{0.4pt} % Horizontal line for the signature aligned to the right
+
+\begin{center}
+    Lilly Abraham K64889, 11.12.2024 % Placeholder for the signature and date
+\end{center}
+
+\end{document}
