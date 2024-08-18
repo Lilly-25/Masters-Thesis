@@ -4,6 +4,12 @@
 \usepackage{setspace} % For line spacing
 \usepackage{fancyhdr} % For custom headers and footers
 \usepackage{geometry} % For page margins
+\usepackage{amsmath} % For mathematical equations
+\usepackage{enumitem} % For customized lists
+\usepackage{amsfonts} % For the \forall symbol
+\usepackage{multicol} % For multiple columns if needed
+\usepackage{amsmath} % For additional math formatting
+\usepackage{enumitem} % For customizing lists
 
 \geometry{top=1in, bottom=1in, left=1in, right=1in} % Set page margins
 
@@ -138,7 +144,170 @@ Below is the geometry of 1/8 cross-section of the same motor.
 
 \newpage 
 
+For modelling the GNN, we represent the data in the form of different node and edge types.\\
+
+\textbf{Node types}
+
+\begin{enumerate}
+    \item \textbf{General}
+    
+    \begin{itemize}
+        \item General parameters:
+        \[
+        r_{i} \quad \forall i \in \{a, r, o\} 
+        \]
+        
+        \textit{where:
+        \begin{itemize}
+            \item $r_{a}$: Outer Radius of the Stator
+            \item $r_{r}$: Outer Radius of the Rotor
+            \item $r_{o}$: Center of the EM
+        \end{itemize}}
+    \end{itemize}
+    
+    \item \textbf{Stator}
+    
+    \begin{itemize}
+        \item Slot windings:
+        \[
+        s_{i}w_{j} \quad \forall i \in \{1, \dots, QSim\}, \quad \forall j \in \{1, \dots, N\} 
+        \]
+        
+        \item Slots:
+        \[
+        s_{i} \quad \forall i \in \{1, \dots, QSim\} 
+        \]
+
+        \textit{where
+        \begin{itemize}
+            \item Qsim : Count of slots in the Stator
+            \item N : Count of copper windings per slot
+        \end{itemize}}
+    \end{itemize}
+    
+    \item \textbf{Rotor}
+    
+    \begin{itemize}
+        \item Magnet Flux Barriers:
+        \[
+        v_{ij} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\} 
+        \]
+        
+        \item Magnets:
+        \[
+        v_{i}m_{j} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\} 
+        \]
+        \textit{where
+        \begin{itemize}
+            \item T : Topology type of the EM
+            \item V : Type of Magnet
+        \end{itemize}
+        As Valeo only manufactures Double V magnets we consider it to be 2}
+    \end{itemize}    
+    
+\end{enumerate}
+
+\textbf{Edge types}
+
+\begin{enumerate}
+    \item \textbf{Angle} \\
+    \[
+    vm--vm = \{ (v_{i_{1}}m_{j_{1}} - v_{i_{2}}m_{j_{2}})
+    \forall i_1, i_2 \in \{1, \dots, T\}, \quad \forall j_1, j_2 \in \{1, \dots, V\} \mid
+    i_1 = i_2, \quad j_1 \neq j_2\}
+    \]
+
+    \textbf{angle}=vm-vm
+
+    \item \textbf{Distance} \\
+    % \[
+    %     v-v = \{ (v_{i_1 j_1} - v_{i_2 j_2}), \forall i_1, i_2, j_1, j_2 \in \{1, \dots, T\} \mid i_1i_2 \neq j_1j_2 \ \land (i_1 == i_2 \lor j_1 == j_2) \}
+    % \]
+    \[
+        vi--vi = \{ (v_{i j_1} - v_{i j_2}), \forall i \in \{1, \dots, T\}, \forall j_1, j_2 \in \{1, \dots, V\} \mid  j_1 \neq j_2 \}
+    \]
+    \[
+        vi--vj = \{ (v_{i_1 j} - v_{i_2 j}), \forall i_1, i_2 \in \{1, \dots, T\}, \forall j \in \{1, \dots, V\} \mid  i_1 \neq i_2 \}
+    \]
+    \[
+        v--vm = \{ (v_{i j} - v_{i}m_{j}) \forall i  \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\} \}
+    \]
+    \[
+        v--rr = \{ (v_{i j} - r_{r}), \forall i, j  \in \{1, \dots, T\}\}
+    \]
+    \[
+        o--r = \{ (o - r_{r}), (o - r_{a})\}
+    \]
+    \[
+        rr--s = \{ (r_{r} - s_{i}), \forall i  \in \{1, \dots, QSim\}\}
+    \]
+    \[
+        s--sw = \{ (s_{i} - s_{i}w_{j}), \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\}\}
+    \]
+    \[
+        s--ra = \{ (s_{i} - r_{a}), \forall i  \in \{1, \dots, QSim\}\}
+    \]
+    \[
+        sw--sw = \{ (s_{i}w_{j_1} - s_{i}w_{j_2}), \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\} \mid (j_1 == j_2-1)\}
+    \]
+
+    \textbf{distance} = vi--vi + vi--vj + v--vm + v--rr + o--r + rr--s + s--sw + s--ra + sw--sw
+
+\end{enumerate}
+
+\textbf{Node Features}
+
+\begin{enumerate}
+
+    \item \textbf{v} = \{lmsov, lth1v, lth2v, r1v, r11v, r2v, r3v, r4v, rmt1v, rmt4v, rlt1v, rlt4v, hav\}
+
+    \item \textbf{vm} = \{mbv, mhv, rmagv\}
+
+    \item \textbf{r} = \{r\}
+
+    \item \textbf{s} = \{b\_nng, b\_nzk, b\_s, h\_n, h\_s, r\_sn, r\_zk, r\_ng, h\_zk\}
+
+    \item \textbf{sw} = \{bhp, hhp, rhp\}
+\end{enumerate}
+
+\textbf{Edge Features}
+
+\begin{enumerate}
+
+    \item \textbf{vm--vm} = \{deg\_phi\}
+
+    \item \textbf{vi--vi} = \{dsm, dsmu\}
+
+    \item \textbf{vi--vj} = \{amtrvj-amtrvi\}
+
+    \item \textbf{v--vm} = \{lmav, lmiv, lmov, lmuv\}
+
+    \item \textbf{v--r} = \{amtrv, dsrv\}
+    
+    \item \textbf{o--r} = \{r\}
+
+    \item \textbf{rr--s} = \{airgap\}
+
+    \item \textbf{s--sw} = \{dhphp\}
+    
+    \item \textbf{sw--sw} = \{dhpng\}
+    
+    \item \textbf{s--ra} = \{r\_a-(r\_i + h\_n + h\_zk)\}
+    
+\end{enumerate}
+The heterogeneous graph that was constructed earlier is as below:
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{./ReportImages/graph.png} 
+    \caption{HetGraph}
+    \label{fig:Graph}
+\end{figure}
+
+\newpage 
+
 \section*{Modelling}
+We find the heterogeneous graph to be most apt for our use case with its different node and edge types. As it preserves both the structural and semantics of our data.
+Heterogeneous graph Neural Networks generally work by having separate non linear functions convolve over each edge type during message computation and over each node type when aggregating the learned information.
 
 \newpage 
 
