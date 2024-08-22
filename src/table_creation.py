@@ -8,9 +8,7 @@ def create_tabular_data(file_path):
     try:
         df = pd.read_excel(file_path, sheet_name='input_data', header=None)
         df = df.dropna(how='all').dropna(axis=1, how='all')
-        #file_name = os.path.basename(file_path)
         file_name = os.path.splitext(os.path.basename(file_path))[0]
-        print(file_name)
         params_dict = {}
         for _, row in df.iterrows():
             param, value = row[0], row[1]
@@ -51,6 +49,7 @@ def create_tabular_data(file_path):
         wb = openpyxl.load_workbook(file_path)
         sheet_mgrenz = wb['Mgrenz']
         mgrenz_values = [cell.value for cell in sheet_mgrenz[1] if cell.value is not None]
+        max_mgrenz = max(mgrenz_values)
             
         columns = [f'Column_{i + 1}' for i in range(len(mgrenz_values))]
   
@@ -60,6 +59,38 @@ def create_tabular_data(file_path):
         if len(mgrenz_values)!= 191:
             print('We have a problem Houston!')
             
+        ##Checking MM sheet to get the correct grid for KPI ETA    
+        wb = openpyxl.load_workbook(file_path)
+        sheet_mm = wb['MM']
+
+        #Finding out correct indices of the ETA grid
+        def check_rows(sheet, start_row, end_row, mgrenz):
+            for row in sheet.iter_rows(min_row=start_row, max_row=end_row):
+                first_cell_value = row[0].value  # Get the value of the first cell in the row
+                if first_cell_value == mgrenz:
+                    index = row[0].row
+                    return index
+            
+
+        # Check the first 5 rows
+        min_index = check_rows(sheet_mm, 1, 5, -max_mgrenz)
+
+        # Check the last 5 rows
+        last_row = sheet_mm.max_row
+        max_index = check_rows(sheet_mm, last_row - 4, last_row, max_mgrenz)
+
+        # print(f"The row index for -mgrenz ({-max_mgrenz}) is: {min_index}")
+        # print(f"The row index for mgrenz ({max_mgrenz}) is: {max_index}")
+        
+        ##Checking MM sheet to get the correct grid for KPI ETA    
+        wb = openpyxl.load_workbook(file_path)
+        sheet_eta = wb['ETA']
+        
+        eta_grid = os.path.join('./data/ETAgrid/', f"{file_name}.csv")
+        with open(eta_grid, mode='w', newline="") as file:
+            writer = csv.writer(file)
+            for row in sheet_eta.iter_rows(min_row=min_index, max_row=max_index, values_only=True):
+                writer.writerow(row)
         
         return df_features, df_targets
                 
