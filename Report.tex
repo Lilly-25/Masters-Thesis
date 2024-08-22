@@ -75,13 +75,17 @@
 \newpage % Start a new page
 
 \section*{Abstract}
-The aim of the Master Thesis is to train a neural network to learn the parameters of Electric Motors and thus be able to predict its Key Performance Indicators(KPIs).
-The KPIs are 2D and 3D plots on Torque(Mgrenz) and Efficiency(ETA). Other KPIs can be calculated from these two KPIs.
-For instance the Vibration Costs are inversely proportional to the Efficieny values predicted. 
+The thesis explores an approach to  to predict key parameter indicators(KPIs) of topology invariant Electric Motors by transforming its geometric, physical and simulation parameters into a graph representation. \\
+The KPIs to be predicted are plots on Efficiency grid(3D) and Torque curve(2D).\\
+We aim to first parameterize the EM design such that it is feasible to convert into a graph representation. \\
+Next, we would create a Graph with relevant attributes and design a Graph Neural Network(GNN) with the graph as input and the plots in the format of vectors as target values.\\
+Additionally we may also need to customize the loss function in a way that would smoothen out the plot curves of the prediction values.\\
+Then, we would evaluate the predictions with the test target values by experimenting with various hyperparameter tuning methods and as a baseline with an Multi Layer Perceptron(MLP) model of the parameters in tabular form.\\
+Finally we will enable the KPI's plot visualisation in a manner presentable to the client Valeo(Automaker Company).\\
 
 \section*{Abstrakt}
 The aim of the Master Thesis is to train a neural network to learn the parameters of Electric Motors and thus be able to predict its Key Performance Indicators(KPIs).
-The KPIs are 2D and 3D plots on Torque(Mgrenz) and Efficiency(ETA). Other KPIs can be calculated from these two KPIs.
+The KPIs are 2D and 3D plots on Torque(Mgrenz) curve(Mgrenz) and Efficiency grid(ETA). Other KPIs can be calculated from these two KPIs.
 For instance the Vibration Costs are inversely proportional to the Efficieny values predicted. 
 
 \newpage 
@@ -103,9 +107,40 @@ Special thanks to Mr Daniel and Leo for sharing valuable insights of the data fr
 \newpage
 
 \section*{Introduction} 
-KPIs of an Electric Motor are essential to judge the performance of the motor before it is manufactured. 
-Currently the KPIs are calculated by simulating the motor using an appropriate software. 
-Although this works yet it is a very time consuming and expensive process as simulation is carried out in different iterations and optimized using a genetic algorithm.
+
+In the design of electric motors vast amounts of data are generated to determine which design of an electric motor(EM) fits best to KPIs. \\
+KPIs of an Electric Motor are essential to judge the performance of the motor before it is manufactured. \\
+Traditionally these KPIs are inferred from a description of an EM design via a finite element method (FEM) approximating the solutions of the Maxwell’s equations. This process, though well established in the EM design, is very time consuming and does not allow for high-throughput engine design optimization. \\
+The actual engine data of Valeo is used here as the dataset comprising of multiple variant designs of the Double-V topology.\\
+The 3 motor topologies manufactured by Valeo are as below:
+\begin{figure}[h]
+    \centering
+    \begin{minipage}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{./ReportImages/1V_Magnet.png}
+        \caption{V1 Magnet}
+        \label{fig:V1 Magnet}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{./ReportImages/2V_Magnet.png}
+        \caption{V2 Magnet}
+        \label{fig:V2 Magnet}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{./ReportImages/Nabla_Magnet.png}
+        \caption{Nabla Magnet}
+        \label{fig:Nabla Magnet}
+    \end{minipage}
+\end{figure}
+
+This master thesis explores a way to do surrogate modelling of the current process as is higlighted in Figure \ref{fig:EM Design Flowchart} by making use of GNN/MLP for the modelling of electrical engine designs described parameterically. \\
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.9\textwidth]{./ReportImages/EM_design_flowchart.png} 
+    \caption{EM Design Flowchart}
+    \label{fig:EM Design Flowchart}
+\end{figure}
 
 \newpage 
 
@@ -130,7 +165,7 @@ The geometry of a whole Double V motor is as below
     \centering
     \includegraphics[width=0.5\textwidth]{./ReportImages/FullMotor.png} 
     \caption{EM Geometry}
-    \label{fig:Full Motor}
+    \label{fig:Full Motor(Supplied by Valeo)}
 \end{figure}
 
 Below is the geometry of 1/8 cross-section of the same motor.
@@ -144,7 +179,9 @@ Below is the geometry of 1/8 cross-section of the same motor.
 
 \newpage 
 
-For modelling the GNN, we represent the data in the form of different node and edge types.\\
+For modelling the GNN, we represent the data in the form of a heterogeneous graph with different node and edge types.\\
+
+
 
 \textbf{Node types}
 
@@ -154,7 +191,7 @@ For modelling the GNN, we represent the data in the form of different node and e
     \begin{itemize}
         \item General parameters:
         \[
-        r_{i} \quad \forall i \in \{a, r, o\} 
+            r = \{r_{i}\} \quad \forall i \in \{a, r, o\} 
         \]
         
         \textit{where:
@@ -170,12 +207,12 @@ For modelling the GNN, we represent the data in the form of different node and e
     \begin{itemize}
         \item Slot windings:
         \[
-        s_{i}w_{j} \quad \forall i \in \{1, \dots, QSim\}, \quad \forall j \in \{1, \dots, N\} 
+            sw = \{s_{i}w_{j}\} \quad \forall i \in \{1, \dots, QSim\}, \quad \forall j \in \{1, \dots, N\} 
         \]
         
         \item Slots:
         \[
-        s_{i} \quad \forall i \in \{1, \dots, QSim\} 
+            s = \{s_{i}\} \quad \forall i \in \{1, \dots, QSim\}
         \]
 
         \textit{where
@@ -190,12 +227,12 @@ For modelling the GNN, we represent the data in the form of different node and e
     \begin{itemize}
         \item Magnet Flux Barriers:
         \[
-        v_{ij} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\} 
+            v = \{v_{ij}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
         \]
         
         \item Magnets:
         \[
-        v_{i}m_{j} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\} 
+            vm = \{v_{i}m_{j}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
         \]
         \textit{where
         \begin{itemize}
@@ -211,44 +248,46 @@ For modelling the GNN, we represent the data in the form of different node and e
 
 \begin{enumerate}
     \item \textbf{Angle} \\
+    \textbf{Relevant Paths}
     \[
-    vm--vm = \{ (v_{i_{1}}m_{j_{1}} - v_{i_{2}}m_{j_{2}})
+    vm--vm = \{ v_{i_{1}}m_{j_{1}} - v_{i_{2}}m_{j_{2}} \}
     \forall i_1, i_2 \in \{1, \dots, T\}, \quad \forall j_1, j_2 \in \{1, \dots, V\} \mid
-    i_1 = i_2, \quad j_1 \neq j_2\}
+    i_1 = i_2, \quad j_1 \neq j_2
     \]
 
     \textbf{angle}=vm-vm
 
     \item \textbf{Distance} \\
+    \textbf{Relevant Paths}
     % \[
     %     v-v = \{ (v_{i_1 j_1} - v_{i_2 j_2}), \forall i_1, i_2, j_1, j_2 \in \{1, \dots, T\} \mid i_1i_2 \neq j_1j_2 \ \land (i_1 == i_2 \lor j_1 == j_2) \}
     % \]
     \[
-        vi--vi = \{ (v_{i j_1} - v_{i j_2}), \forall i \in \{1, \dots, T\}, \forall j_1, j_2 \in \{1, \dots, V\} \mid  j_1 \neq j_2 \}
+        vi--vi = \{v_{i j_1} - v_{i j_2}\}, \forall i \in \{1, \dots, T\}, \forall j_1, j_2 \in \{1, \dots, V\} \mid  j_1 \neq j_2
     \]
     \[
-        vi--vj = \{ (v_{i_1 j} - v_{i_2 j}), \forall i_1, i_2 \in \{1, \dots, T\}, \forall j \in \{1, \dots, V\} \mid  i_1 \neq i_2 \}
+        vi--vj = \{v_{i_1 j} - v_{i_2 j}\}, \forall i_1, i_2 \in \{1, \dots, T\}, \forall j \in \{1, \dots, V\} \mid  i_1 \neq i_2
     \]
     \[
-        v--vm = \{ (v_{i j} - v_{i}m_{j}) \forall i  \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\} \}
+        v--vm = \{v_{i j} - v_{i}m_{j}\} \forall i  \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
     \]
     \[
-        v--rr = \{ (v_{i j} - r_{r}), \forall i, j  \in \{1, \dots, T\}\}
+        v--rr = \{v_{i j} - r_{r}\}, \forall i, j  \in \{1, \dots, T\}
     \]
     \[
         o--r = \{ (o - r_{r}), (o - r_{a})\}
     \]
     \[
-        rr--s = \{ (r_{r} - s_{i}), \forall i  \in \{1, \dots, QSim\}\}
+        rr--s = \{r_{r} - s_{i}\}, \forall i  \in \{1, \dots, QSim\}
     \]
     \[
-        s--sw = \{ (s_{i} - s_{i}w_{j}), \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\}\}
+        s--sw = \{s_{i} - s_{i}w_{j}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\}
     \]
     \[
-        s--ra = \{ (s_{i} - r_{a}), \forall i  \in \{1, \dots, QSim\}\}
+        s--ra = \{s_{i} - r_{a}\}, \forall i  \in \{1, \dots, QSim\}
     \]
     \[
-        sw--sw = \{ (s_{i}w_{j_1} - s_{i}w_{j_2}), \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\} \mid (j_1 == j_2-1)\}
+        sw--sw = \{s_{i}w_{j_1} - s_{i}w_{j_2}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\} \mid (j_1 == j_2-1)
     \]
 
     \textbf{distance} = vi--vi + vi--vj + v--vm + v--rr + o--r + rr--s + s--sw + s--ra + sw--sw
@@ -270,7 +309,7 @@ For modelling the GNN, we represent the data in the form of different node and e
     \item \textbf{sw} = \{bhp, hhp, rhp\}
 \end{enumerate}
 
-\textbf{Edge Features}
+\textbf{Path Features}
 
 \begin{enumerate}
 
