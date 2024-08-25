@@ -27,15 +27,15 @@ def read_file_kpi3d(file_path, sheet_name):
     data = [[cell.value if cell.value is not None else np.nan for cell in row] for row in sheet.iter_rows()]
     return np.array(data, dtype=float)
 
-def plot_kpi2d(nn_values, mgrenz_values):
-    plt.figure(figsize=(10, 6))
-    plt.plot(nn_values, mgrenz_values, marker='o')
-    plt.xlabel('NN Values')
-    plt.ylabel('Mgrenz Values')
-    plt.title(f'NN vs Mgrenz')
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
+# def plot_kpi2d(nn_values, mgrenz_values):
+#     plt.figure(figsize=(10, 6))
+#     plt.plot(nn_values, mgrenz_values, marker='o')
+#     plt.xlabel('NN Values')
+#     plt.ylabel('Mgrenz Values')
+#     plt.title(f'NN vs Mgrenz')
+#     plt.grid(True)
+#     plt.tight_layout()
+#     plt.show()
     
 
 def plot_kpi3d(nn, mm, eta):
@@ -75,4 +75,16 @@ def plot_kpi3d(nn, mm, eta):
     plt.xticks(rotation=45, ha='right')
     plt.subplots_adjust(bottom=0.15)
 
+    plt.show()
+    
+def plot_kpi2d(nn_values, mgrenz_values, predicted_mgrenz):
+    plt.figure(figsize=(10, 6))
+    plt.plot(nn_values, mgrenz_values, marker='o', label='Target', color='blue')
+    plt.plot(nn_values, predicted_mgrenz, marker='o', label='Predictions', color='red')
+    plt.xlabel('NN Values')
+    plt.ylabel('Mgrenz Values')
+    plt.title(f'NN vs Mgrenz')
+    plt.grid(True)
+    plt.tight_layout()
+    plt.legend()
     plt.show()
