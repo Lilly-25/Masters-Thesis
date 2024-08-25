@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from tqdm import tqdm
 
-directory = '/home/k64889/Masters-Thesis/data/temp'
+directory = '/home/k64889/Masters-Thesis/data/raw'
 
 df_inputs=pd.DataFrame()
 df_targets=pd.DataFrame()
