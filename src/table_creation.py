@@ -19,7 +19,7 @@ def create_tabular_data(file_path):
                     params_dict[param] = value
                     
         params_rotor=['lmsov', 'lth1v', 'lth2v', 'r1v', 'r11v', 'r2v', 'r3v', 'r4v', 'rmt1v', 'rmt4v', 'rlt1v', 'rlt4v', 'hav', 'mbv', 'mhv', 'rmagv',
-        'dsm', 'dsmu', 'amtrv', 'dsrv', 'deg_phi', 'lmav', 'lmiv', 'lmov', 'lmuv']
+        'dsm', 'dsmu', 'amtrv', 'dsrv', 'deg_phi', 'lmav', 'lmiv', 'lmov', 'lmuv']## TODO update based on delta magnet!
         params_stator=['airgap', 'b_nng', 'b_nzk', 'b_s', 'h_n','h_s', 'r_sn', 'r_zk', 'r_ng', 'h_zk', 'bhp', 'hhp', 'rhp',
                 'dhphp', 'dhpng']
         params_general=['N', 'simQ','r_a', 'r_i']
