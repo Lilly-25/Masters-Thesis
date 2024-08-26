@@ -18,4 +18,8 @@ src/__pycache__/
 *.fdb_latexmk
 *.fls
 *.log
+*.lof
+*.out
+*.lot
+*.toc
 *.synctex.gz
