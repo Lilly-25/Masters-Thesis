@@ -403,7 +403,7 @@ For modelling the GNN, we represent the data in the form of a heterogeneous grap
 The heterogeneous graph that was constructed earlier is as below:
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{./ReportImages/graph.png} 
+    \includegraphics[width=0.9\textwidth]{./ReportImages/graph.png} 
     \caption{HetGraph}
     \label{fig:Graph}
 \end{figure}
@@ -412,6 +412,8 @@ The heterogeneous graph that was constructed earlier is as below:
 
 \chapter*{Modelling}
 \addcontentsline{toc}{chapter}{Modelling}
+Since we aim to predict continuous vector values, we model this task into a regression problem
+
 We find the heterogeneous graph to be most apt for our use case with its different node and edge types. As it preserves both the structural and semantics of our data.
 Heterogeneous graph Neural Networks generally work by having separate non linear functions convolve over each edge type during message computation and over each node type when aggregating the learned information.
 
@@ -419,6 +421,31 @@ Heterogeneous graph Neural Networks generally work by having separate non linear
 
 \chapter*{Experiments and Results}
 \addcontentsline{toc}{chapter}{Experiments and Results}
+Firstly we train a MLP on the tabular representation of the data.
+We have used MinMax Scaler for normalization of both the input and targets.
+MSE loss function is used for the regression problem and Adam optimizer is used for optimization.
+We have the first results on the 2D KPI-Mgrenz prediction.
+These results are only considering about 400 examples. The dataset was split into training-validation(80:20) excluding test examples of about 19 examples.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.95\textwidth]{./ReportImages/mlp_training_kpi2d.png} 
+    \caption{MLP Training Plots for 2D KPI(Mgrenz)} 
+    \label{fig:MLP Training Plots for 2D KPI(Mgrenz)}
+\end{figure}
+
+From the training plots we see that the model has converged after having run for 10 epochs with a learning rate of 0.0075.
+
+The results of the MLP model from inference is as below:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.75\textwidth]{./ReportImages/mlp_kpi2d_prediction.png} 
+    \caption{MLP Training Results for 2D KPI(Mgrenz)} 
+    \label{fig:MLP Training Results for 2D KPI(Mgrenz)}
+\end{figure}
+
+We see a good fit of the model to the data with R2 score approaching close to 1.
+We have also enabled saving the trained model locally so it can be loaded on demand by the client to run inference.
 \newpage 
 
 \chapter*{Conclusion}
