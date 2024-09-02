@@ -96,8 +96,7 @@ Next, we would create a Graph with relevant attributes and design a GNN with the
 Additionally we may also need to customize the loss function in a way that would smoothen out the plot curves of the prediction values.\\
 Then, we would evaluate the predictions with the test target values by experimenting with various hyperparameter tuning settings and as a baseline with an MLP model of the parameters in tabular form.\\
 Finally we will enable the KPI's plot visualisation in a manner presentable to the client Valeo(Automaker Company).\\
-
-\section*{Abstrakt}
+Not necessary remove i suppose....
 The aim of the Master Thesis is to train a neural network to learn the parameters of Electric Motors and thus be able to predict its KPIs.
 The KPIs are 2D and 3D plots on Torque(Mgrenz) curve(Mgrenz) and Efficiency grid(ETA). Other KPIs can be calculated from these two KPIs.
 For instance the Vibration Costs are inversely proportional to the Efficieny values predicted. 
@@ -153,47 +152,47 @@ The actual engine data of Valeo is used here as the dataset comprising of multip
 The 3 motor topologies manufactured by Valeo are as below:
 
 
+\begin{figure}[h]
+    \centering
+    \begin{minipage}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{./ReportImages/1V_Magnet.png}
+        \caption{V1 Magnet \\ (Source:Valeo)}
+        \label{fig:V1 Magnet}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{./ReportImages/2V_Magnet.png}
+        \caption{V2 Magnet\\ (Source:Valeo)}
+        \label{fig:V2 Magnet}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{./ReportImages/Nabla_Magnet.png}
+        \caption{Nabla Magnet\\ (Source:Valeo)}
+        \label{fig:Nabla Magnet}
+    \end{minipage}
+\end{figure}
+
 % \begin{figure}[h]
 %     \centering
-%     \begin{minipage}[b]{0.3\textwidth}
-%         \includegraphics[width=\textwidth]{./ReportImages/1V_Magnet.png}
-%         \caption{V1 Magnet(Source:Valeo)}
-%         \label{fig:V1 Magnet}
-%     \end{minipage}
-%     \hfill
-%     \begin{minipage}[b]{0.3\textwidth}
-%         \includegraphics[width=\textwidth]{./ReportImages/2V_Magnet.png}
-%         \caption{V2 Magnet(Source:Valeo)}
-%         \label{fig:V2 Magnet}
-%     \end{minipage}
-%     \hfill
-%     \begin{minipage}[b]{0.3\textwidth}
-%         \includegraphics[width=\textwidth]{./ReportImages/Nabla_Magnet.png}
-%         \caption{Nabla Magnet(Source:Valeo)}
-%         \label{fig:Nabla Magnet}
-%     \end{minipage}
+%     \includegraphics[width=0.25\textwidth]{./ReportImages/1V_Magnet.png}
+%     \caption{V1 Magnet(Source:Valeo)}
+%     \label{fig:V1 Magnet}
 % \end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.25\textwidth]{./ReportImages/1V_Magnet.png}
-    \caption{V1 Magnet(Source:Valeo)}
-    \label{fig:V1 Magnet}
-\end{figure}
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.25\textwidth]{./ReportImages/2V_Magnet.png}
+%     \caption{V2 Magnet(Source:Valeo)}
+%     \label{fig:V2 Magnet}
+% \end{figure}
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.25\textwidth]{./ReportImages/2V_Magnet.png}
-    \caption{V2 Magnet(Source:Valeo)}
-    \label{fig:V2 Magnet}
-\end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.25\textwidth]{./ReportImages/Nabla_Magnet.png}
-    \caption{Nabla Magnet(Source:Valeo)}
-    \label{fig:Nabla Magnet}
-\end{figure}
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.25\textwidth]{./ReportImages/Nabla_Magnet.png}
+%     \caption{Nabla Magnet(Source:Valeo)}
+%     \label{fig:Nabla Magnet}
+% \end{figure}
 
 This master thesis explores a way to do surrogate modelling of the current process as is highlighted in Figure \ref{fig:EM Design Flowchart} by making use of GNN/MLP for the modelling of electrical engine designs described parameterically. \\
 \begin{figure}[h]
@@ -238,7 +237,7 @@ Below is the geometry of 1/8 cross-section of the same motor.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{./ReportImages/EMCrosssection.jpg} 
+    \includegraphics[width=0.75\textwidth]{./ReportImages/EMCrosssection.jpg} 
     \caption{1/8 Motor Crossection}
     \label{fig:1/8 Motor Crossection}
 \end{figure}
@@ -416,6 +415,30 @@ Since we aim to predict continuous vector values, we model this task into a regr
 
 We find the heterogeneous graph to be most apt for our use case with its different node and edge types. As it preserves both the structural and semantics of our data.
 Heterogeneous graph Neural Networks generally work by having separate non linear functions convolve over each edge type during message computation and over each node type when aggregating the learned information.
+
+
+Loss Regularisation
+
+% Mean Squared Error (MSE) Loss
+\[
+\text{MSE} = \frac{1}{N} \sum_{i=1}^{N} (y_i - \hat{y}_i)^2
+\]
+
+% Regularization Term
+\[
+\Delta \hat{y}_i = \hat{y}_{i+1} - \hat{y}_i
+\]
+\[
+\text{violations}_i = \text{ReLU}((\Delta \hat{y}_i)^2) = \text{ReLU}((\hat{y}_{i+1} - \hat{y}_i)^2)
+\]
+\[
+\text{regularization\_term} = \frac{1}{N-1} \sum_{i=1}^{N-1} \text{violations}_i
+\]
+
+% Composite Loss
+\[
+L_{\text{Total Loss}} = \text{MSE} + \lambda_{\text{regularisation\_weight}} \times \text{regularized\_term}
+\]
 
 \newpage 
 
