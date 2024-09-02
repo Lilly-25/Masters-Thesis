@@ -2,8 +2,29 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 from sklearn.metrics import r2_score
-import numpy as np
 import matplotlib.pyplot as plt
+import math
+    
+class LossRegularisation(nn.Module):
+    #Penalise monotonic increasing values in the prediction
+    def __init__(self, loss, lambda_monotonic):
+        super().__init__()
+        self.loss = loss
+        self.lambda_monotonic = lambda_monotonic
+
+    def forward(self, y_pred, y_true):
+        
+        mse_loss = self.loss(y_pred, y_true)
+        
+        # y2-y1<=0 - it has to be a declining curve--CONFIRM WITH CLIENT
+        #relu clips the negative values to zero so that increasing values are penalised
+        violations = torch.relu(torch.pow(y_pred[:, 1:]-y_pred[:, :-1], 2))#Squared difference incase of increasing values in y_pred
+        num_elements = violations.numel()
+        regularized_factor= violations.sum()/num_elements
+        #average is taken to normalise the loss
+             
+        return mse_loss + self.lambda_monotonic * regularized_factor
+
 
 class mlp_kpi2d_trainer:
     def __init__(self, model, train_dataset, val_dataset, batch_size, criterion, optimizer, device=None):
@@ -26,14 +47,8 @@ class mlp_kpi2d_trainer:
         
         self.train_loss_history = []
         self.val_loss_history = []
-        self.train_rmse_history = []
-        self.val_rmse_history = []
         self.train_r2_history = []
         self.val_r2_history = []
-
-    @staticmethod
-    def calculate_rmse(outputs, labels):
-        return torch.sqrt(torch.mean((outputs - labels) ** 2, dim=0))
 
     @staticmethod
     def calculate_r2(outputs, labels):
@@ -41,26 +56,24 @@ class mlp_kpi2d_trainer:
 
     def train(self, num_epochs):
         for epoch in range(num_epochs):
-            train_loss, train_rmse, train_r2 = self._train_epoch()
-            val_loss, val_rmse, val_r2 = self._validate_epoch()
+            train_loss, train_r2 = self._train_epoch()
+            val_loss, val_r2 = self._validate_epoch()
             
             self.train_loss_history.append(train_loss)
-            self.train_rmse_history.append(train_rmse.mean().item())
             self.train_r2_history.append(train_r2)
             self.val_loss_history.append(val_loss)
-            self.val_rmse_history.append(val_rmse.mean().item())
             self.val_r2_history.append(val_r2)
             
-            print(f'Epoch {epoch+1}/{num_epochs}')
-            print(f'Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}')
-            print(f'Train RMSE (mean): {train_rmse.mean():.4f}, Validation RMSE (mean): {val_rmse.mean():.4f}')
-            print(f'Train R2: {train_r2:.4f}, Validation R2: {val_r2:.4f}')
-            print('-' * 50)
+            # print(f'Epoch {epoch+1}/{num_epochs}')
+            # print(f'Train Loss: {train_loss:.4f}, Validation Loss: {val_loss:.4f}')
+            # print(f'Train R2: {train_r2:.4f}, Validation R2: {val_r2:.4f}')
+            # print('-' * 50)
+        self.training_plots()
+        return self.train_loss_history, self.train_r2_history, self.val_loss_history, self.val_r2_history
 
     def _train_epoch(self):
         self.model.train()
         train_loss = 0.0
-        train_rmse = torch.zeros(self.output_size).to(self.device)
         train_outputs = []
         train_labels = []
         
@@ -75,22 +88,19 @@ class mlp_kpi2d_trainer:
             self.optimizer.step()
             
             train_loss += loss.item() * batch_features.size(0)
-            train_rmse += self.calculate_rmse(outputs, batch_labels) * batch_features.size(0)
             train_outputs.append(outputs.detach())
             train_labels.append(batch_labels)
         
         train_loss /= len(self.train_dataset)
-        train_rmse /= len(self.train_dataset)
         train_outputs = torch.cat(train_outputs)
         train_labels = torch.cat(train_labels)
         train_r2 = self.calculate_r2(train_outputs, train_labels)
         
-        return train_loss, train_rmse, train_r2
+        return train_loss, train_r2
 
     def _validate_epoch(self):
         self.model.eval()
         val_loss = 0.0
-        val_rmse = torch.zeros(self.output_size).to(self.device)
         val_outputs = []
         val_labels = []
         
@@ -103,29 +113,26 @@ class mlp_kpi2d_trainer:
                 loss = self.criterion(outputs, batch_labels)
                 
                 val_loss += loss.item() * batch_features.size(0)
-                val_rmse += self.calculate_rmse(outputs, batch_labels) * batch_features.size(0)
                 val_outputs.append(outputs)
                 val_labels.append(batch_labels)
             
             val_loss /= len(self.val_dataset)
-            val_rmse /= len(self.val_dataset)
             val_outputs = torch.cat(val_outputs)
             val_labels = torch.cat(val_labels)
             val_r2 = self.calculate_r2(val_outputs, val_labels)
         
-        return val_loss, val_rmse, val_r2
+        return val_loss, val_r2
 
     def training_plots(self):
         """
-        Create plots for Loss, RMSE, and R2 metrics.
+        Create plots for Loss and R2 score metrics.
         """
         metrics = [
-            ('Loss', self.train_loss_history, self.val_loss_history),
-            ('RMSE', self.train_rmse_history, self.val_rmse_history),
-            ('R2', self.train_r2_history, self.val_r2_history)
+            ('MSE Loss', self.train_loss_history, self.val_loss_history),
+            ('R2 Score', self.train_r2_history, self.val_r2_history)
         ]
 
-        fig, axs = plt.subplots(1, 3, figsize=(18, 6))
+        fig, axs = plt.subplots(1, 2, figsize=(18, 6))
         fig.suptitle('Training Metrics')
 
         for i, (metric, train_history, val_history) in enumerate(metrics):
