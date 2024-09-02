@@ -1,9 +1,14 @@
 from src.table_creation import create_tabular_data
+from src.data_preprocessing_tabular import data_prep_eta_grid
+from src.utils import remove_faulty_files
 import os
 import pandas as pd
 from tqdm import tqdm
+import numpy as np
 
-directory = '/home/k64889/Masters-Thesis/data/raw'
+directory = '/home/k64889/Masters-Thesis/data/Testing/raw'
+
+remove_faulty_files(directory)
 
 df_inputs=pd.DataFrame()
 df_targets=pd.DataFrame()
@@ -17,6 +22,16 @@ for filename in tqdm(os.listdir(directory)):
         
     if df_partial_targets is not None:
         df_targets = pd.concat([df_targets, df_partial_targets])
+
         
-df_inputs.to_csv('./data/TempTabularData2VInputs.csv', index=True)
-df_targets.to_csv('./data/TempTabularData2VTargets.csv', index=True)
+df_inputs.to_csv('./data/CompleteTabularDataInputs.csv', index=True)
+df_targets.to_csv('./data/CompleteTabularDataTargets.csv', index=True)
+
+
+print(f"Total input rows: {df_inputs.shape[0]}")
+print(f"Total target rows: {df_targets.shape[0]}")
+
+data_prep_eta_grid()
+
+print("Data preprocessing complete")
+
