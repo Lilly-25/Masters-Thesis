@@ -3,6 +3,7 @@ import openpyxl
 import re
 import os
 import csv
+import numpy as np
 
 def create_tabular_data(file_path):
     try:
@@ -18,29 +19,32 @@ def create_tabular_data(file_path):
                 except ValueError:
                     params_dict[param] = value
                     
-        params_rotor=['lmsov', 'lth1v', 'lth2v', 'r1v', 'r11v', 'r2v', 'r3v', 'r4v', 'rmt1v', 'rmt4v', 'rlt1v', 'rlt4v', 'hav', 'mbv', 'mhv', 'rmagv',
-        'dsm', 'dsmu', 'amtrv', 'dsrv', 'deg_phi', 'lmav', 'lmiv', 'lmov', 'lmuv']## TODO update based on delta magnet!
+        params_rotor_v=['lmsov', 'lth1v', 'lth2v', 'r1v', 'r11v', 'r2v', 'r3v', 'r4v', 'rmt1v', 'rmt4v', 'rlt1v', 'rlt4v', 
+                      'hav', 'mbv', 'mhv', 'rmagv',
+                        'dsm', 'dsmu', 'amtrv', 'dsrv', 'deg_phi', 'lmav', 'lmiv', 'lmov', 'lmuv']
+        
+        params_rotor_delta=['lmsob','lthb', 'r2b', 'r3b', 'r4b', 'r5b', 'lgr3b', 'lgr4b',
+                            'mbb', 'mbh', 'mtbb', 'rmagb',
+                            'amtrb', 'dsr3b', 'dsr4b', 'deg_phi3b', 'deg_phi4b', 'lmob', 'lmub', 'lmsub']
+        
         params_stator=['airgap', 'b_nng', 'b_nzk', 'b_s', 'h_n','h_s', 'r_sn', 'r_zk', 'r_ng', 'h_zk', 'bhp', 'hhp', 'rhp',
                 'dhphp', 'dhpng']
+        
         params_general=['N', 'simQ','r_a', 'r_i']
-        
-        match_doubleV = re.search(r"doubleV", file_name, re.IGNORECASE)##TODO replace this logic by checking the data in the file
-        match_singleV = re.search(r"singleV", file_name, re.IGNORECASE)
-        match_tripleV = re.search(r"tripleV", file_name, re.IGNORECASE)
-        
-        if match_singleV:
-            v=1
-        elif match_doubleV:
-            v=2
-        elif match_tripleV:
-            v=3
-            
+ 
         df_features=pd.DataFrame()
         
-        while v >= 1:##logic needs to be changed TODO
-            for key in params_rotor:
+        #V represent max double v magnets and b max delta magnets
+        v=2
+        b=1
+        while v >= 1:
+            for key in params_rotor_v:
                 df_features.loc[file_name, f"{key}{v}"] = params_dict.get(f"{key}{v}", 0)
             v -= 1
+        while b >= 1:
+            for key in params_rotor_delta:
+                df_features.loc[file_name, f"{key}{b}"] = params_dict.get(f"{key}{b}", 0)
+            b -= 1
         for key in params_stator:
             df_features.loc[file_name, f"{key}"] = params_dict.get(f"{key}", 0)
         for key in params_general:
@@ -55,12 +59,13 @@ def create_tabular_data(file_path):
   
         df_targets = pd.DataFrame(columns=columns)
         df_targets.loc[file_name] = mgrenz_values
+        
+        max_cols=191
        
-        if len(mgrenz_values)!= 191:
+        if len(mgrenz_values)!= max_cols:
             print('We have a problem Houston!')
             
         ##Checking MM sheet to get the correct grid for KPI ETA    
-        wb = openpyxl.load_workbook(file_path)
         sheet_mm = wb['MM']
 
         #Finding out correct indices of the ETA grid
@@ -82,11 +87,11 @@ def create_tabular_data(file_path):
         # print(f"The row index for -mgrenz ({-max_mgrenz}) is: {min_index}")
         # print(f"The row index for mgrenz ({max_mgrenz}) is: {max_index}")
         
-        ##Checking MM sheet to get the correct grid for KPI ETA    
-        wb = openpyxl.load_workbook(file_path)
+        #load the eta grid
         sheet_eta = wb['ETA']
         
-        eta_grid = os.path.join('./data/ETAgrid/', f"{file_name}.csv")
+        eta_grid = os.path.join('./data/CompleteTabularDataETAgrid/', f"{file_name}.csv")##Instead of saving each grid into a file appeand to a numpy array and save as npy file can access test_size only ased on index
+        ##think of an alternative way where we can also have filenames indexed into the numpy array or whatever pythonic object
         with open(eta_grid, mode='w', newline="") as file:
             writer = csv.writer(file)
             for row in sheet_eta.iter_rows(min_row=min_index, max_row=max_index, values_only=True):
