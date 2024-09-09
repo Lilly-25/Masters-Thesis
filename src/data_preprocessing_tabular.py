@@ -1,16 +1,13 @@
 import pandas as pd
-import torch
-from torch.utils.data import TensorDataset, DataLoader
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import numpy as np
-from sklearn.model_selection import train_test_split
 
 def data_prep(test_size):
     
-    df_inputs=pd.read_csv('./data/TabularData2VInputs.csv')
+    df_inputs=pd.read_csv('./data/CompleteTabularDataInputs.csv')
     df_inputs.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
 
-    df_targets=pd.read_csv('./data/TabularData2VTargets.csv')
+    df_targets=pd.read_csv('./data/CompleteTabularDataTargets.csv')
     df_targets.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
 
     filenames = df_inputs['filename'].values##incase we need to refer the index later on
@@ -92,6 +89,7 @@ def data_prep(test_size):
 #     return train_dataset, val_dataset, input_size, output_y1_size, df_x_test, df_y1_test
 
 def data_prep_eta_grid():
+    
     df_inputs=pd.read_csv('./data/CompleteTabularDataInputs.csv')
     df_inputs.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
 
@@ -134,24 +132,11 @@ def data_prep_eta_grid():
     np.save('./data/CompleteTabularDataETA.npy', y2)
 
 def data_prep_complete(test_size):
-    # df_inputs=pd.read_csv('./data/400TabularData2VInputs.csv')
-    # df_inputs.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
 
-    # df_targets=pd.read_csv('./data/400TabularData2VTargets.csv')
-    # df_targets.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
-
-    # filenames = df_inputs['filename'].values
-    
-    # df_inputs=df_inputs.drop('filename', axis=1)
-    # df_targets=df_targets.drop('filename', axis=1)
-    
-    # df_x_test = df_inputs[-test_size:]
-    # df_y1_test = df_targets[-test_size:]
-    
-    df_inputs=pd.read_csv('./data/TabularData2VInputs.csv')
+    df_inputs=pd.read_csv('./data/CompleteTabularDataInputs.csv')
     df_inputs.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
 
-    df_targets=pd.read_csv('./data/TabularData2VTargets.csv')
+    df_targets=pd.read_csv('./data/CompleteTabularDataTargets.csv')
     df_targets.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
 
     filenames = df_inputs['filename'].values##incase we need to refer the index later on
@@ -174,39 +159,15 @@ def data_prep_complete(test_size):
     x=df_inputs_train_val.values
     y1=df_targets_train_val.values
     
-    ##I want NAN values which are already replaced as 0 to remain 0 should i change em to 1000 after scaling?
+    print(y1.max())##probably return this and use it to calculate the max_rows in test
+    max_mgrenz=y1.max() 
+
     
-    ##############
-    
-    # max_mgrenz=np.max(y1)
-    
-    # max_rows=(max_mgrenz*2)+1
-    # print(max_rows)
-    # y2 = []
-    # # Padding
-    # for filename in filenames_train:
-    #     y2_file = pd.read_csv(f'./data/ETAgrid/{filename}.csv')
-    #     # Convert DataFrame to NumPy array and replace NaNs with 1000
-    #     #y2_values = np.nan_to_num(y2_file.values, nan=1000)
-    #     y2_values = y2_file.values
-    #     # Replace 0s with nans
-    #     #y2_values[y2_values == 0] = 1000
-    #     y2_values[y2_values == 0] = np.nan
-    #     padded = np.full((max_rows, 191),  np.nan, dtype=float)
-    #     #padded = np.full((max_rows, 191), 1000, dtype=y2_values.dtype)
-    #     padded[:y2_file.shape[0], :y2_file.shape[1]] = y2_values
-    #     y2.append(padded)
-    
-    # y2 = np.array(y2)
-    
-    # np.save('./data/AllTopologiesTabularData2VETA.npy', y2)
-    
-    y2_complete = np.load('./data/400TabularData2VETA.npy')
+    y2_complete = np.load('./data/CompleteTabularDataETA.npy')
     y2=y2_complete[:-test_size, :, :]###only 1st dimension need to be considered..test
     ##############
     #Reshape it to 2D before scaling, then reshape back to 3D
     y2_reshaped = y2.reshape(y2.shape[0], -1)  # Flatten to 2D
-    
     
     # Count NaN values
     # nan_count = np.isnan(y2_reshaped).sum()
@@ -243,4 +204,4 @@ def data_prep_complete(test_size):
     output_y1_size = y1_normalized.shape[1]
     output_y2_size = y2_normalized.shape[1]
   
-    return x_normalized, y1_normalized, y2_normalized, scaler_x, scaler_y1, scaler_y2, input_size, output_y1_size,output_y2_size, df_x_test, df_y1_test, filenames_test
+    return x_normalized, y1_normalized, y2_normalized, scaler_x, scaler_y1, scaler_y2, input_size, output_y1_size,output_y2_size, df_x_test, df_y1_test, filenames_test, max_mgrenz
