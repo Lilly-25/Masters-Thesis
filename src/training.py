@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
-import math
+import wandb
     
 class LossRegularisation(nn.Module):
     #Penalise monotonic increasing values in the prediction
@@ -145,3 +145,173 @@ class mlp_kpi2d_trainer:
 
         plt.tight_layout()
         plt.show()
+        
+class mlp_kpi3d_trainer:
+    def __init__(self, model, train_dataset, val_dataset, batch_size, criterion, optimizer, device):
+        
+        self.model = model
+        
+        self.train_dataset = train_dataset
+        self.val_dataset = val_dataset
+        self.batch_size = batch_size
+        
+        self.criterion = criterion
+        self.optimizer = optimizer
+        self.device = device
+        
+        self.model.to(self.device)
+        
+        self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        self.val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+        
+        self.train_loss_history_y1, self.train_loss_history_y2 = [], []
+        self.train_r2_history_y1, self.train_r2_history_y2 = [],[]
+        
+        self.val_loss_history_y1, self.val_r2_history_y1  = [],[]
+        self.val_loss_history_y2, self.val_r2_history_y2  = [],[]
+
+
+    @staticmethod
+    def calculate_r2(outputs, labels):
+        return r2_score(labels.cpu().numpy(), outputs.cpu().numpy(), multioutput='variance_weighted')
+
+    def train(self, num_epochs):
+        for _ in range(num_epochs):
+            train_loss_y1, train_loss_y2, train_r2_y1, train_r2_y2 = self._train_epoch()
+            val_loss_y1, val_loss_y2, val_r2_y1, val_r2_y2 = self._validate_epoch()
+            
+            self.train_loss_history_y1.append(train_loss_y1), self.train_loss_history_y2.append(train_loss_y2)
+            self.train_r2_history_y1.append(train_r2_y1), self.train_r2_history_y2.append(train_r2_y2)
+            self.val_loss_history_y1.append(val_loss_y1), self.val_loss_history_y2.append(val_loss_y2)
+            self.val_r2_history_y1.append(val_r2_y1), self.val_r2_history_y2.append(val_r2_y2)
+        
+        return self.train_loss_history_y1, self.train_loss_history_y2, self.train_r2_history_y1, self.train_r2_history_y2, self.val_loss_history_y1, self.val_loss_history_y2, self.val_r2_history_y1, self.val_r2_history_y2
+
+    def _train_epoch(self):
+        self.model.train()
+        train_loss_y1, train_loss_y2 = 0.0, 0.0
+        train_losses_y1, train_losses_y2 = [], []
+        train_outputs_y1, train_labels_y1 = [], []
+        train_outputs_y2, train_labels_y2 = [], []
+        
+        for batch_x, batch_y1, batch_y2 in self.train_loader:
+            batch_x = batch_x.to(self.device)
+            batch_y1 = batch_y1.to(self.device)
+            batch_y2 = batch_y2.to(self.device)
+            
+            self.optimizer.zero_grad()
+            y1_pred, y2_pred  = self.model(batch_x)
+            
+            #-1 values as NAN values in the ETa grid and need to be ignored when calculating loss
+            mask = (batch_y2 != -1).float()
+                
+            # Apply the mask to both target and prediction
+            y2_pred_masked = y2_pred * mask
+            batch_y2_masked = batch_y2 * mask
+            
+            loss_y1 = self.criterion(y1_pred, batch_y1)
+            loss_y2 = self.criterion(y2_pred_masked, batch_y2_masked)
+            loss = loss_y1 + loss_y2
+            
+            loss.backward()
+            self.optimizer.step()
+            
+            train_loss_y1 += loss_y1.item() * batch_x.size(0)
+            train_loss_y2 += loss_y2.item() * batch_x.size(0)
+            
+            train_outputs_y1.append(y1_pred.detach())
+            train_labels_y1.append(batch_y1)
+            train_outputs_y2.append(y2_pred.detach())
+            train_labels_y2.append(batch_y2)
+        
+        train_loss_y1 /= len(self.train_dataset)
+        train_loss_y2 /= len(self.train_dataset)
+        train_losses_y1.append(train_loss_y1)
+        train_losses_y2.append(train_loss_y2)
+        
+        train_outputs_y1 = torch.cat(train_outputs_y1)
+        train_labels_y1 = torch.cat(train_labels_y1)
+        
+        train_r2_y1 = self.calculate_r2(train_outputs_y1, train_labels_y1)
+        
+        train_outputs_y2 = torch.cat(train_outputs_y2)
+        train_labels_y2 = torch.cat(train_labels_y2)
+        
+        # Reshape 3D arrays to 2D arrays for R2 calculation
+        train_outputs_y2 = train_outputs_y2.view(train_outputs_y2.size(0), -1)
+        train_labels_y2 = train_labels_y2.view(train_labels_y2.size(0), -1)
+        
+        train_r2_y2 = self.calculate_r2(train_outputs_y2, train_labels_y2)
+        
+        wandb.log({
+            "train_loss_y1": train_loss_y1,
+            "train_loss_y2": train_loss_y2,
+            "train_r2_y1": train_r2_y1,
+            "train_r2_y2": train_r2_y2
+        })
+        
+        return train_loss_y1, train_loss_y2, train_r2_y1, train_r2_y2
+
+    def _validate_epoch(self):
+        self.model.eval()
+        val_loss_y1, val_loss_y2 = 0.0, 0.0
+        val_losses_y1, val_losses_y2 = [], []
+        val_outputs_y1, val_labels_y1 = [], []
+        val_outputs_y2, val_labels_y2 = [], []
+        
+        with torch.no_grad():
+            
+            for batch_x, batch_y1, batch_y2 in self.val_loader:
+                
+                batch_x = batch_x.to(self.device)
+                batch_y1 = batch_y1.to(self.device)
+                batch_y2 = batch_y2.to(self.device)
+
+                y1_pred, y2_pred  = self.model(batch_x)
+                
+                #-1 values as NAN values in the ETa grid and need to be ignored when calculating loss
+                mask = (batch_y2 != -1).float()
+                
+                # Apply the mask to both target and prediction
+                y2_pred_masked = y2_pred * mask
+                batch_y2_masked = batch_y2 * mask
+                
+                loss_y1 = self.criterion(y1_pred, batch_y1)
+                loss_y2 = self.criterion(y2_pred_masked, batch_y2_masked)
+
+                val_loss_y1 += loss_y1.item() * batch_x.size(0)
+                val_loss_y2 += loss_y2.item() * batch_x.size(0)
+                
+                val_outputs_y1.append(y1_pred.detach())
+                val_labels_y1.append(batch_y1)
+                val_outputs_y2.append(y2_pred.detach())
+                val_labels_y2.append(batch_y2)
+        
+        val_loss_y1 /= len(self.train_dataset)
+        val_loss_y2 /= len(self.train_dataset)
+        val_losses_y1.append(val_loss_y1)
+        val_losses_y2.append(val_loss_y2)
+        
+        val_outputs_y1 = torch.cat(val_outputs_y1)
+        val_labels_y1 = torch.cat(val_labels_y1)
+        
+        val_r2_y1 = self.calculate_r2(val_outputs_y1, val_labels_y1)
+        
+        val_outputs_y2 = torch.cat(val_outputs_y2)
+        val_labels_y2 = torch.cat(val_labels_y2)
+        
+        # Reshape 3D arrays to 2D arrays for R2 calculation
+        val_outputs_y2 = val_outputs_y2.view(val_outputs_y2.size(0), -1)
+        val_labels_y2 = val_labels_y2.view(val_labels_y2.size(0), -1)
+        
+        val_r2_y2 = self.calculate_r2(val_outputs_y2, val_labels_y2)
+        
+        wandb.log({
+            "val_loss_y1": val_loss_y1,
+            "val_loss_y2": val_loss_y2,
+            "val_r2_y1": val_r2_y1,
+            "val_r2_y2": val_r2_y2
+        })
+        
+        return val_loss_y1, val_loss_y2, val_r2_y1, val_r2_y2
+        
