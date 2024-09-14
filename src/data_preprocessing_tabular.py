@@ -179,7 +179,7 @@ def data_prep_complete(test_size):
     
     scaler_x=StandardScaler().fit(x)
     scaler_y1=MinMaxScaler().fit(y1) 
-    scaler_y2 = StandardScaler().fit(y2_reshaped)
+    scaler_y2 = MinMaxScaler().fit(y2_reshaped)
 
     x_normalized=scaler_x.transform(x)
     y1_normalized=scaler_y1.transform(y1)
@@ -187,8 +187,8 @@ def data_prep_complete(test_size):
 
     y2_normalized = y2_normalized.reshape(y2.shape)  # Reshape back to 3D
     
-    # Replace nans with 1000
-    y2_normalized = np.nan_to_num(y2_normalized, nan=3)
+    # Replace nans with 3
+    y2_normalized = np.nan_to_num(y2_normalized, nan=-1)
     
     print(np.nanmax(y2_normalized))
     print(np.nanmin(y2_normalized))
