@@ -1,12 +1,12 @@
+import pandas as pd
 from src.table_creation import create_tabular_data
 from src.data_preprocessing_tabular import data_prep_eta_grid
 from src.utils import remove_faulty_files
 import os
-import pandas as pd
 from tqdm import tqdm
-import numpy as np
 
 directory = '/home/k64889/Masters-Thesis/data/Testing/raw'
+#directory = '/home/k64889/Masters-Thesis/data/AllTopologies'
 
 remove_faulty_files(directory)
 
@@ -24,8 +24,8 @@ for filename in tqdm(os.listdir(directory)):
         df_targets = pd.concat([df_targets, df_partial_targets])
 
         
-df_inputs.to_csv('./data/CompleteTabularDataInputs.csv', index=True)
-df_targets.to_csv('./data/CompleteTabularDataTargets.csv', index=True)
+df_inputs.to_csv('./data/TabularDataInputs.csv', index=True)
+df_targets.to_csv('./data/TabularDataTargets.csv', index=True)
 
 
 print(f"Total input rows: {df_inputs.shape[0]}")
