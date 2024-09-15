@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib import patheffects
 from tqdm import tqdm
 import os
+import pandas as pd
 
 def read_files_kpi2d(file_path, kpi2):##can remove this TODO less likely necessary
     ## For 2d KPI we require only 1 row of NN to plot the 2d graph
@@ -139,3 +140,36 @@ def remove_faulty_files(directory):
                     print(f"{filename} removed.")
             except Exception as e:
                 print(f"Error reading {filename}: {e}")
+                
+def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 10))
+    fig.suptitle(f'Motor Efficiency - {filename}', fontsize=16)
+
+    for ax, mm, eta, title in zip([ax1, ax2], [mm1, mm2], [eta1, eta2], ['Original', 'Predicted']):
+        X = nn[0, 1:]
+        Y = mm[1:, 0]
+        Z = eta[1:, 1:]
+   
+        X, Y = np.meshgrid(X, Y)
+        mask = np.isfinite(Z)
+        X, Y, Z = X[mask], Y[mask], Z[mask]
+        contour = ax.tricontourf(X.ravel(), Y.ravel(), Z.ravel(), levels=20, cmap='jet')
+        lines = ax.tricontour(X.ravel(), Y.ravel(), Z.ravel(), levels=10, colors='black', linewidths=0.5)
+   
+        ax.clabel(lines, inline=True, fontsize=8, fmt='%.2f', colors='white',
+                   inline_spacing=3, use_clabeltext=True)
+   
+        for text in ax.findobj(match=plt.Text):
+            text.set_path_effects([patheffects.withStroke(linewidth=1, foreground='black')])
+    
+        ax.set_xlabel('Angular Velocity [rpm]', fontsize=12)
+        ax.set_ylabel('Torque [Nm]', fontsize=12)
+        ax.set_title(f'{title} Efficiency', fontsize=14)
+        cbar = fig.colorbar(contour, ax=ax)
+        cbar.set_label('Efficiency', fontsize=12)
+        ax.xaxis.set_major_locator(plt.MaxNLocator(10))
+        ax.set_xticklabels(ax.get_xticks(), rotation=45, ha='right')
+
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.90)
+    plt.show()
