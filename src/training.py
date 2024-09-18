@@ -7,14 +7,17 @@ import wandb
     
 class LossRegularisation(nn.Module):
     #Penalise monotonic increasing values in the prediction
-    def __init__(self, loss, lambda_monotonic):
-        super().__init__()
-        self.loss = loss
+    def __init__(self, lambda_monotonic):
+        super(LossRegularisation, self).__init__()
         self.lambda_monotonic = lambda_monotonic
+        
+    def mse_loss(self, output, target):
+        loss = torch.mean((output - target)**2)
+        return loss
 
     def forward(self, y_pred, y_true):
         
-        mse_loss = self.loss(y_pred, y_true)
+        mse_loss = self.mse_loss(y_pred, y_true)
         
         # y2-y1<=0 - it has to be a declining curve--CONFIRM WITH CLIENT
         #relu clips the negative values to zero so that increasing values are penalised
@@ -147,7 +150,8 @@ class mlp_kpi2d_trainer:
         plt.show()
         
 class mlp_kpi3d_trainer:
-    def __init__(self, model, train_dataset, val_dataset, batch_size, criterion, optimizer, device):
+    
+    def __init__(self, model, train_dataset, val_dataset, batch_size, loss, optimizer, device):
         
         self.model = model
         
@@ -155,7 +159,7 @@ class mlp_kpi3d_trainer:
         self.val_dataset = val_dataset
         self.batch_size = batch_size
         
-        self.criterion = criterion
+        self.loss = loss
         self.optimizer = optimizer
         self.device = device
         
@@ -164,33 +168,36 @@ class mlp_kpi3d_trainer:
         self.train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         self.val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
         
-        self.train_loss_history_y1, self.train_loss_history_y2 = [], []
+        self.train_loss_history_y1, self.train_loss_history_y2, self.train_loss_history = [], [], []
         self.train_r2_history_y1, self.train_r2_history_y2 = [],[]
         
         self.val_loss_history_y1, self.val_r2_history_y1  = [],[]
         self.val_loss_history_y2, self.val_r2_history_y2  = [],[]
+        self.val_loss_history = []
 
 
     @staticmethod
     def calculate_r2(outputs, labels):
         return r2_score(labels.cpu().numpy(), outputs.cpu().numpy(), multioutput='variance_weighted')
+    
 
     def train(self, num_epochs):
         for _ in range(num_epochs):
-            train_loss_y1, train_loss_y2, train_r2_y1, train_r2_y2 = self._train_epoch()
-            val_loss_y1, val_loss_y2, val_r2_y1, val_r2_y2 = self._validate_epoch()
+            train_loss, train_loss_y1, train_loss_y2, train_r2_y1, train_r2_y2 = self._train_epoch()
+            val_loss, val_loss_y1, val_loss_y2, val_r2_y1, val_r2_y2 = self._validate_epoch()
             
             self.train_loss_history_y1.append(train_loss_y1), self.train_loss_history_y2.append(train_loss_y2)
             self.train_r2_history_y1.append(train_r2_y1), self.train_r2_history_y2.append(train_r2_y2)
             self.val_loss_history_y1.append(val_loss_y1), self.val_loss_history_y2.append(val_loss_y2)
             self.val_r2_history_y1.append(val_r2_y1), self.val_r2_history_y2.append(val_r2_y2)
+            self.train_loss_history.append(train_loss), self.val_loss_history.append(val_loss)
         
-        return self.train_loss_history_y1, self.train_loss_history_y2, self.train_r2_history_y1, self.train_r2_history_y2, self.val_loss_history_y1, self.val_loss_history_y2, self.val_r2_history_y1, self.val_r2_history_y2
+        return self.train_loss_history, self.val_loss_history, self.train_loss_history_y1, self.train_loss_history_y2, self.train_r2_history_y1, self.train_r2_history_y2, self.val_loss_history_y1, self.val_loss_history_y2, self.val_r2_history_y1, self.val_r2_history_y2
 
     def _train_epoch(self):
         self.model.train()
-        train_loss_y1, train_loss_y2 = 0.0, 0.0
-        train_losses_y1, train_losses_y2 = [], []
+        train_loss_y1, train_loss_y2, train_loss = 0.0, 0.0, 0.0
+        train_losses_y1, train_losses_y2, train_losses = [], [], []
         train_outputs_y1, train_labels_y1 = [], []
         train_outputs_y2, train_labels_y2 = [], []
         
@@ -209,8 +216,8 @@ class mlp_kpi3d_trainer:
             y2_pred_masked = y2_pred * mask
             batch_y2_masked = batch_y2 * mask
             
-            loss_y1 = self.criterion(y1_pred, batch_y1)
-            loss_y2 = self.criterion(y2_pred_masked, batch_y2_masked)
+            loss_y1 = self.loss(y1_pred, batch_y1)
+            loss_y2 = self.loss(y2_pred_masked, batch_y2_masked)
             loss = loss_y1 + loss_y2
             
             loss.backward()
@@ -218,6 +225,7 @@ class mlp_kpi3d_trainer:
             
             train_loss_y1 += loss_y1.item() * batch_x.size(0)
             train_loss_y2 += loss_y2.item() * batch_x.size(0)
+            train_loss += loss.item() * batch_x.size(0)
             
             train_outputs_y1.append(y1_pred.detach())
             train_labels_y1.append(batch_y1)
@@ -226,8 +234,11 @@ class mlp_kpi3d_trainer:
         
         train_loss_y1 /= len(self.train_dataset)
         train_loss_y2 /= len(self.train_dataset)
+        train_loss /= len(self.train_dataset)
+        
         train_losses_y1.append(train_loss_y1)
         train_losses_y2.append(train_loss_y2)
+        train_losses.append(train_loss) 
         
         train_outputs_y1 = torch.cat(train_outputs_y1)
         train_labels_y1 = torch.cat(train_labels_y1)
@@ -244,18 +255,19 @@ class mlp_kpi3d_trainer:
         train_r2_y2 = self.calculate_r2(train_outputs_y2, train_labels_y2)
         
         wandb.log({
+            "train_loss": train_loss,
             "train_loss_y1": train_loss_y1,
             "train_loss_y2": train_loss_y2,
             "train_r2_y1": train_r2_y1,
             "train_r2_y2": train_r2_y2
         })
         
-        return train_loss_y1, train_loss_y2, train_r2_y1, train_r2_y2
+        return train_loss, train_loss_y1, train_loss_y2, train_r2_y1, train_r2_y2
 
     def _validate_epoch(self):
         self.model.eval()
-        val_loss_y1, val_loss_y2 = 0.0, 0.0
-        val_losses_y1, val_losses_y2 = [], []
+        val_loss_y1, val_loss_y2, val_loss = 0.0, 0.0, 0.0
+        val_losses_y1, val_losses_y2, val_losses = [], [], []
         val_outputs_y1, val_labels_y1 = [], []
         val_outputs_y2, val_labels_y2 = [], []
         
@@ -276,11 +288,12 @@ class mlp_kpi3d_trainer:
                 y2_pred_masked = y2_pred * mask
                 batch_y2_masked = batch_y2 * mask
                 
-                loss_y1 = self.criterion(y1_pred, batch_y1)
-                loss_y2 = self.criterion(y2_pred_masked, batch_y2_masked)
+                loss_y1 = self.loss(y1_pred, batch_y1)
+                loss_y2 = self.loss(y2_pred_masked, batch_y2_masked)
 
                 val_loss_y1 += loss_y1.item() * batch_x.size(0)
                 val_loss_y2 += loss_y2.item() * batch_x.size(0)
+                val_loss= val_loss_y1+val_loss_y2
                 
                 val_outputs_y1.append(y1_pred.detach())
                 val_labels_y1.append(batch_y1)
@@ -289,8 +302,11 @@ class mlp_kpi3d_trainer:
         
         val_loss_y1 /= len(self.train_dataset)
         val_loss_y2 /= len(self.train_dataset)
+        val_loss /= len(self.train_dataset) 
+        
         val_losses_y1.append(val_loss_y1)
         val_losses_y2.append(val_loss_y2)
+        val_losses.append(val_loss)
         
         val_outputs_y1 = torch.cat(val_outputs_y1)
         val_labels_y1 = torch.cat(val_labels_y1)
@@ -307,11 +323,12 @@ class mlp_kpi3d_trainer:
         val_r2_y2 = self.calculate_r2(val_outputs_y2, val_labels_y2)
         
         wandb.log({
+            "val_loss": val_loss,
             "val_loss_y1": val_loss_y1,
             "val_loss_y2": val_loss_y2,
             "val_r2_y1": val_r2_y1,
             "val_r2_y2": val_r2_y2
         })
         
-        return val_loss_y1, val_loss_y2, val_r2_y1, val_r2_y2
+        return val_loss, val_loss_y1, val_loss_y2, val_r2_y1, val_r2_y2
         
