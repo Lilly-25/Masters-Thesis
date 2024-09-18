@@ -114,17 +114,19 @@ def plot_testdataset_kpi2d(df_targets, df_predictions,start,end):
         plt.tight_layout(rect=[0, 0, 1, 0.96])  
         plt.show()
     
-def plot_kpi2d(nn_values, mgrenz_values, predicted_mgrenz):
+def plot_kpi2d(nn_values, mgrenz_values):
     plt.figure(figsize=(10, 6))
-    plt.plot(nn_values, mgrenz_values, label='Target', color='blue')
-    plt.plot(nn_values, predicted_mgrenz, label='Predictions', color='red')
+    plt.plot(nn_values, mgrenz_values, color='blue')
+    # plt.plot(nn_values, mgrenz_values, label='Target', color='blue')
+    # plt.plot(nn_values, predicted_mgrenz, label='Predictions', color='red')
     plt.xlabel('NN Values')
     plt.ylabel('Mgrenz Values')
     plt.title(f'NN vs Mgrenz')
     plt.grid(True)
     plt.tight_layout()
-    plt.legend()
+    # plt.legend()
     plt.show()
+    
     
 def remove_faulty_files(directory):
     # Loop over all files to check if there are any faulty files and remove them
@@ -172,4 +174,32 @@ def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
 
     plt.tight_layout()
     plt.subplots_adjust(top=0.90)
+    plt.show()
+    
+def plot_mean_std_kpi2d(df_targets, df_predictions):
+    nn_kpi_2d = list(range(0, 19100, 100))  # NN values always range from 0 to 19000 rpm
+    
+    target_mean = df_targets.mean().values
+    target_std = df_targets.std().values
+    pred_mean = df_predictions.mean().values
+    pred_std = df_predictions.std().values
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Plot mean
+    ax.plot(nn_kpi_2d, target_mean, label='Target Mean', color='blue')
+    ax.plot(nn_kpi_2d, pred_mean, label='Prediction Mean', color='red')
+    
+    # Plot standard deviation as shaded area
+    ax.fill_between(nn_kpi_2d, target_mean - target_std, target_mean + target_std, 
+                    alpha=0.2, color='blue', label='Target Std Dev')
+    ax.fill_between(nn_kpi_2d, pred_mean - pred_std, pred_mean + pred_std, 
+                    alpha=0.2, color='red', label='Prediction Std Dev')
+
+    ax.set_xlabel('NN (rpm)')
+    ax.set_ylabel('Mgrenz')
+    ax.set_title('Mean and Standard Deviation of Mgrenz(Torque Curve) KPI')
+    ax.legend()
+
+    plt.tight_layout()
     plt.show()
