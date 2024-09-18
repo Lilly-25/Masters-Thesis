@@ -29,25 +29,35 @@ class mlp_kpi2d(nn.Module):
 
 
 class mlp_kpi3d(nn.Module):
-    def __init__(self, input_size, hidden_size, y1_size, y2_shape):
+    def __init__(self, input_size, hidden_size, y1_size, y2_shape, dropout_rate=0.5):
         super(mlp_kpi3d, self).__init__()
         self.shared_layers = nn.Sequential(
             nn.Linear(input_size, hidden_size),
             nn.ReLU(),
+            #nn.BatchNorm1d(hidden_size),
+            nn.Dropout(dropout_rate)
         )
         self.y1_layers = nn.Sequential(
-            nn.Linear(hidden_size, y1_size),
+            nn.Linear(hidden_size, y1_size)
             # nn.ReLU(),
             # nn.Linear(hidden_size*2, y1_size)
         )
         self.y2_layers = nn.Sequential(
             nn.Linear(hidden_size, hidden_size * 8),
             nn.ReLU(),
+            #nn.BatchNorm1d(hidden_size),
+            nn.Dropout(dropout_rate),
             nn.Linear(hidden_size * 8, hidden_size * 16),
             nn.ReLU(),
+            #nn.BatchNorm1d(hidden_size),
+            nn.Dropout(dropout_rate),
             nn.Linear(hidden_size * 16, hidden_size * 32),
             nn.ReLU(),
+            #nn.BatchNorm1d(hidden_size),
+            nn.Dropout(dropout_rate),
             nn.Linear(hidden_size * 32, y2_shape[1] * y2_shape[2])
+            # nn.ReLU(),
+            # nn.Linear(hidden_size * 64, y2_shape[1] * y2_shape[2])
         )
         self.y2_shape = y2_shape
 
