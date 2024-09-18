@@ -16,3 +16,4 @@ dist/
 src/__pycache__/
 *.log
 *.pth
+wandb/
