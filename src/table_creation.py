@@ -21,10 +21,10 @@ def create_tabular_data(file_path):
                     
         params_rotor_v=['lmsov', 'lth1v', 'lth2v', 'r1v', 'r11v', 'r2v', 'r3v', 'r4v', 'rmt1v', 'rmt4v', 'rlt1v', 'rlt4v', 
                       'hav', 'mbv', 'mhv', 'rmagv',
-                        'dsm', 'dsmu', 'amtrv', 'dsrv', 'deg_phi', 'lmav', 'lmiv', 'lmov', 'lmuv']
+                        'dsmv', 'dsmuv', 'amtrv', 'dsrv', 'deg_phiv', 'lmav', 'lmiv', 'lmov', 'lmuv']
         
         params_rotor_delta=['lmsob','lthb', 'r2b', 'r3b', 'r4b', 'r5b', 'lgr3b', 'lgr4b',
-                            'mbb', 'mbh', 'mtbb', 'rmagb',
+                            'mbb', 'mhb', 'mtbb', 'rmagb',
                             'amtrb', 'dsr3b', 'dsr4b', 'deg_phi3b', 'deg_phi4b', 'lmob', 'lmub', 'lmsub']
         
         params_stator=['airgap', 'b_nng', 'b_nzk', 'b_s', 'h_n','h_s', 'r_sn', 'r_zk', 'r_ng', 'h_zk', 'bhp', 'hhp', 'rhp',
@@ -50,6 +50,15 @@ def create_tabular_data(file_path):
         for key in params_general:
             df_features.loc[file_name, f"{key}"] = params_dict.get(f"{key}", 0)
         
+        # Filter all 'deg_phi' columns and create new columns with their corresp radian values
+        deg_columns = df_features.filter(regex='^deg_phi').columns
+
+        for col in deg_columns:
+            new_col_name = col.replace('deg_', 'rad_')
+            df_features[new_col_name] = np.radians(df_features[col])
+            
+        df_features = df_features.drop(columns=deg_columns)
+        #print(df_features.head())
         wb = openpyxl.load_workbook(file_path)
         sheet_mgrenz = wb['Mgrenz']
         mgrenz_values = [cell.value for cell in sheet_mgrenz[1] if cell.value is not None]
@@ -90,7 +99,7 @@ def create_tabular_data(file_path):
         #load the eta grid
         sheet_eta = wb['ETA']
         
-        eta_grid = os.path.join('./data/CompleteTabularDataETAgrid/', f"{file_name}.csv")##Instead of saving each grid into a file appeand to a numpy array and save as npy file can access test_size only ased on index
+        eta_grid = os.path.join('./data/TabularDataETAgrid/', f"{file_name}.csv")##Instead of saving each grid into a file appeand to a numpy array and save as npy file can access test_size only ased on index
         ##think of an alternative way where we can also have filenames indexed into the numpy array or whatever pythonic object
         with open(eta_grid, mode='w', newline="") as file:
             writer = csv.writer(file)
