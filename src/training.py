@@ -4,6 +4,7 @@ from torch.utils.data import DataLoader
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
 import wandb
+import numpy as np
     
 class LossRegularisation(nn.Module):
     #Penalise monotonic increasing values in the prediction
@@ -180,6 +181,15 @@ class mlp_kpi3d_trainer:
     def calculate_r2(outputs, labels):
         return r2_score(labels.cpu().numpy(), outputs.cpu().numpy(), multioutput='variance_weighted')
     
+    @staticmethod
+    def y1_score(outputs, labels):
+        labels=labels.cpu().numpy()
+        outputs=outputs.cpu().numpy()
+        deviations = outputs - labels
+        variance = np.mean(deviations ** 2)
+        std_dev = np.sqrt(variance)
+        print(len(labels))
+        return  std_dev/len(labels)
 
     def train(self, num_epochs):
         for _ in range(num_epochs):
@@ -243,7 +253,7 @@ class mlp_kpi3d_trainer:
         train_outputs_y1 = torch.cat(train_outputs_y1)
         train_labels_y1 = torch.cat(train_labels_y1)
         
-        train_r2_y1 = self.calculate_r2(train_outputs_y1, train_labels_y1)
+        train_r2_y1 = self.y1_score(train_outputs_y1, train_labels_y1)
         
         train_outputs_y2 = torch.cat(train_outputs_y2)
         train_labels_y2 = torch.cat(train_labels_y2)
