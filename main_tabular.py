@@ -15,7 +15,7 @@ df_targets=pd.DataFrame()
 
 for filename in tqdm(os.listdir(directory)):
     file_path = os.path.join(directory, filename)
-    df_partial_inputs, df_partial_targets = create_tabular_data(file_path)
+    df_partial_inputs, df_partial_targets = create_tabular_data(file_path, purpose='train')
     
     if df_partial_inputs is not None:
         df_inputs = pd.concat([df_inputs, df_partial_inputs])
