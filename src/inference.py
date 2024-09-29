@@ -86,13 +86,13 @@ def generate_predictions_mm(model_path, df_inputs_test, df_targets_test, x_scale
 
     return df_y1, y2, mm_matrix, eta_matrix
 
-def plot_testdataset_kpi2d(df_targets, df_predictions,start,end):
+def plot_testdataset_kpi2d(df_targets, df_predictions,start,end, cols):
     
     nn_kpi_2d = list(range(0, 19100, 100)) # NN values alyways range from 0 to 19000 rpm
     
     index=df_targets.index
 
-    cols=2
+    # cols=2
     row_height=5 
     col_width=5
 
@@ -120,13 +120,13 @@ def plot_testdataset_kpi2d(df_targets, df_predictions,start,end):
     plt.tight_layout(rect=[0, 0, 1, 0.96])  
     plt.show()
     
-def eval_plot_kpi2d(df_targets, df_predictions,start,end):
+def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
     
     nn_kpi_2d = list(range(0, 19100, 100)) # NN values alyways range from 0 to 19000 rpm
         
     index=df_targets.index
 
-    cols=2
+    # cols=2
     row_height=5 
     col_width=5
 
