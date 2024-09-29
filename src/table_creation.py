@@ -5,7 +5,7 @@ import os
 import csv
 import numpy as np
 
-def create_tabular_data(file_path):
+def create_tabular_data(file_path, purpose):
     try:
         df = pd.read_excel(file_path, sheet_name='input_data', header=None)
         df = df.dropna(how='all').dropna(axis=1, how='all')
@@ -74,37 +74,38 @@ def create_tabular_data(file_path):
         if len(mgrenz_values)!= max_cols:
             print('We have a problem Houston!')
             
-        ##Checking MM sheet to get the correct grid for KPI ETA    
-        sheet_mm = wb['MM']
+        if purpose=='train':
+            ##Checking MM sheet to get the correct grid for KPI ETA    
+            sheet_mm = wb['MM']
 
-        #Finding out correct indices of the ETA grid
-        def check_rows(sheet, start_row, end_row, mgrenz):
-            for row in sheet.iter_rows(min_row=start_row, max_row=end_row):
-                first_cell_value = row[0].value  # Get the value of the first cell in the row
-                if first_cell_value == mgrenz:
-                    index = row[0].row
-                    return index
+            #Finding out correct indices of the ETA grid
+            def check_rows(sheet, start_row, end_row, mgrenz):
+                for row in sheet.iter_rows(min_row=start_row, max_row=end_row):
+                    first_cell_value = row[0].value  # Get the value of the first cell in the row
+                    if first_cell_value == mgrenz:
+                        index = row[0].row
+                        return index
+                
+
+            # Check the first 5 rows
+            min_index = check_rows(sheet_mm, 1, 5, -max_mgrenz)
+
+            # Check the last 5 rows
+            last_row = sheet_mm.max_row
+            max_index = check_rows(sheet_mm, last_row - 4, last_row, max_mgrenz)
+
+            # print(f"The row index for -mgrenz ({-max_mgrenz}) is: {min_index}")
+            # print(f"The row index for mgrenz ({max_mgrenz}) is: {max_index}")
             
-
-        # Check the first 5 rows
-        min_index = check_rows(sheet_mm, 1, 5, -max_mgrenz)
-
-        # Check the last 5 rows
-        last_row = sheet_mm.max_row
-        max_index = check_rows(sheet_mm, last_row - 4, last_row, max_mgrenz)
-
-        # print(f"The row index for -mgrenz ({-max_mgrenz}) is: {min_index}")
-        # print(f"The row index for mgrenz ({max_mgrenz}) is: {max_index}")
-        
-        #load the eta grid
-        sheet_eta = wb['ETA']
-        
-        eta_grid = os.path.join('./data/TabularDataETAgrid/', f"{file_name}.csv")##Instead of saving each grid into a file appeand to a numpy array and save as npy file can access test_size only ased on index
-        ##think of an alternative way where we can also have filenames indexed into the numpy array or whatever pythonic object
-        with open(eta_grid, mode='w', newline="") as file:
-            writer = csv.writer(file)
-            for row in sheet_eta.iter_rows(min_row=min_index, max_row=max_index, values_only=True):
-                writer.writerow(row)
+            #load the eta grid
+            sheet_eta = wb['ETA']
+            
+            eta_grid = os.path.join('./data/TabularDataETAgrid/', f"{file_name}.csv")##Instead of saving each grid into a file appeand to a numpy array and save as npy file can access test_size only ased on index
+            ##think of an alternative way where we can also have filenames indexed into the numpy array or whatever pythonic object
+            with open(eta_grid, mode='w', newline="") as file:
+                writer = csv.writer(file)
+                for row in sheet_eta.iter_rows(min_row=min_index, max_row=max_index, values_only=True):
+                    writer.writerow(row)
         
         return df_features, df_targets
                 
