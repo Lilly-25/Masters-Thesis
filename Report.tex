@@ -490,7 +490,7 @@ The mask is then multiplied with both the target and the prediction. After this 
 Mathematically, this process can be expressed as follows:
 \begin{equation*}
 \begin{aligned}
-\text{Let } & M_{ij} = \begin{cases}
+\text{Mask, } & M_{ij} = \begin{cases}
 1 & \text{if } y_{ij} \neq -1 \\
 0 & \text{if } y_{ij} = -1
 \end{cases} \\
@@ -500,9 +500,9 @@ Mathematically, this process can be expressed as follows:
 \end{aligned}
 \end{equation*}
 
-\textit{where
- $M_{ij}$ : mask matrix}
- \\
+% \textit{where
+%  $M_{ij}$ : mask matrix}
+%  \\
 
 This formulation ensures that the -1 values (which replaced NaN values in the grid) are ignored in the loss calculation, as they are multiplied by 0 in the mask.
 
@@ -525,7 +525,16 @@ Firstly we train a MLP on the tabular representation of the data.
 We have used MinMax Scaler for normalization of both the input and targets.
 MSE loss function is used for the regression problem and Adam optimizer is used for optimization.
 We have the first results on the 2D KPI-Mgrenz prediction.
-These results are only considering about 400 examples. The dataset was split into training-validation(80:20) excluding test examples of about 19 examples.
+These results are only considering about 1500 examples. The dataset was split into training-validation(80:20) excluding test examples of about 50 examples.
+The hyperparmaters for the model was tuned over observations of the model's performance across 5 fold cross validation training.
+The splits are saved locally and can be used to later to ensure reproducibility.
+Over the 5 folds, the model performance is observed to ensure its stability and the best performing model is saved to be loaded later for performance.
+The criteria for choosing the best performing model is roughly estimated based on the least combined loss and the combined score closest to 0
+
+We have used python 3.12.2 for our development and the pytorch library compatible with cuda.
+The model was trained on a NVIDIA V100 GPU with blah blah.
+
+For the y2 predictions, we configured the model architecture to have 
 \begin{figure}[h]
     \centering
     \begin{minipage}[b]{0.3\textwidth}
