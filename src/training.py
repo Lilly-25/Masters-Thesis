@@ -170,17 +170,12 @@ class mlp_kpi3d_trainer:
         self.val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
         
         self.train_loss_history_y1, self.train_loss_history_y2, self.train_loss_history = [], [], []
-        self.train_r2_history_y1, self.train_r2_history_y2 = [],[]
+        self.train_score_history_y1, self.train_score_history_y2 = [],[]
         
-        self.val_loss_history_y1, self.val_r2_history_y1  = [],[]
-        self.val_loss_history_y2, self.val_r2_history_y2  = [],[]
+        self.val_loss_history_y1, self.val_score_history_y1  = [],[]
+        self.val_loss_history_y2, self.val_score_history_y2  = [],[]
         self.val_loss_history = []
 
-
-    # @staticmethod
-    # def calculate_r2(outputs, labels):
-    #     return r2_score(labels.cpu().numpy(), outputs.cpu().numpy(), multioutput='variance_weighted')
-    
     @staticmethod
     def y1_score(outputs, labels):
         labels=labels.cpu().numpy()
@@ -223,12 +218,12 @@ class mlp_kpi3d_trainer:
             val_loss, val_loss_y1, val_loss_y2, val_score_y1, val_score_y2 = self._validate_epoch()
             
             self.train_loss_history_y1.append(train_loss_y1), self.train_loss_history_y2.append(train_loss_y2)
-            self.train_r2_history_y1.append(train_score_y1), self.train_r2_history_y2.append(train_score_y2)
+            self.train_score_history_y1.append(train_score_y1), self.train_score_history_y2.append(train_score_y2)
             self.val_loss_history_y1.append(val_loss_y1), self.val_loss_history_y2.append(val_loss_y2)
-            self.val_r2_history_y1.append(val_score_y1), self.val_r2_history_y2.append(val_score_y2)
+            self.val_score_history_y1.append(val_score_y1), self.val_score_history_y2.append(val_score_y2)
             self.train_loss_history.append(train_loss), self.val_loss_history.append(val_loss)
         
-        return self.train_loss_history, self.val_loss_history, self.train_loss_history_y1, self.train_loss_history_y2, self.train_r2_history_y1, self.train_r2_history_y2, self.val_loss_history_y1, self.val_loss_history_y2, self.val_r2_history_y1, self.val_r2_history_y2
+        return self.train_loss_history, self.val_loss_history, self.train_loss_history_y1, self.train_loss_history_y2, self.train_score_history_y1, self.train_score_history_y2, self.val_loss_history_y1, self.val_loss_history_y2, self.val_score_history_y1, self.val_score_history_y2
 
     def _train_epoch(self):
         self.model.train()
