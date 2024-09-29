@@ -177,9 +177,9 @@ class mlp_kpi3d_trainer:
         self.val_loss_history = []
 
 
-    @staticmethod
-    def calculate_r2(outputs, labels):
-        return r2_score(labels.cpu().numpy(), outputs.cpu().numpy(), multioutput='variance_weighted')
+    # @staticmethod
+    # def calculate_r2(outputs, labels):
+    #     return r2_score(labels.cpu().numpy(), outputs.cpu().numpy(), multioutput='variance_weighted')
     
     @staticmethod
     def y1_score(outputs, labels):
@@ -188,18 +188,44 @@ class mlp_kpi3d_trainer:
         deviations = outputs - labels
         variance = np.mean(deviations ** 2)
         std_dev = np.sqrt(variance)
-        print(len(labels))
-        return  std_dev/len(labels)
+        return std_dev
+    
+    @staticmethod
+    def y2_score(outputs, labels):
+        labels=labels.cpu().numpy()
+        outputs=outputs.cpu().numpy()
+        
+        if labels.shape[0] > outputs.shape[0]:
+            larger_eta, smaller_eta = labels, outputs
+        else:
+            larger_eta, smaller_eta = labels, outputs
+        
+        rows, _ = larger_eta.shape
+        smaller_rows, smaller_cols = smaller_eta.shape
+        
+        # Create the interpolated grid
+        interpolated_smaller = np.full_like(larger_eta, np.nan)
+        start_row = (rows - smaller_rows) // 2
+        
+        # Place the smaller eta directly into the middle of the larger grid
+        interpolated_smaller[start_row:start_row+smaller_rows, :smaller_cols] = smaller_eta
+        
+        Z_diff = larger_eta - interpolated_smaller
+        
+        valid_diff = np.abs(Z_diff[~np.isnan(Z_diff)])
+        variance = np.mean(valid_diff ** 2)
+        score = np.sqrt(variance)
+        return  score
 
     def train(self, num_epochs):
         for _ in range(num_epochs):
-            train_loss, train_loss_y1, train_loss_y2, train_r2_y1, train_r2_y2 = self._train_epoch()
-            val_loss, val_loss_y1, val_loss_y2, val_r2_y1, val_r2_y2 = self._validate_epoch()
+            train_loss, train_loss_y1, train_loss_y2, train_score_y1, train_score_y2 = self._train_epoch()
+            val_loss, val_loss_y1, val_loss_y2, val_score_y1, val_score_y2 = self._validate_epoch()
             
             self.train_loss_history_y1.append(train_loss_y1), self.train_loss_history_y2.append(train_loss_y2)
-            self.train_r2_history_y1.append(train_r2_y1), self.train_r2_history_y2.append(train_r2_y2)
+            self.train_r2_history_y1.append(train_score_y1), self.train_r2_history_y2.append(train_score_y2)
             self.val_loss_history_y1.append(val_loss_y1), self.val_loss_history_y2.append(val_loss_y2)
-            self.val_r2_history_y1.append(val_r2_y1), self.val_r2_history_y2.append(val_r2_y2)
+            self.val_r2_history_y1.append(val_score_y1), self.val_r2_history_y2.append(val_score_y2)
             self.train_loss_history.append(train_loss), self.val_loss_history.append(val_loss)
         
         return self.train_loss_history, self.val_loss_history, self.train_loss_history_y1, self.train_loss_history_y2, self.train_r2_history_y1, self.train_r2_history_y2, self.val_loss_history_y1, self.val_loss_history_y2, self.val_r2_history_y1, self.val_r2_history_y2
@@ -253,7 +279,7 @@ class mlp_kpi3d_trainer:
         train_outputs_y1 = torch.cat(train_outputs_y1)
         train_labels_y1 = torch.cat(train_labels_y1)
         
-        train_r2_y1 = self.y1_score(train_outputs_y1, train_labels_y1)
+        train_score_y1 = self.y1_score(train_outputs_y1, train_labels_y1)
         
         train_outputs_y2 = torch.cat(train_outputs_y2)
         train_labels_y2 = torch.cat(train_labels_y2)
@@ -262,17 +288,17 @@ class mlp_kpi3d_trainer:
         train_outputs_y2 = train_outputs_y2.view(train_outputs_y2.size(0), -1)
         train_labels_y2 = train_labels_y2.view(train_labels_y2.size(0), -1)
         
-        train_r2_y2 = self.calculate_r2(train_outputs_y2, train_labels_y2)
+        train_score_y2 = self.y2_score(train_outputs_y2, train_labels_y2)
         
         wandb.log({
             "train_loss": train_loss,
             "train_loss_y1": train_loss_y1,
             "train_loss_y2": train_loss_y2,
-            "train_r2_y1": train_r2_y1,
-            "train_r2_y2": train_r2_y2
+            "train_score_y1": train_score_y1,
+            "train_score_y2": train_score_y2
         })
         
-        return train_loss, train_loss_y1, train_loss_y2, train_r2_y1, train_r2_y2
+        return train_loss, train_loss_y1, train_loss_y2, train_score_y1, train_score_y2
 
     def _validate_epoch(self):
         self.model.eval()
@@ -321,7 +347,7 @@ class mlp_kpi3d_trainer:
         val_outputs_y1 = torch.cat(val_outputs_y1)
         val_labels_y1 = torch.cat(val_labels_y1)
         
-        val_r2_y1 = self.calculate_r2(val_outputs_y1, val_labels_y1)
+        val_score_y1 = self.y1_score(val_outputs_y1, val_labels_y1)
         
         val_outputs_y2 = torch.cat(val_outputs_y2)
         val_labels_y2 = torch.cat(val_labels_y2)
@@ -330,15 +356,15 @@ class mlp_kpi3d_trainer:
         val_outputs_y2 = val_outputs_y2.view(val_outputs_y2.size(0), -1)
         val_labels_y2 = val_labels_y2.view(val_labels_y2.size(0), -1)
         
-        val_r2_y2 = self.calculate_r2(val_outputs_y2, val_labels_y2)
+        val_score_y2 = self.y2_score(val_outputs_y2, val_labels_y2)
         
         wandb.log({
             "val_loss": val_loss,
             "val_loss_y1": val_loss_y1,
             "val_loss_y2": val_loss_y2,
-            "val_r2_y1": val_r2_y1,
-            "val_r2_y2": val_r2_y2
+            "val_score_y1": val_score_y1,
+            "val_score_y2": val_score_y2
         })
         
-        return val_loss, val_loss_y1, val_loss_y2, val_r2_y1, val_r2_y2
+        return val_loss, val_loss_y1, val_loss_y2, val_score_y1, val_score_y2
         
