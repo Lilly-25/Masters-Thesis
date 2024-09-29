@@ -44,7 +44,7 @@ def data_prep(test_size):
     return x_normalized, y1_normalized, scaler_x, scaler_y1, input_size, output_y1_size, df_x_test, df_y1_test
 
 
-def data_prep_eta_grid():
+def data_prep_eta_grid():##Give the directory path as input so the same function can be used for test
     
     df_inputs=pd.read_csv('./data/TabularDataInputs.csv')
     df_inputs.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
@@ -76,8 +76,7 @@ def data_prep_eta_grid():
         #y2_values = np.nan_to_num(y2_file.values, nan=1000)
         y2_values = y2_file.values
         # Replace 0s with nans
-        #y2_values[y2_values == 0] = 1000
-        y2_values[y2_values == 0] = np.nan
+        #y2_values[y2_values == 0] = np.nan ###TODO GOTO remove this
         padded = np.full((max_rows, 191),  np.nan, dtype=float)
         #padded = np.full((max_rows, 191), 1000, dtype=y2_values.dtype)
         padded[:y2_file.shape[0], :y2_file.shape[1]] = y2_values
