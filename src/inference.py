@@ -6,7 +6,7 @@ import matplotlib.colors as mcolors
 import seaborn as sns
 from scipy.interpolate import griddata
 
-def generate_predictions(model_path, df_inputs_test, df_targets_test, x_scaler, y1_scaler, y2_scaler, device):
+def generate_predictions_mm(model_path, df_inputs_test, df_targets_test, x_scaler, y1_scaler, y2_scaler, device):
     
     model = torch.load(model_path) # Load the trained model saved locally
     model=model.to(device)
@@ -185,7 +185,7 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end):
     plt.tight_layout(rect=[0, 0, 1, 0.96])
     plt.show()
     
-def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
+def plot_kpi3d_dual_mm(nn, mm1, eta1, mm2, eta2, filename):
     
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 10))
     fig.suptitle(f'Motor Efficiency - {filename}', fontsize=16)
@@ -293,7 +293,7 @@ def plot_std_kpi2d(df_targets, df_predictions):
     plt.tight_layout()
     plt.show()
     
-def eval_plot_kpi3d(nn, mm1, eta1, mm2, eta2, filename):
+def eval_plot_kpi3d_mm(nn, mm1, eta1, mm2, eta2, filename):
     
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(36, 10))
     fig.suptitle(f'Motor Efficiency - {filename}', fontsize=16)
@@ -373,7 +373,7 @@ def eval_plot_kpi3d(nn, mm1, eta1, mm2, eta2, filename):
     # print(f"Difference - Min: {np.nanmin(Z_diff):.2f}, Max: {np.nanmax(Z_diff):.2f}, Mean: {np.nanmean(Z_diff):.2f}")
     
     
-def y2_score(nn, mm1, eta1, mm2, eta2):
+def y2_score_mm(nn, mm1, eta1, mm2, eta2):
     # Create a common grid
     x_min = 0
     x_max = 19000
@@ -396,8 +396,8 @@ def y2_score(nn, mm1, eta1, mm2, eta2):
     
     # Calculate the difference
     Z_diff = Z2 - Z1
-    
-    variance = np.nanmean(Z_diff ** 2)
+    vaild_Z_diff = abs(Z_diff[~np.isnan(Z_diff)])
+    variance = np.mean(vaild_Z_diff ** 2)
     score = np.sqrt(variance)
     
     # Print statistics
