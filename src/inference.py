@@ -299,12 +299,16 @@ def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
         X, Y = np.meshgrid(nn, mm)
         Z = eta
         
-        # Ensures the number of rows across all 3 axis is the same, the number of columns is always constant going to be 191
-        min_rows = min(X.shape[0], Y.shape[0], Z.shape[0])
-        X = X[:min_rows, :]
-        Y = Y[:min_rows, :]
-        Z = Z[:min_rows, :]
-        
+        if title == 'Predicted':
+            # Ensures the number of rows across all 3 axis is the same, the number of columns is always constant going to be 191
+            min_rows = min(X.shape[0], Y.shape[0], Z.shape[0])
+
+            # Slicing the arrays
+            X = X[X.shape[0]//2 - min_rows//2 : X.shape[0]//2 + min_rows//2, :]
+            Y = Y[Y.shape[0]//2 - min_rows//2 : Y.shape[0]//2 + min_rows//2, :]
+            Z = Z[Z.shape[0]//2 - min_rows//2 :   Z.shape[0]//2 + min_rows//2, :]
+            # Z[Z.shape[0]//2, :]=0#At 0 speed, known fact that efficiency is 0
+            
         mask = np.isfinite(Z)
         X, Y, Z = X[mask], Y[mask], Z[mask]
         
@@ -481,17 +485,22 @@ def eval_plot_kpi3d(nn, mm1, eta1, mm2, eta2, filename):
     xi, yi = np.meshgrid(xi, yi)
     
     for ax, mm, eta, title in zip([ax1, ax2], [mm1, mm2], [eta1, eta2], ['Original', 'Predicted']):
+        
+        if title == 'Predicted':
+            # Ensure mm and eta have compatible shapes as eta is not masked as per MM grid
+            min_rows = min(mm.shape[0], eta.shape[0])
 
-        # Ensure mm and eta have compatible shapes as eta is not masked as per MM grid
-        min_rows = min(mm.shape[0], eta.shape[0])
-        mm = mm[:min_rows]
-        eta = eta[:min_rows, :]
+            mm = mm[mm.shape[0]//2 - min_rows//2 : mm.shape[0]//2 + min_rows//2]
+            eta = eta[eta.shape[0]//2 - min_rows//2 : eta.shape[0]//2 + min_rows//2, :]
+            # eta[eta.shape[0]//2, :] = 0       #At 0 speed, known fact that efficiency is 0
         
         X, Y = np.meshgrid(nn, mm)
         Z = eta
         
         # Flatten and remove any NaN values
         mask = ~np.isnan(Z.ravel())
+        # mask = np.isfinite(Z)
+        
         points = np.column_stack((X.ravel()[mask], Y.ravel()[mask]))
         values = Z.ravel()[mask]
         
@@ -513,21 +522,24 @@ def eval_plot_kpi3d(nn, mm1, eta1, mm2, eta2, filename):
     min_rows1 = min(mm1.shape[0], eta1.shape[0])
     min_rows2 = min(mm2.shape[0], eta2.shape[0])
     
-    X1, Y1 = np.meshgrid(nn, mm1[:min_rows1])
-    X2, Y2 = np.meshgrid(nn, mm2[:min_rows2])
+    # X1, Y1 = np.meshgrid(nn, mm1[:min_rows1])
+    # X2, Y2 = np.meshgrid(nn, mm2[:min_rows2])
     
-    mask1 = ~np.isnan(eta1[:min_rows1, :].ravel())
-    mask2 = ~np.isnan(eta2[:min_rows2, :].ravel())
+    X1, Y1 = np.meshgrid(nn, mm1[mm1.shape[0]//2 - min_rows1//2 : mm1.shape[0]//2 + min_rows1//2])
+    X2, Y2 = np.meshgrid(nn, mm2[mm2.shape[0]//2 - min_rows2//2 : mm2.shape[0]//2 + min_rows2//2])
+    
+    mask1 = ~np.isnan(eta1[eta1.shape[0]//2 - min_rows1//2 : eta1.shape[0]//2 + min_rows1//2].ravel())
+    mask2 = ~np.isnan(eta2[eta2.shape[0]//2 - min_rows2//2 : eta2.shape[0]//2 + min_rows2//2].ravel())
     
     points1 = np.column_stack((X1.ravel()[mask1], Y1.ravel()[mask1]))
     points2 = np.column_stack((X2.ravel()[mask2], Y2.ravel()[mask2]))
     
-    Z1 = griddata(points1, eta1[:min_rows1, :].ravel()[mask1], (xi, yi), method='linear')
-    Z2 = griddata(points2, eta2[:min_rows2, :].ravel()[mask2], (xi, yi), method='linear')
+    Z1 = griddata(points1, eta1[eta1.shape[0]//2 - min_rows1//2 : eta1.shape[0]//2 + min_rows1//2].ravel()[mask1], (xi, yi), method='linear')
+    Z2 = griddata(points2, eta2[eta2.shape[0]//2 - min_rows2//2 : eta2.shape[0]//2 + min_rows2//2].ravel()[mask2], (xi, yi), method='linear')
     
     Z_diff = Z2 - Z1
     diff_norm = mcolors.TwoSlopeNorm(vmin=np.nanmin(Z_diff), vcenter=0, vmax=np.nanmax(Z_diff))
-    diff_contour = ax3.contourf(xi, yi, Z_diff, levels=100, cmap='RdBu_r', norm=diff_norm)
+    diff_contour = ax3.contourf(xi, yi, Z_diff, levels=10, cmap='RdBu_r', norm=diff_norm)#Decrease the levels in differences to see diferences more clearly
     ax3.set_xlabel('Angular Velocity [rpm]', fontsize=12)
     ax3.set_ylabel('Torque [Nm]', fontsize=12)
     ax3.set_title('Difference', fontsize=14)
