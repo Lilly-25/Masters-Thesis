@@ -78,8 +78,9 @@ def data_prep_eta_grid():##Give the directory path as input so the same function
         # Replace 0s with nans
         #y2_values[y2_values == 0] = np.nan ###TODO GOTO remove this
         padded = np.full((max_rows, 191),  np.nan, dtype=float)
-        #padded = np.full((max_rows, 191), 1000, dtype=y2_values.dtype)
-        padded[:y2_file.shape[0], :y2_file.shape[1]] = y2_values
+        #padded = np.full((max_rows, 191), 1000, dtype=y2_values.dtype)#1000 if we gave as a value will result in predictions close to this range even if the rest of input is scaled, so default value given close to scaling range after scaling
+        # padded[:y2_file.shape[0], :y2_file.shape[1]] = y2_values
+        padded[max_rows//2 - y2_file.shape[0]//2 : max_rows//2 + y2_file.shape[0]//2, :] = y2_values
         y2.append(padded)
     
     y2 = np.array(y2)
@@ -110,10 +111,7 @@ def data_prep_complete(test_size):
     
     df_inputs_train_val = df_inputs[:-test_size]
     df_targets_train_val = df_targets[:-test_size]
-    
-    #really no need of these
-    filenames_test = filenames[-test_size:]
-    filenames_train = filenames[:-test_size]
+
     
     x=df_inputs_train_val.values
     y1=df_targets_train_val.values
