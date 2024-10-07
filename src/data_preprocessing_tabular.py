@@ -2,48 +2,6 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 import numpy as np
 
-def data_prep(test_size):
-    
-    df_inputs=pd.read_csv('./data/CompleteTabularDataInputs.csv')
-    df_inputs.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
-
-    df_targets=pd.read_csv('./data/CompleteTabularDataTargets.csv')
-    df_targets.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
-
-    filenames = df_inputs['filename'].values##incase we need to refer the index later on
-    a=df_inputs.drop('filename', axis=1).values
-    b=df_targets.drop('filename', axis=1).values
-    df_inputs.drop('filename', axis=1, inplace=True)
-    df_targets.drop('filename', axis=1, inplace=True)
-    
-    filenames_test= filenames[-test_size:]
-    
-    df_x_test = pd.DataFrame(a[-test_size:], columns=df_inputs.columns, index=filenames_test)
-    df_y1_test = pd.DataFrame(b[-test_size:], columns=df_targets.columns, index=filenames_test)
-    
-    df_inputs_train_val = df_inputs[:-test_size]
-    df_targets_train_val = df_targets[:-test_size]
-    
-    x=df_inputs_train_val.values
-    y1=df_targets_train_val.values
-    
-    scaler_x=StandardScaler().fit(x)##Using different scalers for input and outputs, ..is that okay?
-    scaler_y1=MinMaxScaler().fit(y1)
-    
-    ##Also should we fit intially for test but makes no sense coz thats cheating we are not supposed to know the test in real life
-    
-    ##I want NAN values which are already replaced as 0 to remain 0 should i change em to 1000 after scaling?..
-    ##maybe change to a value near the scaled values max or so, coz changing it drasticallly is resulting in worse predictions and not penalising the model as expected
-    
-    x_normalized=scaler_x.transform(x)
-    y1_normalized=scaler_y1.transform(y1)
-    
-    input_size = x_normalized.shape[1]
-    output_y1_size = y1_normalized.shape[1]
-  
-    return x_normalized, y1_normalized, scaler_x, scaler_y1, input_size, output_y1_size, df_x_test, df_y1_test
-
-
 def data_prep_eta_grid():##Give the directory path as input so the same function can be used for test
     
     df_inputs=pd.read_csv('./data/TabularDataInputs.csv')
@@ -87,7 +45,7 @@ def data_prep_eta_grid():##Give the directory path as input so the same function
     
     np.save('./data/TabularDataETA.npy', y2)
 
-def data_prep_complete(test_size):
+def data_prep(test_size):
 
     df_inputs=pd.read_csv('./data/TabularDataInputs.csv')
     df_inputs.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
@@ -145,7 +103,7 @@ def data_prep_complete(test_size):
     y2_normalized = y2_normalized.reshape(y2.shape)  # Reshape back to 3D
     
     # Replace nans with -1..or maybe try -.1...maybe predictions might not be so skewed
-    y2_normalized = np.nan_to_num(y2_normalized, nan=-1)
+    y2_normalized = np.nan_to_num(y2_normalized, nan=-1) # If we give nan values to model, although it doesnt enter the network, loss completely turns nan--TODO check
     
     print(np.nanmax(y2_normalized))
     print(np.nanmin(y2_normalized))
@@ -158,7 +116,5 @@ def data_prep_complete(test_size):
     # print(f"Number of non-NaN values: {nonnan_count}")
     
     input_size = x_normalized.shape[1]
-    output_y1_size = y1_normalized.shape[1]
-    output_y2_size = y2_normalized.shape[1]
   
-    return x_normalized, y1_normalized, y2_normalized, scaler_x, scaler_y1, scaler_y2, input_size, output_y1_size,output_y2_size, df_x_test, df_y1_test, max_mgrenz
+    return x_normalized, y1_normalized, y2_normalized, scaler_x, scaler_y1, scaler_y2, input_size, df_x_test, df_y1_test, max_mgrenz
