@@ -27,9 +27,8 @@ class mlp_kpi2d(nn.Module):
         torch.save(self, path)
         
 
-
 class mlp_kpi3d(nn.Module):
-    def __init__(self, input_size, hidden_size, y1_size, y2_shape, dropout_rate):
+    def __init__(self, input_size, hidden_size, y1_shape, y2_shape, dropout_rate):
         super(mlp_kpi3d, self).__init__()
         self.shared_layers = nn.Sequential(
             nn.Linear(input_size, hidden_size),
@@ -38,9 +37,11 @@ class mlp_kpi3d(nn.Module):
             nn.Dropout(dropout_rate)
         )
         self.y1_layers = nn.Sequential(
-            nn.Linear(hidden_size, y1_size)
-            # nn.ReLU(),
-            # nn.Linear(hidden_size*2, y1_size)
+            nn.Linear(hidden_size, hidden_size*2),
+            nn.BatchNorm1d(hidden_size*2),
+            nn.ReLU(),
+            nn.Dropout(dropout_rate),
+            nn.Linear(hidden_size*2, y1_shape[1])
         )
         self.y2_layers = nn.Sequential(
             # nn.Linear(hidden_size, hidden_size * 4),
@@ -65,6 +66,7 @@ class mlp_kpi3d(nn.Module):
         shared_features = self.shared_layers(x)
         y1_pred = self.y1_layers(shared_features)
         y2_pred = self.y2_layers(shared_features).view(-1, *self.y2_shape[1:])
+        #TODO should i multiply the last layers with batch size
         return y1_pred, y2_pred
     
     def save(self, path):
