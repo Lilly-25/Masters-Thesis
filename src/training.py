@@ -6,33 +6,64 @@ import matplotlib.pyplot as plt
 import wandb
 import numpy as np
     
-class LossRegularisation(nn.Module):
+class Y1LossRegularisation(nn.Module):
     #Penalise monotonic increasing values in the prediction
-    def __init__(self, lambda_monotonic):
-        super(LossRegularisation, self).__init__()
-        self.lambda_monotonic = lambda_monotonic
+    def __init__(self, lambda_y1):
+        super(Y1LossRegularisation, self).__init__()
+        self.lambda_y1 = lambda_y1
         
     def mse_loss(self, output, target):
         loss = torch.mean((output - target)**2)
         return loss
 
     def forward(self, y_pred, y_true):
-        
         mse_loss = self.mse_loss(y_pred, y_true)
         
-        # y2-y1<=0 - it has to be a declining curve--CONFIRM WITH CLIENT
+        # y2-y1<=0 - it has to be a declining curve--
         #relu clips the negative values to zero so that increasing values are penalised
-        violations = torch.relu(torch.pow(y_pred[:, 1:]-y_pred[:, :-1], 2))#Squared difference incase of increasing values in y_pred
-        num_elements = violations.numel()
-        regularized_factor= violations.sum()/num_elements
-        #average is taken to normalise the loss
-             
-        return mse_loss + self.lambda_monotonic * regularized_factor
+        violations = torch.pow(torch.relu(y_pred[:, 1:]-y_pred[:, :-1]), 2)#Squared difference incase of increasing values in y_pred
+        #Do we go with removing the square, coz it doesnt seem to exaggerate loss
+        #I fear the loss would try to create a decreasing curve though out the batch
+        regularized_factor= violations.sum()/violations.numel()
+        #Consider per example although does not seem necessary
+
+        return mse_loss + self.lambda_y1 * regularized_factor
+    
+class Y2LossRegularisation(nn.Module):
+    def __init__(self, lambda_y2):
+        super(Y2LossRegularisation, self).__init__()
+        self.lambda_y2 = lambda_y2
+    
+    def mse_loss(self, output, target):
+        return torch.mean((output - target)**2)
+    
+    def forward(self, y_pred, y_true):
+        mse_loss = self.mse_loss(y_pred, y_true)
+
+        middle_row = y_pred.shape[1] // 2
+        mid_row_vals = y_pred[:, middle_row, :]#Extract middle row values.
+        violations = torch.abs(mid_row_vals) # If not 0, it is a violation
+        regularized_factor=  violations.sum()/violations.numel()
+        
+        return mse_loss + self.lambda_y2 * regularized_factor
+    
+class MSELoss(nn.Module):
+    def __init__(self):
+        super(MSELoss, self).__init__()
+        
+    def mse_loss(self, output, target):
+        loss = torch.mean((output - target)**2)
+        return loss
+
+    def forward(self, y_pred, y_true):
+        mse_loss = self.mse_loss(y_pred, y_true)  
+        return mse_loss 
+    
 
 
 class mlp_kpi3d_trainer:
     
-    def __init__(self, model, train_dataset, val_dataset, batch_size, loss, optimizer, lrscheduler, device):
+    def __init__(self, model, train_dataset, val_dataset, batch_size, loss1, loss2, optimizer, lrscheduler, device):
         
         self.model = model
         
@@ -40,7 +71,8 @@ class mlp_kpi3d_trainer:
         self.val_dataset = val_dataset
         self.batch_size = batch_size
         
-        self.loss = loss
+        self.loss1 = loss1
+        self.loss2 = loss2
         self.optimizer = optimizer
         self.lr_scheduler=lrscheduler
         self.device = device
@@ -57,7 +89,7 @@ class mlp_kpi3d_trainer:
         self.val_loss_history_y2, self.val_score_history_y2, self.val_score_history = [], [],[]
 
     @staticmethod
-    def y1_score(outputs, labels):
+    def y1_score(outputs, labels): #RMSE
         labels=labels.cpu().numpy()
         outputs=outputs.cpu().numpy()
         deviations = outputs - labels
@@ -66,7 +98,7 @@ class mlp_kpi3d_trainer:
         return std_dev
     
     @staticmethod
-    def y2_score(outputs, labels):
+    def y2_score(outputs, labels): #RMSE
         labels=labels.cpu().numpy()
         outputs=outputs.cpu().numpy()
         
@@ -121,16 +153,16 @@ class mlp_kpi3d_trainer:
             self.optimizer.zero_grad()
             y1_pred, y2_pred  = self.model(batch_x)
             
-            #-1 values as NAN values in the ETa grid and need to be ignored when calculating loss
+            #-1 values as NAN values in the ETA grid need to be ignored when calculating loss..check with NAN instead of -1 - TODO
             mask = (batch_y2 != -1).float()
                 
             # Apply the mask to both target and prediction
             y2_pred_masked = y2_pred * mask
             batch_y2_masked = batch_y2 * mask
             
-            loss_y1 = self.loss(y1_pred, batch_y1)
-            loss_y2 = self.loss(y2_pred_masked, batch_y2_masked)
-            loss = loss_y1 + loss_y2
+            loss_y1 = self.loss1(y1_pred, batch_y1)
+            loss_y2 = self.loss2(y2_pred_masked, batch_y2_masked)
+            loss = loss_y1 + loss_y2 #Increase weightage for y1 as y2 depends on it
             
             loss.backward()
             self.optimizer.step()
@@ -162,7 +194,7 @@ class mlp_kpi3d_trainer:
         train_outputs_y2 = torch.cat(train_outputs_y2)
         train_labels_y2 = torch.cat(train_labels_y2)
         
-        # Reshape 3D arrays to 2D arrays for R2 calculation
+        # Reshape 3D arrays to 2D arrays for score calculation...try to remove this and see if any error-TODO
         train_outputs_y2 = train_outputs_y2.view(train_outputs_y2.size(0), -1)
         train_labels_y2 = train_labels_y2.view(train_labels_y2.size(0), -1)
         
@@ -198,15 +230,15 @@ class mlp_kpi3d_trainer:
 
                 y1_pred, y2_pred  = self.model(batch_x)
                 
-                #-1 values as NAN values in the ETa grid and need to be ignored when calculating loss
+                #-1 values as NAN values in the ETA grid and need to be ignored when calculating loss..check with NAN instead of -1 - TODO
                 mask = (batch_y2 != -1).float()
                 
                 # Apply the mask to both target and prediction
                 y2_pred_masked = y2_pred * mask
                 batch_y2_masked = batch_y2 * mask
                 
-                loss_y1 = self.loss(y1_pred, batch_y1)
-                loss_y2 = self.loss(y2_pred_masked, batch_y2_masked)
+                loss_y1 = self.loss1(y1_pred, batch_y1)
+                loss_y2 = self.loss2(y2_pred_masked, batch_y2_masked)
 
                 val_loss_y1 += loss_y1.item() * batch_x.size(0)
                 val_loss_y2 += loss_y2.item() * batch_x.size(0)
@@ -233,7 +265,7 @@ class mlp_kpi3d_trainer:
         val_outputs_y2 = torch.cat(val_outputs_y2)
         val_labels_y2 = torch.cat(val_labels_y2)
         
-        # Reshape 3D arrays to 2D arrays for R2 calculation
+        # Reshape 3D arrays to 2D arrays for y2 calculation
         val_outputs_y2 = val_outputs_y2.view(val_outputs_y2.size(0), -1)
         val_labels_y2 = val_labels_y2.view(val_labels_y2.size(0), -1)
         
