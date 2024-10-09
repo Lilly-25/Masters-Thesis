@@ -428,3 +428,76 @@ def y1_score(df_predictions_y1, df_test_y1_targets):
     
     y1_score=score/len(index)
     return y1_score, scores
+
+def plot_kpi2d_stddev(df_y1_avg, df_test_y1_targets, model):
+    nn_kpi_2d = list(range(0, 19100, 100))
+
+    # Calculate mean RMSE to identify overlap wih target
+    mean_rmse= ((df_y1_avg.iloc[0] - df_test_y1_targets)**2).mean(axis=0, skipna=True)**0.5
+
+    # # Calculate element-wise RMSE
+    # element_wise_rmse = ((df_y1_avg.iloc[0] - df_test_y1_targets)**2 / len(df_test_y1_targets))**0.5 # Nan not considered in numerator when taking subtraction but in denominator to find mean, it is conidered in len()
+
+    squared_deviations = (df_y1_avg.iloc[0] - df_test_y1_targets)**2
+    non_nan = squared_deviations.count()#Nan values if exists are not counted
+    element_wise_rmse = (squared_deviations / non_nan)**0.5
+
+    # Create the plot
+    fig, ax1 = plt.subplots(figsize=(15, 8))
+
+    # Plot average on the first y-axis
+    ax1.plot(nn_kpi_2d, df_y1_avg.iloc[0], label=f'{model} Model', color='blue', linewidth=2)
+
+    # Plot standard deviation as shaded area
+    ax1.fill_between(nn_kpi_2d, 
+                    df_y1_avg.iloc[0] - mean_rmse, 
+                    df_y1_avg.iloc[0] + mean_rmse,
+                    alpha=0.2, color='blue', label='± Average RMSE')
+    ax1.legend(loc='upper right')
+    ax1.set_xlabel('Speed (rpm)', fontsize=12)
+    ax1.set_ylabel('Torque (N/m)', fontsize=12)
+
+    # Create a twin axis for RMSE
+    ax2 = ax1.twinx()
+    ax2.set_ylabel('RMSE', color='red', fontsize=12)
+
+    # Plot element-wise RMSE for each test sample
+    for i in range(len(element_wise_rmse)):
+        ax2.plot(nn_kpi_2d, element_wise_rmse.iloc[i], 
+                label=f'RMSE Sample {i+1}', 
+                linestyle='--', alpha=0.7)
+
+    ax2.tick_params(axis='y', labelcolor='red')
+
+    plt.title(f'Average RMSE and Element-wise RMSE of Test Dataset with {model} Model', fontsize=14)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+    
+def plot_kpi3d_stddev(y2_grid_avg, y2_grid, model):
+    
+    squared_deviations = (y2_grid_avg - y2_grid)**2
+    rmse = (np.nanmean(squared_deviations, axis=0))**0.5
+
+    plt.figure(figsize=(12, 5))
+
+    x_min, x_max = 0, rmse.shape[1]
+    y_min, y_max = -rmse.shape[0]//2, rmse.shape[0]//2
+
+    im = plt.imshow(rmse, cmap='jet', extent=[x_min, x_max, y_min, y_max], aspect='auto', origin='lower')
+
+    plt.colorbar(im, label='RMSE')
+    plt.title(f'RMSE of Test Dataset Samples from {model} Model')
+    plt.xlabel('Speed (rpm)/100')
+    plt.ylabel('Torque (Nm)')
+
+    x_ticks = np.arange(x_min, x_max, 20)  # x ticks are incorrect here and follows the actual speed /100
+    plt.xticks(x_ticks)
+    plt.show()
+    
+def plot_scores(scores, target):
+    plt.figure(figsize=(10, 6))
+    sns.histplot(scores, kde=True, bins=20*3)
+    plt.title(f'{target} Score Distribution')
+    plt.xlabel(f'{target} Scores')
+    plt.ylabel('Count')
