@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import os
 import pandas as pd
+import os
 
 def read_files_kpi2d(file_path, sheet_name):##can remove this TODO less likely necessary
     ## For 2d KPI we require only 1 row of NN to plot the 2d graph
@@ -105,3 +106,25 @@ def remove_faulty_files(directory):
             except Exception as e:
                 print(f"Error reading {filename}: {e}")
                 
+
+def artifact_deletion():
+    wandb_folder = os.path.expanduser('~/.local/share/wandb')
+    if os.path.exists(wandb_folder):
+        for root, dirs, files in os.walk(wandb_folder, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        os.rmdir(wandb_folder)
+        print(f"Deleted the folder: {wandb_folder}")
+    wandb_folder = os.path.expanduser('~/.cache/wandb')
+    if os.path.exists(wandb_folder):
+        for root, dirs, files in os.walk(wandb_folder, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        os.rmdir(wandb_folder)
+        print(f"Deleted the folder: {wandb_folder}")
+    else:
+        print(f"The folder {wandb_folder} does not exist.")
