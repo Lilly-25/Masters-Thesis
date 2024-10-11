@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import seaborn as sns
 from scipy.interpolate import griddata
+from src.scaling import StdScaler
 
-def generate_predictions(model_path, df_inputs_test, df_targets_test, x_scaler, y1_scaler, y2_scaler, device):
+def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_stddev, y1_mean, y1_stddev, y2_mean, y2_stddev, device):
     
     model = torch.load(model_path) # Load the trained model saved locally
     model=model.to(device)
@@ -16,7 +17,7 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_scaler, 
 
     x_test = df_inputs_test.values
     
-    x_test_normalized = x_scaler.transform(x_test)
+    x_test_normalized = StdScaler().transform(x_test, x_mean, x_stddev)
     x_test_tensor = torch.tensor(x_test_normalized, dtype=torch.float32).to(device)
 
     with torch.no_grad():
@@ -29,10 +30,11 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_scaler, 
     print(f"Predictions shape: {predictions_y2.shape}")
 
     target_columns = df_targets_test.columns
-
+    predictions_y1_flat = predictions_y1.flatten() 
     # Inverse transform the predictions to bring back to original scale
-    y1 = y1_scaler.inverse_transform(predictions_y1)
-   
+    y1 = StdScaler().inverse_transform(predictions_y1_flat, y1_mean, y1_stddev)
+    y1 = y1.reshape(predictions_y1.shape) 
+    print(f"Predictions shape: {y1.shape}")
     ##predictions_rounded = np.round(predictions_original_scale).astype(int)  # Round predictions to nearest integer coz targets are always integers . TODO change tensor type to integer instead of float for y1 labels
     ##Client to take the call
     
@@ -50,10 +52,11 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_scaler, 
         em[mask] = np.nan # Replace zeros with np.nan everywhere except the middle row
         predictions_y2[em_id] = em
 
-    flattened_predictions_y2 = predictions_y2.reshape(predictions_y2.shape[0], -1) 
-    y2 = y2_scaler.inverse_transform(flattened_predictions_y2)  
+    predictions_y2_flat = predictions_y2.reshape(-1)
+    y2 = StdScaler().inverse_transform(predictions_y2_flat, y2_mean, y2_stddev) 
     y2 = y2.reshape(predictions_y2.shape) 
     
+    print(y2.shape)
     mm_matrix= []
     eta_matrix=[]
     
@@ -151,7 +154,8 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
                                         alpha=0.2, color='red', label='Prediction Std Dev')
             axs[row, col].set_xlabel('NN')
             axs[row, col].set_ylabel('Mgrenz')
-            axs[row, col].set_title(f'Mgrenz(Torque Curve) KPI for\n{index[current_index]}', fontsize=10)
+            #axs[row, col].set_title(f'Mgrenz(Torque Curve) KPI for\n{index[current_index]}', fontsize=10)
+            axs[row, col].set_title(f'Mgrenz(Torque Curve) KPI', fontsize=10)
             axs[row, col].legend()
             
             # Plot differences
@@ -429,7 +433,7 @@ def y1_score(df_predictions_y1, df_test_y1_targets):
     y1_score=score/len(index)
     return y1_score, scores
 
-def plot_kpi2d_stddev(df_y1_avg, df_test_y1_targets, model):
+def plot_kpi2d_stddev(df_y1_avg, df_test_y1_targets, plot, model):
     nn_kpi_2d = list(range(0, 19100, 100))
 
     # Calculate mean RMSE to identify overlap wih target
@@ -452,29 +456,28 @@ def plot_kpi2d_stddev(df_y1_avg, df_test_y1_targets, model):
     ax1.fill_between(nn_kpi_2d, 
                     df_y1_avg.iloc[0] - mean_rmse, 
                     df_y1_avg.iloc[0] + mean_rmse,
-                    alpha=0.2, color='blue', label='± Average RMSE')
+                    alpha=0.2, color='blue', label=f'± Average {plot}')
     ax1.legend(loc='upper right')
     ax1.set_xlabel('Speed (rpm)', fontsize=12)
     ax1.set_ylabel('Torque (N/m)', fontsize=12)
 
     # Create a twin axis for RMSE
     ax2 = ax1.twinx()
-    ax2.set_ylabel('RMSE', color='red', fontsize=12)
+    ax2.set_ylabel(f'{plot}', color='red', fontsize=12)
 
     # Plot element-wise RMSE for each test sample
     for i in range(len(element_wise_rmse)):
         ax2.plot(nn_kpi_2d, element_wise_rmse.iloc[i], 
-                label=f'RMSE Sample {i+1}', 
                 linestyle='--', alpha=0.7)
 
     ax2.tick_params(axis='y', labelcolor='red')
 
-    plt.title(f'Average RMSE and Element-wise RMSE of Test Dataset with {model} Model', fontsize=14)
+    plt.title(f'Average {plot} and Element-wise {plot} of Test Dataset with {model} Model', fontsize=14)
     plt.grid(True, alpha=0.3)
     plt.tight_layout()
     plt.show()
     
-def plot_kpi3d_stddev(y2_grid_avg, y2_grid, model):
+def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
     
     squared_deviations = (y2_grid_avg - y2_grid)**2
     rmse = (np.nanmean(squared_deviations, axis=0))**0.5
@@ -484,10 +487,10 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, model):
     x_min, x_max = 0, rmse.shape[1]
     y_min, y_max = -rmse.shape[0]//2, rmse.shape[0]//2
 
-    im = plt.imshow(rmse, cmap='jet', extent=[x_min, x_max, y_min, y_max], aspect='auto', origin='lower')
+    im = plt.imshow(rmse, cmap='Reds', extent=[x_min, x_max, y_min, y_max], aspect='auto', origin='lower')
 
     plt.colorbar(im, label='RMSE')
-    plt.title(f'RMSE of Test Dataset Samples from {model} Model')
+    plt.title(f'{plot} of Test Dataset Samples from {model} Model')
     plt.xlabel('Speed (rpm)/100')
     plt.ylabel('Torque (Nm)')
 
@@ -495,9 +498,9 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, model):
     plt.xticks(x_ticks)
     plt.show()
     
-def plot_scores(scores, target):
+def plot_scores(scores, target, model):
     plt.figure(figsize=(10, 6))
     sns.histplot(scores, kde=True, bins=20*3)
-    plt.title(f'{target} Score Distribution')
+    plt.title(f'{target} Score Distribution for {model} Model')
     plt.xlabel(f'{target} Scores')
     plt.ylabel('Count')
