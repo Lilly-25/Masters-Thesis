@@ -63,7 +63,7 @@ class MSELoss(nn.Module):
 
 class mlp_kpi3d_trainer:
     
-    def __init__(self, model, train_dataset, val_dataset, batch_size, loss1, loss2, optimizer, lrscheduler, device):
+    def __init__(self, model, train_dataset, val_dataset, batch_size, loss1, loss2, optimizer, lrscheduler, w_y1, w_y2, device):
         
         self.model = model
         
@@ -76,6 +76,9 @@ class mlp_kpi3d_trainer:
         self.optimizer = optimizer
         self.lr_scheduler=lrscheduler
         self.device = device
+        
+        self.w_y1 = w_y1
+        self.w_y2 = w_y2
         
         self.model.to(self.device)
         
@@ -162,7 +165,7 @@ class mlp_kpi3d_trainer:
             
             loss_y1 = self.loss1(y1_pred, batch_y1)
             loss_y2 = self.loss2(y2_pred_masked, batch_y2_masked)
-            loss = loss_y1 + loss_y2 #Increase weightage for y1 as y2 depends on it
+            loss = self.w_y1*loss_y1 + self.w_y2*loss_y2 #Increase weightage for y1 as y2 depends on it
             
             loss.backward()
             self.optimizer.step()
@@ -242,7 +245,7 @@ class mlp_kpi3d_trainer:
 
                 val_loss_y1 += loss_y1.item() * batch_x.size(0)
                 val_loss_y2 += loss_y2.item() * batch_x.size(0)
-                val_loss= val_loss_y1+val_loss_y2
+                val_loss= self.w_y1*val_loss_y1 + self.w_y2*val_loss_y2
                 
                 val_outputs_y1.append(y1_pred.detach())
                 val_labels_y1.append(batch_y1)
