@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from src.scaling import StdScaler
 import numpy as np
 
 def data_prep_eta_grid():##Give the directory path as input so the same function can be used for test
@@ -77,12 +77,13 @@ def data_prep(test_size):
     print(y1.max())##probably return this and use it to calculate the max_rows in test
     max_mgrenz=y1.max() 
 
+    y1_flat = y1.flatten() # We donot need to scale based on dimensions and so we flatten the array
     
     y2_complete = np.load('./data/TabularDataETA.npy')
     y2=y2_complete[:-test_size, :, :]###only 1st dimension need to be considered..test
     ##############
     #Reshape it to 2D before scaling, then reshape back to 3D
-    y2_reshaped = y2.reshape(y2.shape[0], -1)  # Flatten to 2D
+    y2_flat = y2.reshape(-1) # We donot need to scale based on dimensions and so we flatten the array to 1 D
     
     # Count NaN values
     # nan_count = np.isnan(y2_reshaped).sum()
@@ -92,24 +93,29 @@ def data_prep(test_size):
     # nonnan_count = (~np.isnan(y2_reshaped)).sum()
     # print(f"Number of non-NaN values: {nonnan_count}")
     
-    scaler_x=StandardScaler().fit(x)
-    scaler_y1=MinMaxScaler().fit(y1) 
-    scaler_y2 = MinMaxScaler().fit(y2_reshaped)
+    x_min, x_max=StdScaler().fit(x, flatten=False)
+    y1_min, y1_max=StdScaler().fit(y1_flat, flatten=True) 
+    y2_min, y2_max = StdScaler().fit(y2_flat, flatten=True)
 
-    x_normalized=scaler_x.transform(x)
-    y1_normalized=scaler_y1.transform(y1)
-    y2_normalized=scaler_y2.transform(y2_reshaped)
+    x_normalized=StdScaler().transform(x, x_min, x_max)
+    y1_normalized=StdScaler().transform(y1_flat, y1_min, y1_max)
+    y2_normalized=StdScaler().transform(y2_flat, y2_min, y2_max)
+    
+    y1_normalized = y1_normalized.reshape(y1.shape)
 
     y2_normalized = y2_normalized.reshape(y2.shape)  # Reshape back to 3D
     
     # Replace nans with -1..or maybe try -.1...maybe predictions might not be so skewed
     y2_normalized = np.nan_to_num(y2_normalized, nan=-1) # If we give nan values to model, although it doesnt enter the network, loss completely turns nan--TODO check
-    
-    print(np.nanmax(y2_normalized))
-    print(np.nanmin(y2_normalized))
-    # # Count NaN values
-    # nan_count = np.isnan(y2_normalized).sum()
-    # print(f"Number of NaN values: {nan_count}")
+    # Count NaN values
+    nan_count = np.isnan(x_normalized).sum()
+    print(f"Number of NaN values for x: {nan_count}")
+    nan_count = np.isnan(y1_normalized).sum()
+    print(f"Number of NaN values for x: {nan_count}")
+    nan_count = np.isnan(y2_normalized).sum()
+    print(f"Number of NaN values for x: {nan_count}")
+
+
 
     # #Count non-NaN values
     # nonnan_count = (~np.isnan(y2_normalized)).sum()
@@ -117,4 +123,4 @@ def data_prep(test_size):
     
     input_size = x_normalized.shape[1]
   
-    return x_normalized, y1_normalized, y2_normalized, scaler_x, scaler_y1, scaler_y2, input_size, df_x_test, df_y1_test, max_mgrenz
+    return x_normalized, y1_normalized, y2_normalized, x_min, x_max, y1_min, y1_max, y2_min, y2_max, input_size, df_x_test, df_y1_test, max_mgrenz
