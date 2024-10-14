@@ -6,7 +6,7 @@ import os
 from tqdm import tqdm
 
 directory = '/home/k64889/Masters-Thesis/data/Testing/raw'
-#directory = '/home/k64889/Masters-Thesis/data/AllTopologies'
+# directory = '/home/k64889/Masters-Thesis/data/AllTopologies'
 
 remove_faulty_files(directory)
 
@@ -25,7 +25,7 @@ for filename in tqdm(os.listdir(directory)):
 
         
 df_inputs.to_csv('./data/TabularDataInputs.csv', index=True)
-df_targets.to_csv('./data/TabularDataTargets.csv', index=True)
+df_targets.to_csv('./data/TabularDataY1Targets.csv', index=True)
 
 
 print(f"Total input rows: {df_inputs.shape[0]}")
