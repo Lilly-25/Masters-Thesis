@@ -6,8 +6,9 @@ import matplotlib.colors as mcolors
 import seaborn as sns
 from scipy.interpolate import griddata
 from src.scaling import StdScaler
+from src.utils import cumulative_counts as cumulative_col_count
 
-def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_stddev, y1_mean, y1_stddev, y2_mean, y2_stddev, device):
+def generate_predictions_shaping(model_path, df_inputs_test, df_targets_test, x_mean, x_stddev, device):
     
     model = torch.load(model_path) # Load the trained model saved locally
     model=model.to(device)
@@ -23,18 +24,136 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_
     with torch.no_grad():
         predictions = model(x_test_tensor) # Generate predictions
         
-    predictions_y1 = predictions[0].to('cpu').numpy() # convert to numpy array
-    print(f"Predictions shape: {predictions_y1.shape}")
+    y1 = predictions[0].to('cpu').numpy() # convert to numpy array
+    print(f"Predictions y1 shape: {y1.shape}")
     
-    predictions_y2 = predictions[1].to('cpu').numpy() # convert to numpy array
-    print(f"Predictions shape: {predictions_y2.shape}")
+    y2 = predictions[1].to('cpu').numpy() # convert to numpy array
+    print(f"Predictions y2 shape: {y2.shape}")
 
     target_columns = df_targets_test.columns
-    predictions_y1_flat = predictions_y1.flatten() 
-    # Inverse transform the predictions to bring back to original scale
-    y1 = StdScaler().inverse_transform(predictions_y1_flat, y1_mean, y1_stddev)
-    y1 = y1.reshape(predictions_y1.shape) 
+
+    ##predictions_rounded = np.round(y1).astype(int)  # Round predictions to nearest integer coz targets are always integers . TODO change tensor type to integer instead of float for y1 labels
+    ##Client to take the call
+    
+    df_y1 = pd.DataFrame(y1, columns=target_columns, index=index)
+    
+    ##y2 unmasking the nan values from the eta grid
+
+    for em_id in range(y2.shape[0]):
+        
+        em = y2[em_id]
+        mid_id = em.shape[0] // 2 # Find the middle row index of each ETa grid
+        #print(predictions_y2[em_id,mid_id, 0:3])..Not exactly 0 but close to 0
+        mask = (em == 0) # Create a mask for zeros
+        mask[mid_id, :] = False  # Exclude the rows in the ETA grid where speed is 0
+        em[mask] = np.nan # Replace zeros with np.nan everywhere except the middle row
+        y2[em_id] = em
+
+    mm_matrix= []
+    eta_matrix=[]
+    
+    for i in range(y2.shape[0]): # loop through each sasmple
+        
+        max_mgrenz = df_y1.iloc[i].values.max()
+        max_mgrenz_rounded = np.round(max_mgrenz).astype(int)
+        mgrenz_values = np.round(df_y1.iloc[i]).values.astype(int)
+        print('Mgrenz \n',mgrenz_values)
+        eta_predicted=[]
+        if (2*max_mgrenz_rounded) + 1 > y2[i].shape[0]: # If worse case scenario where we predict a torque higher than expected ETA
+#             print(f"Warning: The maximum torque value for {index[i]} is too high than expected")
+#             negative_eta=[]
+#             print(y2[i].shape[0])
+#             negative_columns=0
+#             for j in range(y2[i].shape[0]//2 + 1): # Loop through each row in the sample
+#                 #Tries to triangulate the eta envelope based on mgrenz curve
+#                 if j < len(mgrenz_diff):
+#                     if j == 0 or mgrenz_values[j] != mgrenz_values[j-1]:
+#                         negative_columns = 1
+#                     else:
+#                         negative_columns += 1
+#  #Tries to maintain from end of triangulation wih min mgrenz until 0 torque
+#                 padded_eta = np.full((191,), np.nan)
+#                 padded_eta[:negative_columns] = y2_sliced[j, :negative_columns]
+#                 negative_eta.append(padded_eta)
+#             eta_predicted.extend(negative_eta)
+#             print('Negative eta',len(negative_eta))
+#             eta_predicted.extend(negative_eta)
+#             positive_eta=[]
+#             positive_columns=0
+#             for j in range(y2[i].shape[0] - 1, y2[i].shape[0]//2, -1): # Loop through each row in the sample
+#                 if j < len(mgrenz_diff):
+#                     if j == 0 or mgrenz_values[j] != mgrenz_values[j-1]:
+#                         positive_columns = 1
+#                     else:
+#                         positive_columns += 1
+#                 padded_eta = np.full(191, np.nan)
+#                 padded_eta[:positive_columns] = y2_sliced[j, :positive_columns]
+#                 positive_eta.append(padded_eta)
+#             eta_predicted.extend(reversed(positive_eta))
+#             print('Sliced eta',len(eta_predicted))
+            eta_predicted=y2[i]
+        else:
+            mid_eta= y2[i].shape[0] // 2
+            y2_sliced = y2[i, mid_eta-max_mgrenz_rounded:mid_eta+max_mgrenz_rounded+1 , :]
+            print(y2_sliced.shape)
+            cumulative_counts = cumulative_col_count(mgrenz_values)
+            print('Cumulative counts', cumulative_counts)
+            negative_eta=[]
+            negative_columns=0
+            for j in range(y2_sliced.shape[0]//2 + 1): # Loop through each row in the sample
+                if j < len(cumulative_counts):
+                    negative_columns = cumulative_counts[j]
+                else:
+                    negative_columns = cumulative_counts[-1]
+                padded_eta = np.full(191, np.nan)
+                padded_eta[:negative_columns] = y2_sliced[j, :negative_columns]
+                negative_eta.append(padded_eta)
+            eta_predicted.extend(negative_eta)
+            positive_eta=[]
+            positive_columns=0
+            k=0
+            for j in range(y2_sliced.shape[0] - 1, y2_sliced.shape[0]//2, -1): # Loop through each row in the sample
+                if k < len(cumulative_counts):
+                    positive_columns = cumulative_counts[k]
+                else:
+                    positive_columns = cumulative_counts[-1]
+                padded_eta = np.full(191, np.nan)
+                padded_eta[:positive_columns] = y2_sliced[j, :positive_columns]
+                positive_eta.append(padded_eta)
+                k+=1
+            eta_predicted.extend(reversed(positive_eta))
+            print('Sliced eta',len(eta_predicted))
+        #Probably need to add a check here when 2 * mgrenz values exceeds the eta grid size..error handling
+        # eta_predicted = y2[i]
+        mm_matrix.append(list(range(-max_mgrenz_rounded, max_mgrenz_rounded + 1)))
+        eta_matrix.append(np.array(eta_predicted))
+    return df_y1, y2, mm_matrix, eta_matrix
+
+
+def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_stddev, device):
+    
+    model = torch.load(model_path) # Load the trained model saved locally
+    model=model.to(device)
+    model.eval()  # Set the model to evaluation mode
+    
+    index = df_inputs_test.index#Index containing filename
+
+    x_test = df_inputs_test.values
+    
+    x_test_normalized = StdScaler().transform(x_test, x_mean, x_stddev)
+    x_test_tensor = torch.tensor(x_test_normalized, dtype=torch.float32).to(device)
+
+    with torch.no_grad():
+        predictions = model(x_test_tensor) # Generate predictions
+        
+    y1 = predictions[0].to('cpu').numpy() # convert to numpy array
     print(f"Predictions shape: {y1.shape}")
+    
+    y2 = predictions[1].to('cpu').numpy() # convert to numpy array
+    print(f"Predictions shape: {y2.shape}")
+
+    target_columns = df_targets_test.columns
+
     ##predictions_rounded = np.round(predictions_original_scale).astype(int)  # Round predictions to nearest integer coz targets are always integers . TODO change tensor type to integer instead of float for y1 labels
     ##Client to take the call
     
@@ -42,21 +161,16 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_
     
     ##y2 unmasking the nan values from the eta grid
 
-    for em_id in range(predictions_y2.shape[0]):
+    for em_id in range(y2.shape[0]):
         
-        em = predictions_y2[em_id]
+        em = y2[em_id]
         mid_id = em.shape[0] // 2 # Find the middle row index of each ETa grid
         #print(predictions_y2[em_id,mid_id, 0:3])..Not exactly 0 but close to 0
         mask = (em == 0) # Create a mask for zeros
         mask[mid_id, :] = False  # Exclude the rows in the ETA grid where speed is 0
         em[mask] = np.nan # Replace zeros with np.nan everywhere except the middle row
-        predictions_y2[em_id] = em
+        y2[em_id] = em
 
-    predictions_y2_flat = predictions_y2.reshape(-1)
-    y2 = StdScaler().inverse_transform(predictions_y2_flat, y2_mean, y2_stddev) 
-    y2 = y2.reshape(predictions_y2.shape) 
-    
-    print(y2.shape)
     mm_matrix= []
     eta_matrix=[]
     
