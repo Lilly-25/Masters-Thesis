@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import os
 import pandas as pd
-import os
 
 def read_files_kpi2d(file_path, sheet_name):##can remove this TODO less likely necessary
     ## For 2d KPI we require only 1 row of NN to plot the 2d graph
@@ -128,3 +127,16 @@ def artifact_deletion():
         print(f"Deleted the folder: {wandb_folder}")
     else:
         print(f"The folder {wandb_folder} does not exist.")
+        
+def cumulative_counts(arr):
+    if len(arr) == 0:
+        return []
+    
+    result = []
+    count = 0
+    for i in range(len(arr)):
+        count += 1
+        if i == len(arr) - 1 or arr[i] != arr[i + 1]:
+            result.append(count)
+    
+    return result
