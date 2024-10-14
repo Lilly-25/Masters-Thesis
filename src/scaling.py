@@ -23,20 +23,16 @@ class MinMaxScaler: # Not used anymore
         return z * range_values + min_values
 
 class StdScaler:
-    def fit(self, x, flatten):
-        # Calculate maximum and minimum values, ignoring NaNs
+    def fit(self, x):
+        # Calculate mean and stddev ignoring NANs
         mean = np.nanmean(x, axis=0)
         std_dev = np.nanstd(x, axis=0)
-        if not flatten:
-            std_dev[std_dev == 0] = 1
-        else:
-            if std_dev == 0:
-                std_dev = 1
+        std_dev[std_dev == 0] = 1
          
         return mean, std_dev
 
     def transform(self, x, mean, std_dev):
-        # Apply the Min-Max scaling, preserving NaNs
+        # Apply the std scaling scaling, preserving NaNs
         return np.where(np.isnan(x), np.nan, (x - mean) / std_dev)
 
     def inverse_transform(self, z, mean, std_dev):
