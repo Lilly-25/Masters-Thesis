@@ -7,8 +7,10 @@ import seaborn as sns
 from scipy.interpolate import griddata
 from src.scaling import StdScaler
 from src.utils import cumulative_counts as cumulative_col_count
+import matplotlib.ticker as ticker
+from matplotlib.colors import Normalize
 
-def generate_predictions_shaping(model_path, df_inputs_test, df_targets_test, x_mean, x_stddev, device):
+def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_stddev, device):
     
     model = torch.load(model_path) # Load the trained model saved locally
     model=model.to(device)
@@ -57,138 +59,60 @@ def generate_predictions_shaping(model_path, df_inputs_test, df_targets_test, x_
         max_mgrenz = df_y1.iloc[i].values.max()
         max_mgrenz_rounded = np.round(max_mgrenz).astype(int)
         mgrenz_values = np.round(df_y1.iloc[i]).values.astype(int)
-        print('Mgrenz \n',mgrenz_values)
+        # print('Mgrenz \n',mgrenz_values)
         eta_predicted=[]
+        
         if (2*max_mgrenz_rounded) + 1 > y2[i].shape[0]: # If worse case scenario where we predict a torque higher than expected ETA
-#             print(f"Warning: The maximum torque value for {index[i]} is too high than expected")
-#             negative_eta=[]
-#             print(y2[i].shape[0])
-#             negative_columns=0
-#             for j in range(y2[i].shape[0]//2 + 1): # Loop through each row in the sample
-#                 #Tries to triangulate the eta envelope based on mgrenz curve
-#                 if j < len(mgrenz_diff):
-#                     if j == 0 or mgrenz_values[j] != mgrenz_values[j-1]:
-#                         negative_columns = 1
-#                     else:
-#                         negative_columns += 1
-#  #Tries to maintain from end of triangulation wih min mgrenz until 0 torque
-#                 padded_eta = np.full((191,), np.nan)
-#                 padded_eta[:negative_columns] = y2_sliced[j, :negative_columns]
-#                 negative_eta.append(padded_eta)
-#             eta_predicted.extend(negative_eta)
-#             print('Negative eta',len(negative_eta))
-#             eta_predicted.extend(negative_eta)
-#             positive_eta=[]
-#             positive_columns=0
-#             for j in range(y2[i].shape[0] - 1, y2[i].shape[0]//2, -1): # Loop through each row in the sample
-#                 if j < len(mgrenz_diff):
-#                     if j == 0 or mgrenz_values[j] != mgrenz_values[j-1]:
-#                         positive_columns = 1
-#                     else:
-#                         positive_columns += 1
-#                 padded_eta = np.full(191, np.nan)
-#                 padded_eta[:positive_columns] = y2_sliced[j, :positive_columns]
-#                 positive_eta.append(padded_eta)
-#             eta_predicted.extend(reversed(positive_eta))
-#             print('Sliced eta',len(eta_predicted))
+            print(f"Warning: The maximum torque value for {index[i]} is too high than expected")
             eta_predicted=y2[i]
+            
         else:
             mid_eta= y2[i].shape[0] // 2
             y2_sliced = y2[i, mid_eta-max_mgrenz_rounded:mid_eta+max_mgrenz_rounded+1 , :]
-            print(y2_sliced.shape)
             cumulative_counts = cumulative_col_count(mgrenz_values)
-            print('Cumulative counts', cumulative_counts)
+            # print('Cumulative counts', cumulative_counts)
             negative_eta=[]
-            negative_columns=0
-            for j in range(y2_sliced.shape[0]//2 + 1): # Loop through each row in the sample
+            j = 0
+            k=0
+            # while i < y2_sliced.shape[0]//2 + 1:
+            for i in range(y2_sliced.shape[0]//2 + 1): 
                 if j < len(cumulative_counts):
                     negative_columns = cumulative_counts[j]
                 else:
                     negative_columns = cumulative_counts[-1]
+                
                 padded_eta = np.full(191, np.nan)
-                padded_eta[:negative_columns] = y2_sliced[j, :negative_columns]
+                padded_eta[:negative_columns] = y2_sliced[i, :negative_columns]
                 negative_eta.append(padded_eta)
+
+                # Update j based on mgrenz_values
+                if negative_columns < len(mgrenz_values) and k == 0:
+                    k = abs(mgrenz_values[negative_columns-1] - mgrenz_values[negative_columns])
+                if k == 1:
+                    j+=1
+                k -= 1
             eta_predicted.extend(negative_eta)
             positive_eta=[]
-            positive_columns=0
+            j=0
             k=0
-            for j in range(y2_sliced.shape[0] - 1, y2_sliced.shape[0]//2, -1): # Loop through each row in the sample
-                if k < len(cumulative_counts):
-                    positive_columns = cumulative_counts[k]
+            for i in range(y2_sliced.shape[0] - 1, y2_sliced.shape[0]//2, -1): # Loop through each row in the sample
+                if j < len(cumulative_counts):
+                    positive_columns = cumulative_counts[j]
                 else:
                     positive_columns = cumulative_counts[-1]
                 padded_eta = np.full(191, np.nan)
-                padded_eta[:positive_columns] = y2_sliced[j, :positive_columns]
+                padded_eta[:positive_columns] = y2_sliced[i, :positive_columns]
                 positive_eta.append(padded_eta)
-                k+=1
+                # Update j based on mgrenz_values
+                if positive_columns < len(mgrenz_values) and k == 0:
+                    k = abs(mgrenz_values[positive_columns-1] - mgrenz_values[positive_columns])
+                if k == 1:
+                    j+=1
+                k -= 1
             eta_predicted.extend(reversed(positive_eta))
-            print('Sliced eta',len(eta_predicted))
-        #Probably need to add a check here when 2 * mgrenz values exceeds the eta grid size..error handling
-        # eta_predicted = y2[i]
+
         mm_matrix.append(list(range(-max_mgrenz_rounded, max_mgrenz_rounded + 1)))
         eta_matrix.append(np.array(eta_predicted))
-    return df_y1, y2, mm_matrix, eta_matrix
-
-
-def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_stddev, device):
-    
-    model = torch.load(model_path) # Load the trained model saved locally
-    model=model.to(device)
-    model.eval()  # Set the model to evaluation mode
-    
-    index = df_inputs_test.index#Index containing filename
-
-    x_test = df_inputs_test.values
-    
-    x_test_normalized = StdScaler().transform(x_test, x_mean, x_stddev)
-    x_test_tensor = torch.tensor(x_test_normalized, dtype=torch.float32).to(device)
-
-    with torch.no_grad():
-        predictions = model(x_test_tensor) # Generate predictions
-        
-    y1 = predictions[0].to('cpu').numpy() # convert to numpy array
-    print(f"Predictions shape: {y1.shape}")
-    
-    y2 = predictions[1].to('cpu').numpy() # convert to numpy array
-    print(f"Predictions shape: {y2.shape}")
-
-    target_columns = df_targets_test.columns
-
-    ##predictions_rounded = np.round(predictions_original_scale).astype(int)  # Round predictions to nearest integer coz targets are always integers . TODO change tensor type to integer instead of float for y1 labels
-    ##Client to take the call
-    
-    df_y1 = pd.DataFrame(y1, columns=target_columns, index=index)
-    
-    ##y2 unmasking the nan values from the eta grid
-
-    for em_id in range(y2.shape[0]):
-        
-        em = y2[em_id]
-        mid_id = em.shape[0] // 2 # Find the middle row index of each ETa grid
-        #print(predictions_y2[em_id,mid_id, 0:3])..Not exactly 0 but close to 0
-        mask = (em == 0) # Create a mask for zeros
-        mask[mid_id, :] = False  # Exclude the rows in the ETA grid where speed is 0
-        em[mask] = np.nan # Replace zeros with np.nan everywhere except the middle row
-        y2[em_id] = em
-
-    mm_matrix= []
-    eta_matrix=[]
-    
-    for i in range(y2.shape[0]):
-        
-        max_mgrenz = df_y1.iloc[i].max()
-        max_mgrenz_rounded = np.round(max_mgrenz).astype(int)
-        if (2*max_mgrenz_rounded) + 1 > y2[i].shape[0]:
-            print(f"Warning: The maximum torque value for {index[i]} is too high than expected")
-            eta_predicted=y2[i]
-        else:
-            mid_eta= y2[i].shape[0] // 2 
-            eta_predicted = y2[i, mid_eta-max_mgrenz_rounded:mid_eta+max_mgrenz_rounded+1 , :]
-        #Probably need to add a check here when 2 * mgrenz values exceeds the eta grid size..error handling
-        # eta_predicted = y2[i]
-        mm_matrix.append(list(range(-max_mgrenz_rounded, max_mgrenz_rounded + 1)))
-        eta_matrix.append(eta_predicted)
-
     return df_y1, y2, mm_matrix, eta_matrix
 
 def plot_testdataset_kpi2d(df_targets, df_predictions,start,end, cols):
@@ -294,49 +218,38 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
 
 def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 10))
-    #fig.suptitle(f'Motor Efficiency - {filename}', fontsize=16)#only for client
-    fig.suptitle(f'Motor Efficiency', fontsize=16)#better for reporting
-    # sns.set_theme(style="whitegrid")
-    
+    fig.suptitle(f'Motor Efficiency', fontsize=16)
+
     Z_global_min = 0.00
     Z_global_max = 100.00
-    norm = mcolors.Normalize(vmin=Z_global_min, vmax=Z_global_max)
-    levels = np.linspace(Z_global_min, Z_global_max, 1000)
-    
+    norm = Normalize(vmin=Z_global_min, vmax=Z_global_max)
+
     for ax, mm, eta, title in zip([ax1, ax2], [mm1, mm2], [eta1, eta2], ['Original', 'Predicted']):
-
-        i=1
-        
         if mm.shape[0] != eta.shape[0]:
-                    # For the scenario where we need to plot the topologies not trained on for  
-            #We notice the difference especially for the Nabla topology
-            #For the topology trained for, generally we have in post processing for the size of both MM and ETA to be the same hence this doesnt affect it
-            
-            if eta.shape[0] % 2 == 0:
-                i=0
-
+            i = 1 if eta.shape[0] % 2 != 0 else 0
             min_rows = min(mm.shape[0], eta.shape[0])
             mm = mm[mm.shape[0]//2 - min_rows//2 : mm.shape[0]//2 + min_rows//2 + i]
             eta = eta[eta.shape[0]//2 - min_rows//2 : eta.shape[0]//2 + min_rows//2 + i, :]
-            # eta[eta.shape[0]//2, :] = 0       #At 0 speed, known fact that efficiency is 0
-            
+
         X, Y = np.meshgrid(nn, mm)
         Z = eta
-            
-        mask = np.isfinite(Z)
-        X, Y, Z = X[mask], Y[mask], Z[mask]
-        
-        contour = ax.tricontourf(X.ravel(), Y.ravel(), Z.ravel(), levels=levels, cmap='jet', norm=norm)
+
+        im = ax.pcolormesh(X, Y, Z, cmap='jet', norm=norm, shading='auto')
         ax.set_xlabel('Angular Velocity [rpm]', fontsize=12)
         ax.set_ylabel('Torque [Nm]', fontsize=12)
         ax.set_title(f'{title} Efficiency', fontsize=14)
-        cbar = fig.colorbar(contour, ax=ax)
+        cbar = fig.colorbar(im, ax=ax)
         cbar.set_label('Efficiency', fontsize=12)
-        ax.xaxis.set_major_locator(plt.MaxNLocator(10))
-        x_ticks = ax.get_xticks()
-        ax.set_xticks(x_ticks)
-        ax.set_xticklabels(x_ticks, rotation=45, ha='right')
-    
+        # Set x-axis limits
+        ax.set_xlim(0, max(nn))
+
+        # Improve x-axis tick labels
+        ax.xaxis.set_major_locator(ticker.MaxNLocator(10))
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+
+        # Rotate x-axis labels for better readability
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
+
     plt.tight_layout()
     plt.subplots_adjust(top=0.90)
     plt.show()
@@ -407,97 +320,59 @@ def plot_std_kpi2d(df_targets, df_predictions):#per sample row wise
     plt.show()
     
 def eval_plot_kpi3d(nn, mm1, eta1, mm2, eta2, filename):
-    
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(36, 10))
-    #fig.suptitle(f'Motor Efficiency - {filename}', fontsize=16)#only for client
-    fig.suptitle(f'Motor Efficiency', fontsize=16)#better for reporting
-    # sns.set_theme(style="whitegrid")
-    
-    Z_global_min, Z_global_max = 0.00, 100.00
-    norm = mcolors.Normalize(vmin=Z_global_min, vmax=Z_global_max)
-    levels = np.linspace(Z_global_min, Z_global_max, 1000)
-    
-    x_min, x_max = 0, 19000
-    #We are taking the min, max between prediced and true values here because predictions are rarely 100% accurate
-    y_min = min(np.min(mm1), np.min(mm2))
-    y_max = max(np.max(mm1), np.max(mm2))
-    
-    xi = np.linspace(x_min, x_max, 200)
-    yi = np.linspace(y_min, y_max, 2000)##can change drastically for untrained files..need to then put max_mgrenz from it
-    #Assuming 600 to be ideal as it ranges from -max_mgrenz to max_mgrenz in steps of 1 and max_mgrenz we came across is *300
-    xi, yi = np.meshgrid(xi, yi)
-    
-    for ax, mm, eta, title in zip([ax1, ax2], [mm1, mm2], [eta1, eta2], ['Original', 'Predicted']):
-        
-        i=1
-        
-        if mm.shape[0] != eta.shape[0]:
-                    # For the scenario where we need to plot the topologies not trained on for  
-            #We notice the difference especially for the Nabla topology
-            #For the topology trained for, generally we have in post processing for the size of both MM and ETA to be the same hence this doesnt affect it
-            
-            if eta.shape[0] % 2 == 0:
-                i=0
+    fig.suptitle(f'Motor Efficiency', fontsize=16)
 
-            min_rows = min(mm.shape[0], eta.shape[0])
-            mm = mm[mm.shape[0]//2 - min_rows//2 : mm.shape[0]//2 + min_rows//2 + i]
-            eta = eta[eta.shape[0]//2 - min_rows//2 : eta.shape[0]//2 + min_rows//2 + i, :]
-            # eta[eta.shape[0]//2, :] = 0       #At 0 speed, known fact that efficiency is 0
-        
-        X, Y = np.meshgrid(nn, mm)
-        Z = eta
-        
-        # Flatten and remove any NaN values
-        mask = ~np.isnan(Z.ravel())
-        # mask = np.isfinite(Z)
-        
-        points = np.column_stack((X.ravel()[mask], Y.ravel()[mask]))
-        values = Z.ravel()[mask]
-        
-        # Interpolate data onto the common grid
-        zi = griddata(points, values, (xi, yi), method='linear')
-        
-        contour = ax.contourf(xi, yi, zi, levels=levels, cmap='jet', norm=norm)
+    Z_global_min, Z_global_max = 0.00, 100.00
+    norm = Normalize(vmin=Z_global_min, vmax=Z_global_max)
+
+    def plot_data(ax, X, Y, Z, title, cmap='jet'):
+        im = ax.pcolormesh(X, Y, Z, cmap=cmap, norm=norm, shading='auto')
         ax.set_xlabel('Angular Velocity [rpm]', fontsize=12)
         ax.set_ylabel('Torque [Nm]', fontsize=12)
-        ax.set_title(f'{title} Efficiency', fontsize=14)
-        cbar = fig.colorbar(contour, ax=ax)
-        cbar.set_label('Efficiency', fontsize=12)
-        ax.xaxis.set_major_locator(plt.MaxNLocator(10))
-        x_ticks = ax.get_xticks()
-        ax.set_xticks(x_ticks)
-        ax.set_xticklabels(x_ticks, rotation=45, ha='right')
-    
-    # Calculate and plot the difference. Clcaulating min helps in case of untrained topologies
-    min_rows1 = min(mm1.shape[0], eta1.shape[0])
-    min_rows2 = min(mm2.shape[0], eta2.shape[0])
+        ax.set_title(f'{title}', fontsize=14)
+        cbar = fig.colorbar(im, ax=ax)
+        cbar.set_label('Efficiency' if title != 'Absolute Difference' else 'Absolute Efficiency Difference', fontsize=12)
+        ax.set_xlim(0, max(nn))
+        ax.xaxis.set_major_locator(ticker.MaxNLocator(10))
+        ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
 
-    X1, Y1 = np.meshgrid(nn, mm1[mm1.shape[0]//2 - min_rows1//2 : mm1.shape[0]//2 + min_rows1//2 + i])
-    X2, Y2 = np.meshgrid(nn, mm2[mm2.shape[0]//2 - min_rows2//2 : mm2.shape[0]//2 + min_rows2//2 + i])
+    def prepare_data(nn, mm, eta):
+        min_rows = min(mm.shape[0], eta.shape[0])
+        i = 1 if eta.shape[0] % 2 != 0 else 0
+        eta = eta[eta.shape[0]//2 - min_rows//2 : eta.shape[0]//2 + min_rows//2 + i]
+        mm = mm[mm.shape[0]//2 - min_rows//2 : mm.shape[0]//2 + min_rows//2 + i]
+        
+        X, Y = np.meshgrid(nn, mm)
+        
+        # Remove NaN and infinite values
+        mask = np.isfinite(eta)
+        X_valid = X[mask]
+        Y_valid = Y[mask]
+        eta_valid = eta[mask]
+        return X_valid, Y_valid, eta_valid
+
+    X1, Y1, Z1 = prepare_data(nn, mm1, eta1)
+    X2, Y2, Z2 = prepare_data(nn, mm2, eta2)
+
+    # Create a common grid for interpolation
+    x_min, x_max = min(X1.min(), X2.min()), max(X1.max(), X2.max())
+    y_min, y_max = min(Y1.min(), Y2.min()), max(Y1.max(), Y2.max())
+    xi = np.linspace(x_min, x_max, len(nn))  # Use original nn length
+    yi = np.linspace(y_min, y_max, min(len(mm1), len(mm2)))  # Use minimum mm length
+    XI, YI = np.meshgrid(xi, yi)
     
-    mask1 = ~np.isnan(eta1[eta1.shape[0]//2 - min_rows1//2 : eta1.shape[0]//2 + min_rows1//2 + i].ravel())
-    mask2 = ~np.isnan(eta2[eta2.shape[0]//2 - min_rows2//2 : eta2.shape[0]//2 + min_rows2//2 + i].ravel())
+    Z1_interp = griddata((X1, Y1), Z1, (XI, YI), fill_value=np.nan)
+    Z2_interp = griddata((X2, Y2), Z2, (XI, YI), fill_value=np.nan)
     
-    points1 = np.column_stack((X1.ravel()[mask1], Y1.ravel()[mask1]))
-    points2 = np.column_stack((X2.ravel()[mask2], Y2.ravel()[mask2]))
-    
-    Z1 = griddata(points1, eta1[eta1.shape[0]//2 - min_rows1//2 : eta1.shape[0]//2 + min_rows1//2 + i].ravel()[mask1], (xi, yi), method='linear')
-    Z2 = griddata(points2, eta2[eta2.shape[0]//2 - min_rows2//2 : eta2.shape[0]//2 + min_rows2//2 + i].ravel()[mask2], (xi, yi), method='linear')
-    
-    Z_diff = np.abs(Z2 - Z1)
-    
-    # Use a standard colormap for absolute difference
-    diff_contour = ax3.contourf(xi, yi, Z_diff, levels=1000, cmap='Reds')
-    ax3.set_xlabel('Angular Velocity [rpm]', fontsize=12)
-    ax3.set_ylabel('Torque [Nm]', fontsize=12)
-    ax3.set_title('Absolute Difference', fontsize=14)
-    cbar_diff = fig.colorbar(diff_contour, ax=ax3)
-    cbar_diff.set_label('Absolute Efficiency Difference', fontsize=12)
-    ax3.xaxis.set_major_locator(plt.MaxNLocator(10))
-    x_ticks = ax3.get_xticks()
-    ax3.set_xticks(x_ticks)
-    ax3.set_xticklabels(x_ticks, rotation=45, ha='right')
-    
+    plot_data(ax1, XI, YI, Z1_interp, 'Original Efficiency')
+    plot_data(ax2, XI, YI, Z2_interp, 'Predicted Efficiency')
+
+    # Calculate and plot the difference
+    Z_diff = np.abs(Z2_interp - Z1_interp)
+    plot_data(ax3, XI, YI, Z_diff, 'Absolute Difference', cmap='Reds')
+
     plt.tight_layout()
     plt.subplots_adjust(top=0.90)
     plt.show()
