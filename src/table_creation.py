@@ -4,7 +4,6 @@ import re
 import os
 import csv
 import numpy as np
-from src.utils import cumulative_counts as cumulative_col_count
 
 def create_tabular_data(file_path, purpose):
     try:
@@ -95,7 +94,7 @@ def create_tabular_data(file_path, purpose):
             last_row = sheet_mm.max_row
             max_index = check_rows(sheet_mm, last_row - 4, last_row, max_mgrenz)
 
-            cumulative_counts = cumulative_col_count(mgrenz_values)
+            # cumulative_counts = cumulative_col_count(mgrenz_values)
             
             #load the eta grid
             sheet_eta = wb['ETA']
@@ -106,27 +105,7 @@ def create_tabular_data(file_path, purpose):
             ##think of an alternative way where we can also have filenames indexed into the numpy array or whatever pythonic object
             with open(eta_grid, mode='w', newline="") as file:
                 writer = csv.writer(file)
-                #Negative torque values
-                for i, row in enumerate(sheet_eta.iter_rows(min_row=min_index, max_row=(min_index + max_index)//2 - 1, values_only=True)):
-                    if i < len(cumulative_counts):
-                        negative_columns = cumulative_counts[i]
-                    else:
-                        negative_columns = cumulative_counts[-1]
-                    padded_eta = np.full(191, np.nan)
-                    padded_eta[:negative_columns] = row[:negative_columns]
-                    writer.writerow(padded_eta)
-                    
-                positive_eta_grid = []
-                #Positive torque values..consider only this portion when mirroring
-                for j, row in enumerate(reversed(list(sheet_eta.iter_rows(min_row=((min_index + max_index)//2), max_row=max_index, values_only=True)))):
-                    if j < len(cumulative_counts):
-                        positive_columns = cumulative_counts[j]
-                    else:
-                        positive_columns = cumulative_counts[-1]
-                    padded_eta = np.full(191, np.nan)
-                    padded_eta[:positive_columns] = row[:positive_columns]
-                    positive_eta_grid.append(padded_eta)
-                for row in reversed(positive_eta_grid): # Reverse the sliced grid back to the original file
+                for row in sheet_eta.iter_rows(min_row=min_index, max_row=max_index, values_only=True):
                     writer.writerow(row)
         
         return df_features, df_targets
