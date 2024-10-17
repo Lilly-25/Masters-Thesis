@@ -493,3 +493,53 @@ def plot_scores(scores, target, model):
     plt.title(f'{target} Score Distribution for {model} Model')
     plt.xlabel(f'{target} Scores')
     plt.ylabel('Count')
+    
+def plot_eta(etas, ax, n):
+    for i, eta_array in enumerate(etas):
+        x = np.linspace(-300, 300, len(eta_array))
+        ax.plot(x, eta_array, label=f'Array {i+1}', linestyle='--')
+    
+    ax.set_xlabel('Torque (Nm)')
+    ax.set_ylabel('Efficiency (%)')
+    ax.set_title(f'Efficiency at Speed {n} rpm')
+
+def plot_eta_statistics(eta, speed_ranges):
+    num_plots = len(eta)
+
+    num_cols = min(3, num_plots)  
+    num_rows = (num_plots - 1) // num_cols + 1
+
+    fig, axs = plt.subplots(num_rows, num_cols, figsize=(6*num_cols, 5*num_rows))
+    fig.suptitle('Standard Deviation of Efficiency across NN ranges', fontsize=16)
+
+    if num_plots > 1:
+        axs = axs.flatten()
+        
+    n=speed_ranges[0] * 100
+
+    for i, etas in enumerate(eta):
+        if num_plots > 1:
+            ax = axs[i]
+        else:
+            ax = axs
+        plot_eta(etas, ax, n)
+        n+= 2000
+
+    # Remove any unused subplots
+    if num_plots > 1:
+        for j in range(num_plots, len(axs)):
+            fig.delaxes(axs[j])
+
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.95)
+    plt.show()
+    
+def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta):
+    
+    plt.figure(figsize=(10, 6))
+    plt.errorbar(speed_ranges, mean_eta, yerr=std_eta, fmt='o', capsize=5, label="Mean ± Std Dev", ecolor='red', linestyle='--', marker='s')
+    plt.xlabel("Speed*100(rpm) ")
+    plt.ylabel("Efficiency(%)")
+    plt.title("Standard Deviation of ETA values ranging NN speed")
+    plt.legend()
+    plt.show()
