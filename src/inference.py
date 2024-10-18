@@ -2,7 +2,6 @@ import torch
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 import seaborn as sns
 from scipy.interpolate import griddata
 from src.scaling import StdScaler
@@ -29,8 +28,14 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_
     y1 = predictions[0].to('cpu').numpy() # convert to numpy array
     print(f"Predictions y1 shape: {y1.shape}")
     
-    y2 = predictions[1].to('cpu').numpy() # convert to numpy array
-    print(f"Predictions y2 shape: {y2.shape}")
+    y2_half = predictions[1].to('cpu').numpy() # convert to numpy array
+    print(f"Predictions y2 shape: {y2_half.shape}")
+
+    y2 = np.zeros((y2_half.shape[0], 2* y2_half.shape[1]-1, y2_half.shape[2]))  #Mirroring negative grid of ETA to be same as the predicted positive grid
+
+    for i in range(y2_half.shape[0]):
+        y2[i, :y2_half.shape[1]-1, :] = y2_half[i, -1:0:-1, :]
+        y2[i, y2_half.shape[1]-1:, :] = y2_half[i]
 
     target_columns = df_targets_test.columns
 
@@ -146,6 +151,7 @@ def plot_testdataset_kpi2d(df_targets, df_predictions,start,end, cols):
             axs[row, col].legend()
         else:
             axs[row, col].axis('off')  
+
     plt.tight_layout(rect=[0, 0, 1, 0.96])  
     plt.show()
     
@@ -246,6 +252,9 @@ def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
         # Improve x-axis tick labels
         ax.xaxis.set_major_locator(ticker.MaxNLocator(10))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
+        
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
 
         # Rotate x-axis labels for better readability
         plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
@@ -279,6 +288,9 @@ def plot_mean_std_kpi2d(df_targets, df_predictions):#column wise  ##pretty usele
     ax.set_ylabel('Mgrenz')
     ax.set_title('Mean and Standard Deviation of Mgrenz(Torque Curve) KPI')
     ax.legend()
+    
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
 
     plt.tight_layout()
     plt.show()
@@ -316,6 +328,8 @@ def plot_std_kpi2d(df_targets, df_predictions):#per sample row wise
     ax.set_title('Standard Deviation of Mgrenz(Torque Curve) KPI from the Target Mean')
     ax.legend()
 
+    ax.spines['top'].set_visible(False)
+    
     plt.tight_layout()
     plt.show()
     
@@ -337,6 +351,8 @@ def eval_plot_kpi3d(nn, mm1, eta1, mm2, eta2, filename):
         ax.xaxis.set_major_locator(ticker.MaxNLocator(10))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
         plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
 
     def prepare_data(nn, mm, eta):
         min_rows = min(mm.shape[0], eta.shape[0])
@@ -463,6 +479,7 @@ def plot_kpi2d_stddev(df_y1_avg, df_test_y1_targets, plot, model):
 
     plt.title(f'Average {plot} and Element-wise {plot} of Test Dataset with {model} Model', fontsize=14)
     plt.grid(True, alpha=0.3)
+    ax1.spines['top'].set_visible(False)
     plt.tight_layout()
     plt.show()
     
@@ -485,6 +502,9 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
 
     x_ticks = np.arange(x_min, x_max, 20)  # x ticks are incorrect here and follows the actual speed /100
     plt.xticks(x_ticks)
+    ax=plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     plt.show()
     
 def plot_scores(scores, target, model):
@@ -493,6 +513,9 @@ def plot_scores(scores, target, model):
     plt.title(f'{target} Score Distribution for {model} Model')
     plt.xlabel(f'{target} Scores')
     plt.ylabel('Count')
+    ax=plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     
 def plot_eta(etas, ax, n):
     for i, eta_array in enumerate(etas):
@@ -502,15 +525,17 @@ def plot_eta(etas, ax, n):
     ax.set_xlabel('Torque (Nm)')
     ax.set_ylabel('Efficiency (%)')
     ax.set_title(f'Efficiency at Speed {n} rpm')
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
 
-def plot_eta_statistics(eta, speed_ranges):
+def plot_eta_statistics(eta, speed_ranges, input):
     num_plots = len(eta)
 
     num_cols = min(3, num_plots)  
     num_rows = (num_plots - 1) // num_cols + 1
 
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(6*num_cols, 5*num_rows))
-    fig.suptitle('Standard Deviation of Efficiency across NN ranges', fontsize=16)
+    fig.suptitle(f'Standard Deviation of {input} Efficiency across NN ranges', fontsize=16)
 
     if num_plots > 1:
         axs = axs.flatten()
@@ -541,5 +566,8 @@ def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta):
     plt.xlabel("Speed*100(rpm) ")
     plt.ylabel("Efficiency(%)")
     plt.title("Standard Deviation of ETA values ranging NN speed")
-    plt.legend()
+    ax=plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    plt.legend(loc='upper right')
     plt.show()
