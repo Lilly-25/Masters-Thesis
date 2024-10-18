@@ -44,7 +44,7 @@ class Y2LossRegularisation(nn.Module):
         mse_loss = self.mse_loss(y_pred, y_true)
 
         middle_row = y_pred.shape[1] // 2
-        mid_row_vals = y_pred[:, middle_row, :]#Extract middle row values.
+        mid_row_vals = y_pred[:, 0, :]#Extract middle row values.
         violations = torch.abs(mid_row_vals) # If not 0, it is a violation
         regularized_factor=  violations.sum()/violations.numel()
         #MSE across each element average over all elements in batch, regularization...matrix reshaping is not necessary
@@ -136,7 +136,6 @@ class mlp_kpi3d_trainer:
     def _train_epoch(self):
         self.model.train()
         train_loss_y1, train_loss_y2, train_loss = 0.0, 0.0, 0.0
-        train_losses_y1, train_losses_y2, train_losses = [], [], []
         train_outputs_y1, train_labels_y1 = [], []
         train_outputs_y2, train_labels_y2 = [], []
         
@@ -203,7 +202,6 @@ class mlp_kpi3d_trainer:
     def _validate_epoch(self):
         self.model.eval()
         val_loss_y1, val_loss_y2, val_loss = 0.0, 0.0, 0.0
-        val_losses_y1, val_losses_y2, val_losses = [], [], []
         val_outputs_y1, val_labels_y1 = [], []
         val_outputs_y2, val_labels_y2 = [], []
         
