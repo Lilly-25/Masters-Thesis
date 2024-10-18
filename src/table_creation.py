@@ -105,10 +105,16 @@ def create_tabular_data(file_path, purpose):
             ##think of an alternative way where we can also have filenames indexed into the numpy array or whatever pythonic object
             with open(eta_grid, mode='w', newline="") as file:
                 writer = csv.writer(file)
-                for row in sheet_eta.iter_rows(min_row=min_index, max_row=max_index, values_only=True):
+                mid_eta = False
+                for row in sheet_eta.iter_rows(min_row=min_index, max_row=max_index, values_only=True):#Only retrieve the positive ETA grid
+                    if not mid_eta:
+                        if all(value == 0 for value in row):
+                            mid_eta = True
+                        else:
+                            continue # Ignore the negative ETA grid
                     writer.writerow(row)
         
-        return df_features, df_targets
+        return df_features, df_targets            
                 
     except Exception as e:
         print(f"Error processing {os.path.basename(file_path)}: {str(e)}")
