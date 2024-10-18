@@ -16,14 +16,38 @@ def read_file_1d(file_path, sheet_name):
         data = [cell.value for cell in sheet[1] if cell.value is not None]
     return data
 
-def read_file_2d(file_path, sheet_name):
+def read_file_eta(file_path, sheet_name):
     # For 3d KPI we need the whole matrix of all 3 dimensions
     wb = openpyxl.load_workbook(file_path)
     sheet = wb[sheet_name]
     data = [[cell.value if cell.value is not None else np.nan for cell in row] for row in sheet.iter_rows()]
     return np.array(data, dtype=float)
 
+def read_file_2d(file_path, sheet_name):
+    wb = openpyxl.load_workbook(file_path)
+    sheet = wb[sheet_name]
     
+    y2_pos = []
+    mid_eta = False
+    
+    for row in sheet.iter_rows():
+        if not mid_eta:
+            if all(cell.value == 0 for cell in row):
+                mid_eta = True
+            else:
+                continue  # Ignore the negative ETA grid
+        
+        row_data = [cell.value if cell.value is not None else np.nan for cell in row]
+        y2_pos.append(row_data)
+    
+    y2 = []
+    y2_neg = y2_pos[-1:0:-1] # Mirroring negative grid of ETA to be same as the predicted positive grid excl mid row
+    y2 = y2_neg + y2_pos
+    while len(y2) < sheet.max_row:
+        y2.append([np.nan] * len(y2[0]))
+    return np.array(y2, dtype=float)
+        
+        
 def plot_kpi2d(nn_values, mgrenz_values):
     plt.figure(figsize=(10, 6))
     plt.plot(nn_values, mgrenz_values, color='blue')
@@ -34,6 +58,9 @@ def plot_kpi2d(nn_values, mgrenz_values):
     plt.title(f'NN vs Mgrenz')
     plt.grid(True)
     plt.tight_layout()
+    ax=plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
     # plt.legend()
     plt.show()
 
@@ -53,6 +80,9 @@ def plot_kpi3d(nn, mm, eta):
     ax.set_xlabel('Angular Velocity [rpm]', fontsize=12)
     ax.set_ylabel('Torque [Nm]', fontsize=12)
     ax.set_title('Motor Efficiency', fontsize=14)
+    
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
 
     cbar = fig.colorbar(im, ax=ax)
     cbar.set_label('Efficiency', fontsize=12)
@@ -61,6 +91,7 @@ def plot_kpi3d(nn, mm, eta):
     plt.xticks(rotation=45, ha='right')
     plt.subplots_adjust(bottom=0.15)
     plt.show()
+    
     
 def remove_faulty_files(directory):
     # Loop over all files to check if there are any faulty files and remove them
@@ -99,6 +130,7 @@ def artifact_deletion():
         print(f"Deleted the folder: {wandb_folder}")
     else:
         print(f"The folder {wandb_folder} does not exist.")
+        
         
 def cumulative_counts(arr):
     if len(arr) == 0:
