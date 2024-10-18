@@ -12,16 +12,14 @@ def data_prep_eta_grid():##Give the directory path as input so the same function
 
     filenames = df_inputs['filename'].values
     
-    df_inputs=df_inputs.drop('filename', axis=1)
     df_targets=df_targets.drop('filename', axis=1)
       
-    x=df_inputs.values
     y1=df_targets.values
     
     max_mgrenz=np.max(y1) # Max mgrenz here decided based on max value from our dataset should be overriddenable by user
+
+    max_rows=max_mgrenz+1 # Positive grid including 0
     
-    max_rows=(max_mgrenz*2)+1 # Full grid +ve and  -ve
-    # max_rows=max_mgrenz # Positive grid including 0
     print(max_rows)
     y2 = []
     # Padding
@@ -29,8 +27,7 @@ def data_prep_eta_grid():##Give the directory path as input so the same function
         y2_file = pd.read_csv(f'./data/TabularDataETAgrid/{filename}.csv')
         y2_values = y2_file.values
         padded = np.full((max_rows, 191),  np.nan, dtype=float)
-        # padded[:y2_file.shape[0], :y2_file.shape[1]] = y2_values
-        padded[max_rows//2 - y2_file.shape[0]//2 : max_rows//2 + y2_file.shape[0]//2, :] = y2_values
+        padded[0 : y2_file.shape[0], :] = y2_values
         y2.append(padded)
     
     y2 = np.array(y2)
