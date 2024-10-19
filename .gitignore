@@ -17,3 +17,13 @@ src/__pycache__/
 *.log
 *.pth
 wandb/
+=======
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.lof
+*.out
+*.lot
+*.toc
+*.synctex.gz
