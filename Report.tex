@@ -14,6 +14,21 @@
 \usepackage{tocbibind} % For adding list of figures, tables to table of contents
 \usepackage{tabularx} % For tables
 \usepackage{float} % For tables
+\usepackage{longtable}%to split tables over multiple pages
+\usepackage{array}
+\usepackage{booktabs}
+
+\usepackage{fancyheadings}
+%
+\pagestyle{fancy}
+\fancyhead[R]{
+    \includegraphics[width=0.1\textwidth]{./ReportImages/thws_logo.png} % Adjust path and filename
+}
+\fancyhead[C]{} 
+\fancyhead[L]{} 
+\addtolength{\headwidth}{\marginparsep}
+\addtolength{\headwidth}{\marginparwidth}
+
 \geometry{top=1in, bottom=1in, left=1in, right=1in} % Set page margins
 
 % Configure the hyperref package to remove red boxes and customize link colors
@@ -27,21 +42,6 @@
 
 
 \begin{document}
-
-% Set up the header and footer using fancyhdr
-% \pagestyle{fancy}
-% \fancyhf{} % Clear all header and footer fields
-
-% % Define the header
-% \fancyhead[L]{
-%     \small
-%     Technical University of Applied Sciences Würzburg-Schweinfurt (THWS)\\
-%     Faculty of Computer Science and Business Information Systems
-% }
-
-% % Adjust the header position
-% \renewcommand{\headrulewidth}{0pt} % Remove the header rule line
-
 
 % Title Page
 \begin{titlepage}
@@ -110,8 +110,12 @@ For instance the Vibration Costs are inversely proportional to the Efficieny val
 
 \chapter*{Acknowledgement}
 \addcontentsline{toc}{chapter}{Acknowledgement}
-I would like to thank my supervisor Prof. Dr. Magda Gregorova for her guidance and support throughout the course of this thesis and Valeo for providing the data.
-Special thanks to Mr Daniel and Leo for sharing valuable insights of the data from an electromechanincal standpoint.
+I would like to thank my supervisor Prof. Dr. Magda Gregorova for her guidance and support throughout the course of this thesis.
+Her dedication and commitment to our work has been inspiring for me to the extend that I might have developed a new love for academia. \\
+I would also like to express my sincere gratitude to Valeo for providing us with the dataset.
+Special thanks are in order to Daniel and Leo for sharing valuable insights of the data from an electromechanical standpoint and for giving me a detailed understanding of my task. \\
+I deeply owe my Mother and my Siblings who have been very instrumental in making it possible for me to pursue a Master's degree outside my home country and for the endless support thoughout.\\
+Finally, I humble myself before God Almighty for all his blessings and for giving me the strength to persevere and bring my dreams to fruition.\\
 
 \newpage
 
@@ -147,30 +151,29 @@ Special thanks to Mr Daniel and Leo for sharing valuable insights of the data fr
 
 \newpage
 
-\chapter*{Introduction} 
-\addcontentsline{toc}{chapter}{Introduction}
+\chapter{Introduction} 
 In the design of electric motors, vast amounts of data are generated to determine which design of an \ac{EM} fits best to \ac{KPI}s. \\
 \ac{KPI}s of an Electric Motor are essential to judge the performance of the motor before it is manufactured. \\
-Traditionally these \ac{KPI}s are inferred from a description of an \ac{EM} design via a \ac{FEM} approximating the solutions of the Maxwell’s equations. This process, though well established in the \ac{EM} design, is very time consuming and does not allow for high-throughput engine design optimization. \\
+Traditionally these \ac{KPI}s are inferred from a description of an \ac{EM} design via a \ac{FEM} approximating the solutions of the Maxwell’s equations. \\
+This process, though well established in the \ac{EM} design, is very time consuming and does not allow for high-throughput engine design optimization. \\
 The actual engine data of Valeo is used here as the dataset comprising of multiple variant designs of the Double-V topology.\\
 The 3 motor topologies manufactured by Valeo are as below:
 
-
 \begin{figure}[H]
     \centering
-    \begin{minipage}[b]{0.3\textwidth}
+    \begin{minipage}[b]{0.325\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/1V_Magnet.png}
         \caption{V1 Magnet \\ (Source:Valeo)}
         \label{fig:V1 Magnet}
     \end{minipage}
     \hfill
-    \begin{minipage}[b]{0.3\textwidth}
+    \begin{minipage}[b]{0.325\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/2V_Magnet.png}
         \caption{V2 Magnet\\ (Source:Valeo)}
         \label{fig:V2 Magnet}
     \end{minipage}
     \hfill
-    \begin{minipage}[b]{0.3\textwidth}
+    \begin{minipage}[b]{0.325\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/Nabla_Magnet.png}
         \caption{Nabla Magnet\\ (Source:Valeo)}
         \label{fig:Nabla Magnet}
@@ -180,18 +183,40 @@ The 3 motor topologies manufactured by Valeo are as below:
 This master thesis explores a way to do surrogate modelling of the current process as is highlighted in Figure \ref{fig:EM Design Flowchart} by making use of \ac{GNN} or \ac{MLP} for the modelling of electrical engine designs described parameterically. \\
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.9\textwidth]{./ReportImages/EM_design_flowchart_v2.png} 
+    \includegraphics[width=1\textwidth]{./ReportImages/EM_design_flowchart_v2.png} 
     \caption{EM Design Flowchart}
     \label{fig:EM Design Flowchart}
 \end{figure}
 
-\subsection*{Problem Statement/ Research Qs,/ Objective}
-\addcontentsline{toc}{subsection}{Problem Statement}
-We formulate the problem as follows: \\ blah blah
+
+\section{Objective}\label{sec:Objective}
+Our task is to predict 2 KPIs namely the Torque curve and the ETA grid from the parameteric description of topology invariant Electris Motors. \\
+The Torque curve is a 2D plot ie, a vector across speed ranges and the ETA grid is a 3D plot ie, a matrix of dimensions torque ranges and its speed ranges. \\
+The ETA grid is dependent on the shape of the torque curve and lies within the boundary of the torque curve.\\
+
+\section{Problem Statement}\label{sec:Problem Statement}
+
+Although our training dataset was highly imbalanced to consists majorly of 1 topology ie, Double V Magnet Topology, we aim to build a system that caters to every topology. \\
+With the tabular representation of the data, we assign distinct columns to include features from each topology.
+
+Given ETA is dependent on Torque curve, we need to build a model that can predict both these KPIs.\\
+However, due to the challenge of predicting ETA grid of varying dimensions for each motor variant, we decided against building a model architecture wherein 2D KPI is dependent on the 2D KPI. \\
+This in a way could be overcome if we build 2 models one for the 2D and 3D KPIs and thus feed in the corresponding 2D predictions when training the latter. \\
+However, it would be computationally expensive and does not help in the scenario when we might need to generate \ac{EM} parameteric descriptions.
+Additionally we deemed it unnecessary as the dimensions of the ETA grid vary with the torque curve and not necessarily the ETA values. \\
+
+Furthermore, we presume graph representation of the data will be more logical than tabular representation due to its ability to grasp the connections within the \ac{EM} structural properties better.
+This would be even more realistic with achieving topology invariance than the tabular representation and conserve memory and compute in the long run.
+However, we realize that our problem cannot be solved using Homogeneous \ac{GNN} which is relatively simpler and is built on a single node and edge type.
+In order to model our problem as a graph, we need to represent it as a Heterogeneous graph. \\
+
+\section{Research Question}\label{sec:Research Question}
+\ac{GNN} in general have not been to less explored even so more the heterogeneous \ac{GNN}.
+Particularly in the scenario of Electric Motor Modelling, there has been no publications with \ac{GNN}s.
+Hence the need to check its feasibility and its performance with our benchmarks on tabular data.
 
 
-\subsection*{Thesis Structure}
-\addcontentsline{toc}{subsection}{Thesis Structure}
+\section{Thesis Structure}\label{sec:Thesis Structure}
 
 The thesis is structured to follow sections namely Literature Review, Dataset, Modelling, Experiments and Results, Conclusion, Appendix and Bibliography.\\
 In Literature Review section will introduce the works that has already been carried out in this domain. \\
@@ -202,11 +227,10 @@ Conclusion chapter summarizes the thesis briefly and would also give a small gli
 Finally the Bibliography section lists out the articles cited for this thesis.\\
 \newpage 
 
-\chapter*{Literature Review} 
-\addcontentsline{toc}{chapter}{Literature Review}
+\chapter{Literature Review} 
 There has been extensive research in modeling the Electric Motor with \ac{CNN} based on the images of the motor cross-section. \\
-However our approach is progressive in the sense that once the \ac{KPI}s are predicted we would like to be able to generate the inputs and reproducing images is not known to apt given the infamous known fact that AI generated images are faulty.\\
-Instead by generating the parameters of the motor we can be rest assured of more precise results. 
+However our approach is progressive in the sense that once the \ac{KPI}s are predicted we would like to be able to generate the inputs.\\
+Reproducing images is not known to apt given the infamous known fact that AI generated images are faulty instead by generating the parameters of the motor we can be rest assured of more precise results. \\
 Hence the need to focus on the inputs as they are with their parametric description.\\
 Existing literature also covers works on modelling this work as tabular data using \ac{MLP}s. 
 Although this is fairly good forseeing the impact of generating the inverse process yet \ac{MLP}s cannot necessarily learn all the intricacies within motor components. \\
@@ -215,8 +239,7 @@ There has been close to no work of \ac{GNN}s in this domain. However we see prog
 
 \newpage 
 
-\chapter*{Dataset} 
-\addcontentsline{toc}{chapter}{Dataset}
+\chapter{Dataset} 
 Valeo an automotive company has supplied the dataset consisting of close to 1500 Double V Electric Motor parameters. 
 There are close to 196 parameters which comprises of the geometric, physical and simulation properties of the motor.
 
@@ -240,7 +263,7 @@ Below is the geometry of 1/8 cross-section of the same motor.
 
 \newpage 
 
-Valeo has shared approximately 1500 .xslx files for each motor variant. Each of the excel files contain multiple sheets.
+Valeo has shared approximately 1500 Excel Workbook files for each motor variant. Each of the excel files contain multiple sheets.
 The sheets of interest to us are as below :
 \begin{table}[H]
     \centering
@@ -276,54 +299,85 @@ The sheets of interest to us are as below :
     \hline
     \end{tabular}
     \caption{Excel File Structure of an \ac{EM} variant}
+    \label{tab:Excel File Structure}
 \end{table}
 
 
 
-\subsection*{Data Preprocessing for \ac{MLP}}
-\addcontentsline{toc}{subsection}{Data Preprocessing for \ac{MLP}}
+\section{Data Preprocessing for \ac{MLP}}\label{sec:Data Preprocessing for MLP}
 
 For modelling the \ac{MLP}, we present the data in tabular form with the parameters corresponding to columns. \\
 In order to make the data compatible with our model, some level of data processing was carried out as elaborated below.
 
-\subsubsection*{Deep Dive into the Input Parameters}
-\addcontentsline{toc}{subsubsection}{Deep Dive into the Input Parameters}
+\subsection{Deep Dive into the Input Parameters}\label{sec:Deep Dive into Input Parameters}
 All parameters including the additional ones in each topology is considered as a separate column and therefore if a particular column is topology dependent the data of the other topologies for that corresponding column is treated as 0 values.\\
 The values are read and stored in their float equivalent to preserve data precision. Furthermore all degree columns are converted to their equivalent radian values to be fed to the model..EXPLAIN THE REASON WHY WITH CITATION PROBABLY::::\\
 
+%Median a column??
+\begin{longtable}{|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|}
 
-\begin{table}[H]
-    \centering
-    \begin{tabularx}{\linewidth}{|X|X|X|X|X|X|X|X|}
-        \hline
-        \textbf{Parameter} & \textbf{Unit of Dimension} & \textbf{Mean} & \textbf{Standard Deviation} & \textbf{Value Range} & \textbf{Single V Magnet Topology} & \textbf{Double V Magnet Topology} & \textbf{Nabla Magnet Topology}\\
-        \hline
-        \multicolumn{8}{|l|}{\textbf{General Parameters}} \\
-        \hline
-        N & \# & 99 & 50--150 & 100 & 110 & 90 & $\times$ \\
-        simQ & \# & 99 & 50--150 & 100 & 110 & 90 & \checkmark \\
-        r\_a & mm & 99 & 50--150 & 100 & 110 & 90 & 1,400 \\
-        r\_i & mm & 99 & 50--150 & 100 & 110 & 90 & 1,400 \\
-        \hline
-        \multicolumn{8}{|l|}{\textbf{Rotor Parameters}} \\
-        \hline
-        Milan & M & 1,500 & 1,000--2,000 & 1,500 & 1,600 & 1,400 & 1,400 \\
-        Julie & F & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-        \hline
-        \multicolumn{8}{|l|}{\textbf{Stator Parameters}} \\
-        \hline
-        Sekhar & M & 922 & 800--1,100 & 900 & 950 & 915 & 1,400 \\
-        Dipen & M & 598 & 500--700 & 600 & 625 & 570 & 1,400 \\
-        \hline
-    \end{tabularx}
-    % use\label to use \ref
+    \hline
+    \textbf{Parameter} & \textbf{Unit of Dimension} & \textbf{Mean} & \textbf{Standard Deviation} & \textbf{Value Range} & \textbf{Single V Magnet Topology} & \textbf{Double V Magnet Topology} & \textbf{Nabla Magnet Topology}\\
+    \hline
+    \endfirsthead
+    
+    \multicolumn{8}{c}%
+    {{\bfseries \tablename\ \thetable{} -- continued from previous page}} \\
+    \hline
+    \textbf{Parameter} & \textbf{Unit of Dimension} & \textbf{Mean} & \textbf{Standard Deviation} & \textbf{Value Range} & \textbf{Single V Magnet Topology} & \textbf{Double V Magnet Topology} & \textbf{Nabla Magnet Topology}\\
+    \hline
+    \endhead
+
+    \hline \multicolumn{8}{|r|}{{Continued on next page}} \\ \hline
+    \endfoot
+
+    \hline
+    \endlastfoot
+    \multicolumn{8}{|l|}{\textbf{General Parameters}} \\
+    \hline
+    N & \# & 99 & 50--150 & 100 & 110 & 90 & $\times$ \\
+    simQ & \# & 99 & 50--150 & 100 & 110 & 90 & \checkmark \\
+    r\_a & mm & 99 & 50--150 & 100 & 110 & 90 & 1,400 \\
+    r\_i & mm & 99 & 50--150 & 100 & 110 & 90 & 1,400 \\
+    \hline
+    \multicolumn{8}{|l|}{\textbf{Rotor Parameters}} \\
+    \hline
+    lmsov2 & mm & 1,500 & 1,000--2,000 & 1,500 & 1,600 & 1,400 & 1,400 \\
+    lth1v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    lth2v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    r1v2 & mm & 1,500 & 1,000--2,000 & 1,500 & 1,600 & 1,400 & 1,400 \\
+    r11v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    r2v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    r3v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    r4v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    rmt1v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    rmt4v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    rlt1v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    rlt4v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    hav2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    mbv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    mhv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    rmagv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    dsmv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    dsmuv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    amtrv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    dsrv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    lmav2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    lmiv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    lmov2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    lmuv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    \hline
+    \multicolumn{8}{|l|}{\textbf{Stator Parameters}} \\
+    \hline
+    Sekhar & M & 922 & 800--1,100 & 900 & 950 & 915 & 1,400 \\
+    Dipen & M & 598 & 500--700 & 600 & 625 & 570 & 1,400 \\
+    \hline
     \caption{\ac{EM} Input Parameters}
-\end{table}
+    \label{tab:Input Parameters} \\
+\end{longtable}
+    
 
-
-\subsubsection*{Deep Dive into the \ac{2D} KPI(Torque Curve)}
-\addcontentsline{toc}{subsubsection}{Deep Dive into the \ac{2D} KPI(Torque Curve)}
-
+\subsection{Deep Dive into the \ac{2D} KPI(Torque Curve)}\label{sec:Deep Dive into 2D KPI}
 Below is the standard deviation of the test dataset for the 2D KPI(Torque Curve).\\
 
 \begin{figure}[H]
@@ -333,12 +387,11 @@ Below is the standard deviation of the test dataset for the 2D KPI(Torque Curve)
     \label{fig:Standard Deviation of 3D KPI(ETA) Targets}
 \end{figure}
 
-\subsubsection*{Deep Dive into the \ac{3D} KPI(ETA Curve)}
-\addcontentsline{toc}{subsubsection}{Deep Dive into the \ac{3D} KPI(ETA Curve)}
+From the above plot, we can conclude that the curve is relatively constant for 1/4 of the curve after which it is relatively monotonically decreasing.
+This finding is critical for how we modelled the loss regularization for the target. It will be further elaborated in the Section \S\ref{sec:Loss Regularization for 2D KPI}
 
-From the above plot, we can conclude that the curve is relatively constant for 1/4 of the curve after which it is monotonically decreasing.
-This finding is critical for how we modelled the loss regularization for the target. It will be further elaborated in the Section CITE LOSS FUNCTION
 
+\subsection{Deep Dive into the \ac{3D} KPI(ETA Curve)}\label{sec:Deep Dive into 3D KPI}
 As the target values Mgrenz and ETA grids are not provided with the correct dimensions we have an additional step which takes the maximum torque value from the Mgrenz grid and create a similar grid ranging from -maximum torque to maximum torque. \\
 We then choose only the rows corresponding to this range from the actual MM grid supplied and the same row indices is used to retrieve the ETA grid. \\
 This step ensures that we grant the model the correct dimensions of the ETA grid based on Torque curve and predict likewise.\\
@@ -371,24 +424,26 @@ From the plots received we find the ETA grid does not only cover the area within
 To ensure that out model is not tricked into assuming predictions for this extra area we extact the grid to be of the same shape as that of its curve.
 This is a step also done as part of data post processing to be further overed in Section BLAH CITE. \\
 
-Based on this finding, we have decided to only consider the ETA grid grid in monitoring mode for predictions and mirror the same to replicate the efficiency when it is in generating mode.\\
+Based on this finding, we have decided to only consider the ETA grid in monitoring mode for predictions and mirror the same to replicate the efficiency when it is in generating mode.\\
 
 As reading the files take up a lot of time and compute, we read the files as a onetime job at the start and store them into pythonic objects for faster access in the future.\\
 Both the input and target values for 1st \ac{KPI} is stored locally as pandas dataframe .csv files whereas the 2nd \ac{KPI} is stored as separate csv files per variant considering it is in the form of a \ac{2D} array.\\
-The csv files are then concatenated and stored into a numpy array conserving dimensionality by padding nan values to match dimensionality of the largest \ac{2D} array among them.\\
+The csv files are then concatenated and stored into a numpy array conserving dimensionality by padding nan values to match dimensionality of the grid corresponding to the torque curve with the largest torque value.\\
+In our case the value is 561 but this is subject to change as we receive more data and can be overridden by the user.\\
 The array is then saved locally as a .npy file for easy access and loading during training.\\
 
 The input data consists of about 1500 examples mostly from the Double V Magnet Topology (and about 3 examples each for the other 2 topologies).\\ 
 
-\subsection*{Scaling}
-\addcontentsline{toc}{subsection}{Scaling}
+\section{Scaling}\label{sec:Scaling}
 
 We have used Standard Scaling for the input and both the outputs.
 
 The Scaling is formulated as shown below :
-\[
-\text{z} = \frac{x - \mu}{\sigma}
-\]
+
+\begin{equation}
+    \text{z} = \frac{x - \mu}{\sigma}
+    \label{eq:Standard Scaling}
+\end{equation} 
 
 \textit{where
         \begin{itemize}
@@ -401,21 +456,42 @@ The Scaling is formulated as shown below :
 both Mean and Standard deviation are calculated across columns. This is attributed to the fact we have columns with different ranges for the input. 
 Meanwhile the torque curve and the ETA grid are flattened to be 1D and thus have only 1 column.
 
-We tried scaling with only the inputs but this resulted in loss not converging as we thought. It would probably take more runs for the loss to converge and could be taken care of in future as improvements.
+We then removed scaling for the targets because these donot enter the model but is only used for loss calculation.
+With lower learning rates and higher epochs, we see the model's y1 performing better than with scaling.
+A plausible reason could be since the y1 targets are integers typically but we use torch tensor as it is a regression problem. This misleads the model with scaled targets to lose precision by generating within the full capacity of float tensors.
+However without scaling, we observe the model spits out integers itself even when the datatype is still torch tensor. This inturn fixes the y1 earlier problem of having fluctuations in the curve.
+Furthermore it now eliminates the need for regularizing the Y1 targets as predictions are as per target a smooth decreasing curve.\\
 
-\subsection*{Dataset splitting}
-\addcontentsline{toc}{subsection}{Dataset splitting}
+Additionally, the nan values in y2 are handled by masking before loss calculation as is defended in Section CITE Loss function
+Initially before masking y2's nans we try to set it as an incredibly high value - but this resulted in poor predictions as the model must have been confused and tried to increase its spread of predictions to cover this value and so all true values were also predicted to be close to this dummy value--with scaling
+
+\section{Dataset splitting}\label{sec:Dataset splitting}
 
 We have also split the dataset to have about 50 samples for test and the remaining is used for 5 fold cross validation with 80:20 split for training and validation. \\
+The reason we have a separate test dataset from the validation is to ensure that there is no data leakage as we donot want to overfit the testdataset with the hyperparameters we choose during training. \\
+
 Within 5 folds, we expect to cover most grounds on training and have good monitoring on the model's performance for each fold.
+We also choose the best hyperparameters that fits with our work on analysing the logs.
 The best performing model is then chosen from the folds based on the model which has a combination of least aggregated loss for both outputs and scores for each output which are closest to 0.
 
 
-\chapter*{Graph Modelling} 
-\addcontentsline{toc}{chapter}{Graph Modelling}
+\chapter{Graph Modelling} 
 
-\subsection*{Data Preprocessing for \ac{GNN}}
-\addcontentsline{toc}{subsection}{Data Preprocessing for \ac{GNN}}
+We intended to model our problem as a Graph and solve using Graph Neural Networks. 
+We presume this will be a more clever way of representing our usecase in comparision to tabular data..
+The idea was to make use of the Graph dynamics in our usecase and aggregate features that are semantically similar.
+The main method of aggregating information within the nodes of a Graph is through Message Passing.
+Graph Neural Networks can be broadly classified as :
+Homogeneous GNN
+Here the nodes and edges are of the same type. Message passing is done across the neighbouring nodes and edges over hops until it learns a representation equivalent from its neighbours
+Heterogeneous GNN
+Wherein the node and edge are of different types. Here message passing is conditioned on the node and edge type thus allowing the flow of information to be more controlled.
+
+Standard Message Passing GNNs (MP-GNNs) can not trivially be applied to heterogeneous graph data, as node and edge features from different types can not be processed by the same functions due to differences in feature type. 
+A natural way to circumvent this is to implement message and update functions individually for each edge type. 
+During runtime, the MP-GNN algorithm would need to iterate over edge type dictionaries during message computation and over node type dictionaries during node updates.
+
+\section{Data Preprocessing for \ac{GNN}}\label{sec:Data Preprocessing for GNN}
 
 
 \textbf{Node types}
@@ -570,7 +646,7 @@ The best performing model is then chosen from the folds based on the model which
     
 \end{enumerate}
 The heterogeneous graph that was constructed earlier is as below:
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{./ReportImages/graph.png} 
     \caption{HetGraph}
@@ -578,8 +654,7 @@ The heterogeneous graph that was constructed earlier is as below:
 \end{figure}
 
 
-\subsection*{Heterogeneous \ac{GNN} Model}
-\addcontentsline{toc}{subsection}{Heterogeneous \ac{GNN} Model}
+\section{Heterogeneous \ac{GNN} Model}\label{sec:Heterogeneous GNN Model}
 
 We find the heterogeneous graph to be most apt for our use case with its different node and edge types as it preserves both the structural and semantics of our data. \\
 This property is crucial in modelling our use case as we will then have similar node-edge types per topology. \\
@@ -587,14 +662,12 @@ In addition the count of certain parameters with the motor such as stator poles 
 Heterogeneous \ac{GNN} generally work by having separate non linear functions convolve over each edge type during message computation and over each node type when aggregating the learned information. \\
  
 \newpage 
-\chapter*{Modelling \& Evaluation}
-\addcontentsline{toc}{chapter}{Modelling \& Evaluation}
+\chapter{Modelling \& Evaluation}
 
 Since we aim to predict continuous vector values, we model this task into a regression problem
 As a baseline, we first train a \ac{MLP} on the tabular representation of the data and work on it further to do the same with a heterogeneous \ac{GNN}.
 
-\subsection*{\ac{MLP} Model}
-\addcontentsline{toc}{subsection}{\ac{MLP} Model}
+\section{\ac{MLP} Model}\label{sec:MLP Model}
 
 For the \ac{MLP} model, we use a single model with input features corresponding to all the features in the tabular topology invariant representation of the data.\\
 The model architecture is build to predict both the \ac{2D} and \ac{3D} \ac{KPI}s by having 2 separate output layers for each of the \ac{KPI}s. \\
@@ -608,18 +681,26 @@ We have also used a dropout percentage of 0.2 to ensure the model does not overf
 Although the targets for the first output are an array of integer values, we use the float tensor and not integer tensor to represent the data else it would become a classification problem and not a regression problem as it should be. \\
 For the second output we have 5 fully connected layers with RELU as an activation function and dropout and \ac{2D} batch normalisation for each layer.\\
 
-\subsection*{Loss Functions}
-\addcontentsline{toc}{subsection}{Loss Functions}
+The below figure gives an outline on how the MLP Model architecture is designed.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{./ReportImages/mlp_architecture.png} 
+    \caption{MLP Model Architecture}
+    \label{fig:MLP Model Architecture}
+\end{figure}
+
+\section{Loss Functions}\label{sec:Loss Functions}
 The \ac{MSE}loss is the loss function used for our problem with the intention that the losses are minimized. We have adopted 2 methodologies to regularize the loss one each for the \ac{2D} and \ac{3D} \ac{KPI}.
 
-\subsubsection*{Loss Regularization for \ac{2D} \ac{KPI}(Torque curve)}
-\addcontentsline{toc}{subsubsection}{Loss Regularization for \ac{2D} \ac{KPI}(Torque curve)}
+\subsection{Loss Regularization for \ac{2D} \ac{KPI}(Torque curve)}\label{sec:Loss Regularization for 2D KPI}
 
 The \ac{MSE} loss for the \ac{2D} \ac{KPI} is formulated as shown below :
 % Mean Squared Error (\ac{MSE}) Loss for 2D KPI
-\[
-\text{Y1 Loss} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{h} \sum_{j=1}^{h} (y_{ij} - \hat{y}_{ij})^2
-\]
+\begin{equation}
+    \text{Y1 Loss} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{h} \sum_{j=1}^{h} (y_{ij} - \hat{y}_{ij})^2
+    \label{eq:Y1 Loss}
+\end{equation} 
 
 \textit{where
         \begin{itemize}
@@ -636,9 +717,10 @@ CITE!!!!If the electromagnetic coil is enabled by the commutator for the time sp
 
 % Regularization Term
 
-\[
+\begin{equation}
 \text{Y1 Loss Regularization} = \frac{1}{n} \sum_{i=1}^{n}\frac{1}{h-1} \sum_{j=1}^{h-1} \left(\text{ReLU}(\hat{y}_{i{j+1}} - \hat{y}_{ij})\right)^2
-\]
+\label{eq:Y1 Loss Regularization}
+\end{equation} 
 
 \textit{where
 \begin{itemize}
@@ -654,31 +736,34 @@ A reason to attribute this could be the model's struggle to attempt to generate 
 Our hypothesis is this loss regularization creates a tug of war between the \ac{MSE} loss and the regularization term when predicting the whole curve and hence the ever fluctuating curve being generated.\\
 
 
-\subsubsection*{Loss Customization for \ac{3D} \ac{KPI}(Efficiency Grid)}
-\addcontentsline{toc}{subsubsection}{Loss Customization for \ac{3D} \ac{KPI}(Efficiency Grid)}
+\subsection{Loss Customization for \ac{3D} \ac{KPI}(Efficiency Grid)}\label{sec:Loss Customization for 3D KPI}
 
 The \ac{MSE} loss is calculated for the \ac{3D} \ac{KPI} is formulated as shown below :
 % Mean Squared Error (\ac{MSE}) Loss for 3D KPI
-\[
+\begin{equation}
 \text{Y2 Loss} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{w} \frac{1}{h} \sum_{j=1}^{w} \sum_{k=1}^{h} \left( M_{ijk} \cdot y_{ijk}) - (M_{ijk} \cdot \hat{y}_{ijk})\right)^2
-\]
+\label{eq:Y2 Loss}
+\end{equation}
+
 \textit{where
 \begin{itemize}
     \item $M_{ijk}$ : Mask matrix
-     \begin{equation*}
+    \begin{equation*}
         M_{ijk} = \begin{cases}
-            1 & \text{if } y_{ijk} \neq -1 \\
+            1 & \text{if } y_{ijk} \neq \text{nan } \\
             0 & \text{if } y_{ijk} = -1
             \end{cases} \\
-        \end{equation*}
+    \label{eq:Mask matrix}
+    \end{equation*}
     \item w : 1st dimension of \ac{3D} vector
     \item h : 2nd dimension of \ac{3D} vector
 \end{itemize}
 }
 
 The ETA Grid is a \ac{3D} plot of real numbers ranging between 0 and 100.NEED TO CITE...EVEN IF IT IS A KNOWN FACT We noticed in some portions of the grid, the plot not visible as it had nan values.\\
-As ANN cannot be trained to predict NAN values we had these replaced to -1 and have a binary mask constructed such that values corresponding to -1 in the target have value 0 and all other values as 1.\\
-The mask is then multiplied with both the target and the prediction. After this step, the \ac{MSE} loss is calculated and backpropagated. \\
+As ANN cannot be trained to predict NAN values we have a binary mask constructed such that values corresponding to -nan in the target have value 0 and all other values as 1. The mask is then multiplied with the prediction. 
+Furthermore the mask is used to replace nan values in target with 0 as multiplying a nan value with 0 results in yet another nan value. This would cascade into nan loss calculation. \\
+After this step, the \ac{MSE} loss is calculated and backpropagated. \\
 Mathematically, this process can be expressed as above
 
 This formulation ensures that the -1 values (which replaced NaN values in the grid) are ignored in the loss calculation, as they are multiplied by 0 in the mask.\\
@@ -687,25 +772,23 @@ It is a known fact that at 0 Torque, the corresponding efficiency values for the
 To model this conception into our network, we have attempted to retrieve the center row of our ETA grid and the values it consists finally determine the violation count.
 We formulate is mathematically as below:
 
-\[
-r_{\text{mid}} = \left\lfloor \frac{w}{2} \right\rfloor \quad \forall i \in \{0, \dots, n-1\}
-\]
 
+\begin{equation}
+    \text{Y2 Loss Regularization} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{h} \sum_{k=1}^{h} |y_{i0k}|
+   \label{eq:Y2_Loss_Regularization}
+\end{equation}
 
-\[
-Mid = Y_{:, r_{\text{mid}}: j}
-\]
-
-\[
-   \text{Y2 Loss Regularization} = \frac{1}{h} \sum_{j=1}^{h} |Mid_{j}|
-\]
 
 We take the absolute values from the center row of the matrix else the loss would be negative and could negate with positive values. This would have a detrimental effect when calculating the loss
 
 
-\[
-\text{Total Loss} = \text{Y1 Weight} \times (\text{Y1 Loss} + (\lambda_{\text{y1}} \times \text{Y1 Loss Regularization})) + \text{Y2 Weight} \times (\text{Y2 Loss} + (\lambda_{\text{y2}} \times \text{Y2 Loss Regularization}))
-\]
+\begin{equation}
+    \begin{split}
+\text{Total Loss} = \text{Y1 Weight} \times (\text{Y1 Loss} + (\lambda_{\text{y1}} \times \text{Y1 Loss Regularization})) +\\
+ \text{Y2 Weight} \times (\text{Y2 Loss} + (\lambda_{\text{y2}} \times \text{Y2 Loss Regularization}))
+    \end{split}
+    \label{eq:Total Loss}
+\end{equation}
 
 \textit{where
 \begin{itemize}
@@ -722,27 +805,25 @@ We take the absolute values from the center row of the matrix else the loss woul
 \end{itemize}
 }
 
-\subsection*{Optimizer}
-\addcontentsline{toc}{subsection}{Optimizer}
+\section{Optimizer}\label{sec:Optimizer}
 
 Adam optimizer is used for optimization as it is known to be computationally efficient and requires little memoryBLAH BLAH \\
 The optimizer acts once the loss is backpropagated across training each batch of the dataset.\\
 We have also experimented with a learning rate scheduler which reduced the learning rate exponentially by a gamma parameter to decay learning as training progresses across epochs.
 
-\subsection*{Evaluation Metrics}
-\addcontentsline{toc}{subsection}{Evaluation Metrics}
+\section{Evaluation Metrics}
 
 The evaluation metrics we have considered for our regression problem is the root mean squared error. \\
 The model with the least combined loss and prediction scores closest to 0 is ideal for our application. \\
 
-\subsubsection*{Evaluation Metrics for \ac{2D} \ac{KPI}}
-\addcontentsline{toc}{subsubsection}{Evaluation Metrics for \ac{2D} \ac{KPI}}
+\subsection{Evaluation Metrics for \ac{2D} \ac{KPI}}\label{sec:Evaluation Metrics for 2D KPI}
 
 The y1 loss for the \ac{2D} \ac{KPI} is formulated as shown below :
 % Evaluation metric (\ac{MSE}) Loss for 2D KPI
-\[
+\begin{equation}
 \text{Y1 score} = \frac{1}{n} \sum_{i=1}^{n} \sqrt{\frac{1}{h} \sum_{j=1}^{h} (y_{ij} - \hat{y}_{ij})^2}
-\]
+\label{eq:Y1 score}
+\end{equation}
 
 \textit{where
         \begin{itemize}
@@ -751,14 +832,14 @@ The y1 loss for the \ac{2D} \ac{KPI} is formulated as shown below :
         \end{itemize}
 }
 
-\subsubsection*{Evaluation Metrics for \ac{3D} \ac{KPI}}
-\addcontentsline{toc}{subsubsection}{Evaluation Metrics for \ac{3D} \ac{KPI}}
+\subsection{Evaluation Metrics for \ac{3D} \ac{KPI}}\label{sec:Evaluation Metrics for 3D KPI}
 
 The y2 loss for the \ac{3D} \ac{KPI} is formulated as shown below :
 %  Evaluation metric (\ac{MSE}) Loss for 3D KPI
-\[
+\begin{equation}
     \text{Y2 score} = \frac{1}{n} \sum_{i=1}^{n} \sqrt{\frac{1}{w} \frac{1}{h} \sum_{j=1}^{w} \sum_{k=1}^{h} (y_{ijk} - \hat{y}_{ijk})^2}
-    \]
+    \label{eq:Y2 score}
+\end{equation}
     
     \textit{where
             \begin{itemize}
@@ -768,8 +849,7 @@ The y2 loss for the \ac{3D} \ac{KPI} is formulated as shown below :
             \end{itemize}
     }
 
-\subsection*{Post Processing}
-\addcontentsline{toc}{subsection}{Post Processing}
+\section{Post Processing}\label{sec:Post Processing}
 
 The mean and standard deviation from the train-validation datasets are applied to transform the test dataset to maintain uniformity on the predictions generated.
 In the case of new files we first convert it into the tabular representation our model consumes and then do the scaling.\\
@@ -778,9 +858,10 @@ This is the reason why we preserve the same scalers used during training as we n
 
 The inverse scaling is formulated as shown below :
 
-\[
+\begin{equation*}
 \text{x} = \frac{z \times \sigma}{\mu}
-\]
+\label{eq:Inverse Scaling}
+\end{equation*}
 
 \textit{where
         \begin{itemize}
@@ -790,17 +871,15 @@ The inverse scaling is formulated as shown below :
         \end{itemize}
 }
 
-
+Furthermore as part of post processing, we slice the 3D ETA grid to only contain the values within the predicted torque curve.
 
 \newpage 
 \newpage 
 
 % Masking NAN values
-\chapter*{Experiments and Results}
-\addcontentsline{toc}{chapter}{Experiments and Results}
+\chapter{Experiments and Results}
 
-\subsection*{Experiments with \ac{MLP}}
-\addcontentsline{toc}{subsection}{Experiments with \ac{MLP}}
+\section{Experiments with \ac{MLP}}\label{sec:Experiments with MLP}
 
 The hyperparameters were chosen via a random grid search and we finalized those that resulted in the ideal scores for both y1 ad y2 respectively.
 The hyperparmaters for the model was tuned over observations of the model's performance across 5 fold cross validation training.\\
@@ -811,20 +890,20 @@ The splits are saved locally and can be used to later to ensure reproducibility.
     \begin{tabularx}{1\linewidth}{|X|X|X|}
     \hline {\bf Hyperparameters} & {\bf Description} & {\bf Value}\\
     \hline 
-    lr & Learning Rate & 1.927 \\
-    n & Count of Hidden Layers & 0.4962 \\
-    d & Dimensionality of Hidden Layers& 1.927 \\
-    gamma & Learning Rate Scheduler & 0.4962 \\
-    n & Batch Size & 1.927 \\
-    n & Number of Epochs & 0.4962 \\
-    p & Dropout Probability& 1.927 \\
-    lambday1 & Y1 Loss Regularizer & 0.4962 \\
-    lambday1 & Y1 Loss Regularizer & 0.4962 \\
-    w1 & Weightage of Y1 Loss & 0.4962 \\
-    w2 & Weightage of Y2 Loss & 0.4962 \\
+    lr & Learning Rate & 0.00075 \\
+    hidden\_sizes & Dimensionality of Hidden Layers& 256 \\
+    lr\_gamma & Exponential Learning Rate Scheduler & 0.9 \\
+    batch\_size & Batch Size & 72 \\
+    epochs & Number of Epochs & 8 \\
+    p & Dropout Probability& 0.2 \\
+    lambda\_y1 & Y1 Loss Regularizer & 2.5 \\
+    lambda\_y2 & Y2 Loss Regularizer & 1.5 \\
+    w\_y1 & Weightage of Y1 Loss & 0.8 \\
+    w\_y2 & Weightage of Y2 Loss & 0.2 \\
     \hline
     \end{tabularx}
     \caption{Hyperparameter Tuning}
+    \label{tab:Hyperparameter Tuning}
 \end{table}
 
 Over the 5 folds, the model performance is observed to ensure its stability and the best performing model is saved to be loaded later for performance.
@@ -931,16 +1010,15 @@ We have narrowed down scoring to follow the below criteria:
     \hline
     \end{tabularx}
     \caption{Scoring Criteria}
+    \label{tab:Scoring Criteria}
 \end{table}
 
 
-\subsection*{Results with \ac{MLP}}
-\addcontentsline{toc}{subsection}{Results with \ac{MLP}}
+\section{Results with \ac{MLP}}\label{sec:Results with MLP}
 
 The results of the \ac{MLP} model from inference is as below: \\
 
-\subsubsection*{2D Torque Curve Results with \ac{MLP}}
-\addcontentsline{toc}{subsubsection}{2D Torque Curve Results with \ac{MLP}}
+\subsection{2D Torque Curve Results with \ac{MLP}}\label{sec:2D Torque Curve Results with MLP}
 
 \begin{figure}[H]
     \centering
@@ -967,8 +1045,8 @@ We also have the score statistics of how the model performs over the test datase
     \label{fig:MLP Score statistics for 2D KPI(Mgrenz)}
 \end{figure}
 
-\subsubsection*{3D ETA Grid Results with \ac{MLP}}
-\addcontentsline{toc}{subsubsection}{3D ETA Grid Results with \ac{MLP}}
+\subsection{3D ETA Grid Results with \ac{MLP}}\label{sec:3D ETA Grid Results with MLP}
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/KPI3Dprediction3.png} 
@@ -1021,16 +1099,16 @@ We have used python 3.12.2 for our development and the pytorch library compatibl
 The model was trained on a NVIDIA V100 GPU with blah blah.\\
 
 
-\subsection*{Results with Baseline}
-\addcontentsline{toc}{subsection}{Results with Baseline}
+\section{Results with Baseline}\label{sec:Results with Baseline}
 
 From our observations of how the predictions closely resembled that of the target values, we have proceeded with a baseline model which is essentially the average of the target in all ground truth.
 Based on the standard deviation of the target values with the baseline as is formulated in Equation CITE, the corresponding plots are generated.
 
 %  Evaluation metric Y1 Element wise RMSE Loss for 2D KPI
-\[
+\begin{equation}
     \text{Y1 Element wise RMSE} = \sqrt{\frac{1}{n} (\bar{x} - x_{i})^2} \quad \forall i \in \{0, \dots, w-1\}
-\]
+    \label{eq:Y1 Element wise RMSE}
+\end{equation}
     
     \textit{where
             \begin{itemize}
@@ -1042,8 +1120,7 @@ Based on the standard deviation of the target values with the baseline as is for
 
 The results of the Baseline model from inference is as below: \\
 
-\subsubsection*{2D Torque Curve Results with Baseline}
-\addcontentsline{toc}{subsubsection}{2D Torque Curve Results with Baseline}
+\subsection{2D Torque Curve Results with Baseline}\label{sec:2D Torque Curve Results with Baseline}
 
 \begin{figure}[H]
     \centering
@@ -1061,8 +1138,7 @@ We also have the score statistics of how the Baseline model performs over the te
     \label{fig:Baseline Score statistics for 2D KPI(Mgrenz)}
 \end{figure}
 
-\subsubsection*{3D ETA Grid Results with Baseline}
-\addcontentsline{toc}{subsubsection}{3D ETA Grid Results with Baseline}
+\subsection{3D ETA Grid Results with Baseline}\label{sec:3D ETA Grid Results with Baseline}
 
 \begin{figure}[H]
     \centering
@@ -1088,8 +1164,7 @@ We also have the score statistics of how the Baseline model performs over the te
 \end{figure}
 
 
-\subsection*{Ablation Studies}
-\addcontentsline{toc}{subsection}{Ablation Studies}
+\section{Ablation Studies}\label{sec:Ablation Studies}
 
 As part of ablation studies, we have compared our evaluations of both the \ac{MLP} and the Baseline model on both targets respectively.
 
@@ -1103,25 +1178,27 @@ As part of ablation studies, we have compared our evaluations of both the \ac{ML
     \hline
     \end{tabularx}
     \caption{Ablation Studies}
+    \label{tab:Ablation Studies}
 \end{table}
 
 We draw the inferences that our model has performed relatively better than the baseline for 2D KPI.
 The inferences shown are strictly speaking from the Double V Magnet Topology which assumed the bulk of the data we had received.
 \newpage 
 
-\chapter*{Conclusion}
-\addcontentsline{toc}{chapter}{Conclusion}
+\chapter{Conclusion}
 
+This thesis offers a fresh outlook to the possibility of modelling the performance of an electric motor using \ac{GNN}s.
+It also lays the foundation for future work on being able to generate electric motor design parameters conditioned on the 2 KPIs we predicted.
 
-\subsection*{Future Improvements}
-\addcontentsline{toc}{subsection}{Future Improvements}
+\section{Future Improvements}\label{sec:Future Improvements}
 
-I would suggest the following improvements to our study :
+I would suggest the following improvements to our study : \cite{Arora-1989}
 1. Build a model that uses the prediction from Y1 to predict its corresponding Y2. 
 2. Although we have designed the model to be topology invariant for 3 topologies, we only had sufficient data from Double V Topology to draw evaluations from.
 Further evaluations on the other topologies would be beneficial to critically assess our model's performance
 3. Additionally, the motivation of building a topology invariant model was the reason we have considered building a heterogeneous graph to model the data. The machinery is elaborated in Section CIE.
 Such a model could serve as yet another ablation study to our problem.
+% India is described in \S\ref{part:Conclusion} 
 
 
 \newpage 
@@ -1140,8 +1217,15 @@ Such a model could serve as yet another ablation study to our problem.
 
 \newpage 
 
-\chapter*{Bibliography}
-\addcontentsline{toc}{chapter}{Bibliography}
+\begin{thebibliography}{0000}
+    \bibitem[1989]{Arora-1989}
+    Arora J. S. {\em Introduction to Optimum Design}. McGraw-Hill, 1989.
+    %
+    \bibitem[2001]{Deb-2001}
+    \newblock Deb K.
+    \newblock {\em Multi-Objective Optimization using Evolutionary Algorithms}.
+    \newblock John Wiley \& Sons, 2001.
+    \end{thebibliography}
 \newpage 
 
 \newpage 
@@ -1171,7 +1255,6 @@ Such a model could serve as yet another ablation study to our problem.
 \vspace{0.5cm}
 
 \noindent Consent is voluntary. Without this consent, the plagiarism check cannot be prevented by removing all personal data and protecting the copyright requirements. Consent to the storage and use of personal data may be revoked at any time by notifying the faculty.
-
 
 \vspace{3cm}
 \hfill\rule{15cm}{0.4pt} % Horizontal line for the signature aligned to the right
