@@ -93,8 +93,6 @@ def create_tabular_data(file_path, purpose):
             # Check the last 5 rows
             last_row = sheet_mm.max_row
             max_index = check_rows(sheet_mm, last_row - 4, last_row, max_mgrenz)
-
-            # cumulative_counts = cumulative_col_count(mgrenz_values)
             
             #load the eta grid
             sheet_eta = wb['ETA']
