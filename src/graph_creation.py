@@ -1,4 +1,3 @@
-
 import networkx as nx
 import numpy as np
 import openpyxl
@@ -48,7 +47,7 @@ def create_heterograph(file_path):
             'v1m': ['mbv', 'mhv', 'rmagv'],
             'v2m': ['mbv', 'mhv', 'rmagv'],
             'r':['r_i - airgap'],
-            's': ['b_nng', 'b_nzk', 'b_s', 'h_n','h_s', 'r_sn', 'r_zk', 'r_ng'], #h_zk--constant? to be added?'TODO Check
+            's': ['b_nng', 'b_nzk', 'b_s', 'h_n','h_s', 'r_sn', 'r_zk', 'r_ng', 'h_zk'], #h_zk--constant? to be added?'TODO Check###Added recently
             'sw':['bhp', 'hhp', 'rhp']
         }
 
@@ -134,7 +133,7 @@ def create_heterograph(file_path):
                 G.add_edge(edge[0], edge[1], edge_type=edge_type, features=features)
 
         G.graph['r_a'] = params_dict.get('r_a', 0)
-        G.graph['r_i'] = params_dict.get('r_i', 0)
+        #G.graph['r_i'] = params_dict.get('r_i', 0)##Was removed recenntly<!!
 
         # Read labels from 'Mgrenz' sheet
         wb = openpyxl.load_workbook(file_path)
@@ -156,7 +155,7 @@ def create_heterograph(file_path):
         
         # print(f"\nmgrenz_values: {G.graph['mgrenz_values'][:5]}... (showing first 5)")
         # print(f"Global attributes: r_a={G.graph['r_a']}, r_i={G.graph['r_i']}")
-        # print(G)
+        #print(G.edges)
         
         return G
         
