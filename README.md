@@ -26,3 +26,8 @@ source ./newenv/bin/activate
 
 pip install -r requirements.txt
 
+
+## MLP Results
+
+Run the jupyter notebook main_tabular.ipynb
+
