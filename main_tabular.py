@@ -23,7 +23,7 @@ for filename in tqdm(os.listdir(directory)):
     if df_partial_targets is not None:
         df_targets = pd.concat([df_targets, df_partial_targets])
 
-        
+
 df_inputs.to_csv('./data/TabularDataInputs.csv', index=True)
 df_targets.to_csv('./data/TabularDataY1Targets.csv', index=True)
 

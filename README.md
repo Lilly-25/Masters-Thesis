@@ -26,3 +26,16 @@ source ./newenv/bin/activate
 
 pip install -r requirements.txt
 
+## Data Preprocessing
+
+Create a folder data and store the files for training within subfolder raw
+
+Run the python program main_tabular.py separately for generating preprocessed data
+
+## MLP Results
+
+Run the jupyter notebook main_tabular.ipynb
+
+## Testing(New Files)
+
+Within folder data, create subfolder Testsand store the new files for generating model predictions of it.
