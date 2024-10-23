@@ -38,4 +38,4 @@ Run the jupyter notebook main_tabular.ipynb
 
 ## Testing(New Files)
 
-Within folder data, create subfolder Testsand store the new files for generating model predictions of it.
+Within folder data, create subfolder Tests and store the new files for generating model predictions of it.
