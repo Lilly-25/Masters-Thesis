@@ -179,7 +179,9 @@ The 3 motor topologies manufactured by Valeo are as below:
         \label{fig:Nabla Magnet}
     \end{minipage}
 \end{figure}
-
+The current approach to predict the \ac{KPI}s of different \ac{EM} design variants is to create a design mesh from the paramteric description of the motor with Matlab.
+Multiple FEM simulations is done on this mesh which is then post processed and the intermediary outputs are forwarded to the Motor Builder.
+Several Motor builder settings are then adjusted to get the plots of the desired \ac{KPI}s.\\
 This master thesis explores a way to do surrogate modelling of the current process as is highlighted in Figure \ref{fig:EM Design Flowchart} by making use of \ac{GNN} or \ac{MLP} for the modelling of electrical engine designs described parameterically. \\
 \begin{figure}[H]
     \centering
@@ -214,7 +216,9 @@ In order to model our problem as a graph, we need to represent it as a Heterogen
 \ac{GNN} in general have not been to less explored even so more the heterogeneous \ac{GNN}.
 Particularly in the scenario of Electric Motor Modelling, there has been no publications with \ac{GNN}s.
 Hence the need to check its feasibility and its performance with our benchmarks on tabular data.
-
+Additionally, Existing Heterogeneous \ac{GNN}s words e.g on social networks involves one large graph with multiple node and edge types. 
+However, our problem involves creation of multiple heterogeneous graphs ie, 1 per \ac{EM} variant.\\
+Therefore, the applicability of Heterogeneous \ac{GNN}s for our problem is to be seen.\\
 
 \section{Thesis Structure}\label{sec:Thesis Structure}
 
@@ -314,7 +318,7 @@ All parameters including the additional ones in each topology is considered as a
 The values are read and stored in their float equivalent to preserve data precision. Furthermore all degree columns are converted to their equivalent radian values to be fed to the model..EXPLAIN THE REASON WHY WITH CITATION PROBABLY::::\\
 
 %Median a column??
-\begin{longtable}{|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|p{1.5cm}|}
+\begin{longtable}{|p{1.5cm}|p{1cm}|p{1.5cm}|p{1.5cm}|p{3.5cm}|p{1cm}|p{1cm}|p{1cm}|}
 
     \hline
     \textbf{Parameter} & \textbf{Unit of Dimension} & \textbf{Mean} & \textbf{Standard Deviation} & \textbf{Value Range} & \textbf{Single V Magnet Topology} & \textbf{Double V Magnet Topology} & \textbf{Nabla Magnet Topology}\\
@@ -335,42 +339,101 @@ The values are read and stored in their float equivalent to preserve data precis
     \endlastfoot
     \multicolumn{8}{|l|}{\textbf{General Parameters}} \\
     \hline
-    N & \# & 99 & 50--150 & 100 & 110 & 90 & $\times$ \\
-    simQ & \# & 99 & 50--150 & 100 & 110 & 90 & \checkmark \\
-    r\_a & mm & 99 & 50--150 & 100 & 110 & 90 & 1,400 \\
-    r\_i & mm & 99 & 50--150 & 100 & 110 & 90 & 1,400 \\
+    N & \# & 4.0 & 0.0 & 4.0--4.0 & \checkmark  & \checkmark & \checkmark  \\
+    simQ & \# & 6.0 & 0.0 & 6.0--6.0 & \checkmark  & \checkmark  & \checkmark \\
+    r\_a & mm & 9.000000e-02 & 2.554375e-15 & 9.000000e-02--9.000000e-02 & \checkmark  & \checkmark  & \checkmark  \\
+    r\_i & mm & 0.064433 & 0.000902 & 0.064000--0.067000 & \checkmark  & \checkmark  & \checkmark  \\
     \hline
     \multicolumn{8}{|l|}{\textbf{Rotor Parameters}} \\
     \hline
-    lmsov2 & mm & 1,500 & 1,000--2,000 & 1,500 & 1,600 & 1,400 & 1,400 \\
-    lth1v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    lth2v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    r1v2 & mm & 1,500 & 1,000--2,000 & 1,500 & 1,600 & 1,400 & 1,400 \\
-    r11v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    r2v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    r3v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    r4v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    rmt1v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    rmt4v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    rlt1v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    rlt4v2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    hav2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    mbv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    mhv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    rmagv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    dsmv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    dsmuv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    amtrv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    dsrv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    lmav2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    lmiv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    lmov2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
-    lmuv2 & mm & 1,325 & 1,000--1,500 & 1,300 & 1,350 & 1,325 & 1,400 \\
+    deg\_phiv2 & deg & 1,500 & 1,000--2,000 & 1,500 & $\times$  & \checkmark & $\times$  \\
+    lmsov2 & mm & -0.000289 & 0.000035 &  -0.000300--0.000000 & $\times$  & \checkmark & $\times$  \\
+    lth1v2 & mm & 0.005395 & 0.000359 & 0.000000--0.005450 & $\times$  & \checkmark & $\times$  \\
+    lth2v2 & mm & 0.002789 & 0.000178 & 0.000000--0.002800 & $\times$  & \checkmark & $\times$ \\
+    r1v2 & mm & 0.002097 & 0.000322 & 0.000000--0.002200 & $\times$  & \checkmark & $\times$  \\
+    r11v2 & mm & 0.000326 & 0.000040 & 0.000000--0.000600 & $\times$ &\checkmark & $\times$  \\
+    r2v2 & mm & 0.001873 & 0.000133 & 0.000000--0.001900 & $\times$  & \checkmark & $\times$  \\
+    r3v2 & mm & 0.000697 & 0.000044 & 0.000000--0.000700 & $\times$  & \checkmark & $\times$  \\
+    r4v2 & mm &  0.000747 & 0.000048 & 0.000000--0.000750 & $\times$  & \checkmark & $\times$  \\
+    rmt1v2 & mm & 0.000249 & 0.000016 & 0.000000--0.000250 & $\times$  & \checkmark &$\times$  \\
+    rmt4v2 & mm & 0.000249 & 0.000016 & 0.000000--0.000250 & $\times$  & \checkmark & $\times$  \\
+    rlt1v2 & mm & 0.000185 &  0.000045 & 0.000000--0.000200 & $\times$  & \checkmark & $\times$  \\
+    rlt4v2 & mm & 0.000249 & 0.000016 & 0.000000--0.000250 & $\times$ & \checkmark & $\times$ \\
+    hav2 & mm & 0.004942 & 0.000336 &  0.000000--0.005000 & $\times$  & \checkmark & $\times$  \\
+    mbv2 & mm & 0.017706 & 0.001175 & 0.000000--0.018100 & $\times$  & \checkmark & $\times$  \\
+    mhv2 & mm & 0.003649 & 0.000265 & 0.000000--0.003800 & $\times$ &\checkmark & $\times$  \\
+    rmagv2 & mm & 0.000498 & 0.000032 & 0.000000--0.000500 & $\times$  & \checkmark & $\times$  \\
+    dsmv2 & mm & 0.002925 & 0.000194 & 0.000000--0.003100 & $\times$  & \checkmark & $\times$ \\
+    dsmuv2 & mm & 0.002925 & 0.000194 & 0.000000--0.003100 & $\times$  & \checkmark & $\times$  \\
+    amtrv2 & mm & 0.015888 & 0.001024 & 0.000000--0.016000 & $\times$  & \checkmark & $\times$ \\
+    dsrv2 & mm & 0.000996 & 0.000064 & 0.000000--0.001000 & $\times$  & \checkmark & $\times$ \\
+    lmav2 & mm & 0.00010 & 0.00003 & 0.00000--0.00011 & $\times$  & \checkmark & $\times$  \\
+    lmiv2 & mm & 0.000109 & 0.000008 & 0.000000--0.000110 & $\times$  & \checkmark & $\times$  \\
+    lmov2 & mm & 0.000055 & 0.000015 & 0.000000--0.000100 & $\times$  & \checkmark & $\times$  \\
+    lmuv2 & mm & 0.000145 & 10.000017 & 0.000000--0.000150 & $\times$  & \checkmark & $\times$ \\
+    deg\_phiv1 & deg & 1,500 & 1,000--2,000 & 50--150 &\checkmark & \checkmark & \checkmark\\
+    lmsov1 & mm & -0.000501 & 0.000094 & -0.000530--0.000500 &\checkmark & \checkmark & \checkmark\\
+    lth1v1 & mm & 0.002889 & 0.000178 & 0.002855--0.005450 &\checkmark & \checkmark & \checkmark\\
+    lth2v1 & mm & 0.002104 & 0.000059 & 0.002100--0.003200 &\checkmark & \checkmark & \checkmark\\
+    r1v1 & mm & 0.000407 & 0.000108 & 0.000400--0.002200 &\checkmark & \checkmark & \checkmark\\
+    r11v1 & mm & 0.000219 & 0.000045 & 0.000100--0.000600 &\checkmark & \checkmark & \checkmark\\
+    r2v1 & mm & 0.000216 & 0.000100 & 0.000200--0.001900 &\checkmark & \checkmark & \checkmark\\
+    r3v1 & mm & 0.000899 & 0.000013 & 0.000700--0.000900 &\checkmark & \checkmark & \checkmark\\
+    r4v1 & mm & 0.000501 & 0.000016 & 0.000500--0.000750 &\checkmark & \checkmark & \checkmark\\
+    rmt1v1 & mm & 2.500000e-04 & 8.839232e-18 & 2.500000e-04--2.500000e-04 &\checkmark & \checkmark & \checkmark\\
+    rmt4v1 & mm & 2.500000e-04 & 8.839232e-18 & 2.500000e-04--2.500000e-04 &\checkmark & \checkmark & \checkmark\\
+    rlt1v1 & mm & 0.000117 & 0.000056 & 0.000050--0.000250 &\checkmark & \checkmark & \checkmark\\
+    rlt4v1 & mm & 2.500000e-04 & 8.839232e-18 & 2.500000e-04--2.500000e-04 &\checkmark & \checkmark & \checkmark\\
+    hav1 & mm & 0.002918 & 0.000136 & 0.002900--0.005000 &\checkmark & \checkmark & \checkmark\\
+    mbv1 & mm & 0.007643 & 0.000588 & 0.007500--0.018150 &\checkmark & \checkmark & \checkmark\\
+    mhv1 & mm & 0.002808 & 0.000140 & 0.002700--0.005000 &\checkmark & \checkmark & \checkmark\\
+    rmagv1 & mm & 5.000000e-04 & 1.767846e-17 & 5.000000e-04--5.000000e-04 &\checkmark & \checkmark & \checkmark\\
+    dsmv1 & mm & 0.001079 & 0.000141 & 0.000800--0.002800 &\checkmark & \checkmark & \checkmark\\
+    dsmuv1 & mm & 0.001079 & 0.000147 & 0.000800--0.002920 &\checkmark & \checkmark & \checkmark\\
+    amtrv1 & mm & 0.005538 & 0.000634 & 0.005500--0.019000 &\checkmark & \checkmark & \checkmark\\
+    dsrv1 & mm & 0.000752 & 0.000032 & 0.000750--0.001250 &\checkmark & \checkmark & \checkmark\\
+    lmav1 & mm & 0.000092 & 0.000026 & 0.000010--0.000110 &\checkmark & \checkmark & \checkmark\\
+    lmiv1 & mm & 1.000405e-04 & 6.354235e-07 & 1.000000e-04--1.100000e-04 &\checkmark & \checkmark & \checkmark\\
+    lmov1 & mm & 0.000055 & 0.000015 & 0.000050--0.000100 &\checkmark & \checkmark & \checkmark\\
+    lmuv1 & mm & 0.000145 & 0.000015 & 0.000100--0.000150 &\checkmark & \checkmark & \checkmark\\
+    deg\_phi3b1 & deg & 1,500 & 1,000--2,000 & 50--1500 & $\times$  & $\times$  & \checkmark  \\
+    deg\_phi4b1 & deg & 1,325 & 1,000--1,500 & 50--150 & $\times$  & $\times$  & \checkmark  \\
+    lmsob1 & mm & 0.000002 & 0.000034 & 0.000000--0.000750 & $\times$  & $\times$  & \checkmark  \\
+    lthb1 & mm & 0.000006 & 0.000128 & 0.000000--0.002900 & $\times$  & $\times$  & \checkmark  \\
+    r2b1 & mm & 0.000002 & 0.000045 & 0.000000--0.001000 & $\times$  & $\times$  & \checkmark  \\
+    r3b1 & mm & 0.000002 & 0.000034 & 0.000000--0.001000 & $\times$  & $\times$  & \checkmark  \\
+    r4b1 & mm & 5.064146e-07 & 1.124422e-05 & 0.000000e+00--2.500000e-04 & $\times$  & $\times$  & \checkmark  \\
+    r5b1 & mm & 5.064146e-07 & 1.124422e-05 & 0.000000e+00--2.500000e-04 & $\times$  & $\times$  & \checkmark  \\
+    lgr3b1 & mm & 0.000001 & 0.000022 & 0.000000--0.000500 & $\times$  & $\times$  & \checkmark  \\
+    lgr4b1 & mm & 6.076975e-07 & 1.349307e-05 & 0.000000e+00--3.000000e-04 & $\times$  & $\times$  & \checkmark  \\
+    mbb1 & mm & 0.000030 & 0.000675 & 0.000000--0.015000 & $\times$ & $\times$  & \checkmark \\
+    mhb1 & mm & 0.000006 & 0.000144 & 0.000000--0.003200 & $\times$  & $\times$ & \checkmark \\
+    mtbb1 & mm & 0.000030 & 0.000675 & 0.000000--0.015000 & $\times$  &$\times$ & \checkmark  \\
+    rmagb1 & mm & 0.000001 & 0.000022 & 0.000000--0.000500 & $\times$  & $\times$ & \checkmark \\
+    amtrb1 & mm & 0.000004 & 0.000098 & 0.000000--0.002500 & $\times$  & $\times$  & \checkmark  \\
+    dsr3b1 & mm & 0.000003 & 0.000066 & 0.000000--0.001850 & $\times$ & $\times$ & \checkmark  \\
+    dsr4b1 & mm & 0.000004 & 0.000083 & 0.000000--0.001850 & $\times$  & $\times$  & \checkmark \\
+    lmob1 & mm & 2.025658e-07 & 4.497689e-06 & 0.000000e+00--1.000000e-04 & $\times$  & $\times$ & \checkmark \\
+    lmub1 & mm & 3.038488e-07 & 6.746534e-06 & 0.000000e+00--1.500000e-04 & $\times$  & $\times$  & \checkmark \\
+    lmsub1 & mm & 0.000004 & 0.000081 & 0.000000--0.001800 &$\times$  & $\times$  & \checkmark \\
     \hline
     \multicolumn{8}{|l|}{\textbf{Stator Parameters}} \\
     \hline
-    Sekhar & M & 922 & 800--1,100 & 900 & 950 & 915 & 1,400 \\
-    Dipen & M & 598 & 500--700 & 600 & 625 & 570 & 1,400 \\
+    airgap & mm & 1.000000e-03 & 3.535693e-17 & 1.000000e-03--1.000000e-03 &\checkmark  & \checkmark  & \checkmark  \\
+    b\_nng & mm & 0.005049 & 0.000091 & 0.004646--0.005120 & \checkmark  & \checkmark  & \checkmark  \\
+    b\_nzk & mm & 0.004557 & 0.000057 & 0.004450--0.004646 & \checkmark  & \checkmark  & \checkmark  \\
+    b\_s & mm & 0.001002 & 0.000025 & 0.001000--0.001400 & \checkmark  & \checkmark  & \checkmark  \\
+    h\_n & mm & 0.011149 & 0.000806 & 0.009200--0.013939 & \checkmark  & \checkmark  & \checkmark  \\
+    h\_s & mm & 1.000000e-03 & 3.535693e-17 & 1.000000e-03--1.000000e-03 & \checkmark  & \checkmark  & \checkmark  \\
+    r\_sn & mm & 2.500000e-04 & 8.839232e-18 & 2.500000e-04--2.500000e-04 & \checkmark  & \checkmark  & \checkmark  \\
+    r\_zk & mm & 0.000501 & 0.000019 & 0.000500--0.000800 & \checkmark  & \checkmark  & \checkmark  \\
+    r\_ng & mm & 0.000501 & 0.000019 & 0.000500--0.000800 & \checkmark  & \checkmark  & \checkmark  \\
+    h\_zk & mm & 1.000000e-03 & 3.535693e-17 & 1.000000e-03--1.000000e-03 & \checkmark  & \checkmark  & \checkmark  \\
+    bhp & mm & 0.003736 & 0.000081 & 0.003550--0.003800 &\checkmark  & \checkmark  & \checkmark  \\
+    hhp & mm & 0.002386 & 0.000199 & 0.001900--0.002840 &\checkmark  & \checkmark  & \checkmark  \\
+    rhp & mm & 0.000636 & 0.000045 & 0.000500--0.000800 &\checkmark  & \checkmark  & \checkmark  \\
+    dhphp & mm & 0.000264 & 0.000014 & 0.000263--0.000485 &\checkmark  & \checkmark  & \checkmark  \\
+    dhpng & mm & 0.000406 & 0.000003 & 0.000406--0.000453 &\checkmark  & \checkmark  & \checkmark  \\
     \hline
     \caption{\ac{EM} Input Parameters}
     \label{tab:Input Parameters} \\
@@ -1192,7 +1255,7 @@ It also lays the foundation for future work on being able to generate electric m
 
 \section{Future Improvements}\label{sec:Future Improvements}
 
-I would suggest the following improvements to our study : \cite{Arora-1989}
+I would suggest the following improvements to our study : \cite{EHR HGNN-2024}
 1. Build a model that uses the prediction from Y1 to predict its corresponding Y2. 
 2. Although we have designed the model to be topology invariant for 3 topologies, we only had sufficient data from Double V Topology to draw evaluations from.
 Further evaluations on the other topologies would be beneficial to critically assess our model's performance
@@ -1217,14 +1280,88 @@ Such a model could serve as yet another ablation study to our problem.
 
 \newpage 
 
-\begin{thebibliography}{0000}
-    \bibitem[1989]{Arora-1989}
-    Arora J. S. {\em Introduction to Optimum Design}. McGraw-Hill, 1989.
-    %
-    \bibitem[2001]{Deb-2001}
-    \newblock Deb K.
-    \newblock {\em Multi-Objective Optimization using Evolutionary Algorithms}.
-    \newblock John Wiley \& Sons, 2001.
+\begin{thebibliography}{00}
+
+    \bibitem[01]{EHR HGNN-2024}
+    \newblock Tsai Hor Chana, Guosheng Yina, Kyongtae Baeb, Lequan Yu 
+    \newblock {\em Multi-task Heterogeneous Graph Learning on Electronic Health Records}.
+    \newblock cs.LG, 14 Aug 2024.
+    
+    \bibitem[02]{SE HGNN-2023}
+    \newblock Xiaocheng Yang, Mingyu Yan, Shirui Pan, Xiaochun Ye, Dongrui Fan
+    \newblock {\em Simple and Efficient Heterogeneous Graph Neural Network}.
+    \newblock cs.LG, 1 Sep 2023.
+
+    \bibitem[03]{EV HGNN-2023}
+    \newblock Xinru Huang
+    \newblock {\em A Heterogeneous Graph Neural Network Model for Electric Vehicle Purchase Propensity Prediction}.
+    \newblock ICDSCA, Oct 2023.
+    
+    \bibitem[04]{REF HGNN-2021}
+    \newblock Qingsong Lv, Ming Ding, Qiang Liu, Yuxiang Chen, Wenzheng Feng, Siming He, Chang Zhou, Jianguo Jiang, Yuxiao Dong, Jie Tang
+    \newblock {\em Are we really making much progress? Revisiting, benchmarking, and refining heterogeneous graph neural networks}.
+    \newblock cs.LG, 30 Dec 2021.
+
+    \bibitem[05]{ML HGNN-2023}
+    \newblock Fredrik Johannessen; Martin Jullum
+    \newblock {\em Finding Money Launderers Using Heterogeneous Graph Neural Networks}.
+    \newblock ICDSCA, 25 July 2023.
+    
+    \bibitem[06]{PO GNN-2018}
+    \newblock Damian Owerko, Fernando Gama, Alejandro Ribeiro
+    \newblock {\em Predicting Power Outages Using Graph Neural Networks}.
+    \newblock cs.LG, Nov 2018.
+
+    \bibitem[07]{SM EMT-2020}
+    \newblock Mikko Tahkola, Janne Keränen, Denis Sedov, Mehrnaz Farzam Far, Juha Kortelainen
+    \newblock {\em Surrogate Modeling of Electrical Machine Torque Using Artificial Neural Networks}.
+    \newblock ICDSCA, Dec 17 2020.
+    
+    \bibitem[08]{EM 2DFMP-2022}
+    \newblock AKM Khaled Ahsan Talukder, Bingnan Wang and Yusuke Sakamoto
+    \newblock {\em Electric Machine Two-dimensional Flux Map Prediction with Ensemble Learning}.
+    \newblock ICEMS, 2022.
+
+    \bibitem[09]{T-CNN-2024}
+    \newblock Kazuhisa Iwata, Hidenori Sasaki, Hajime Igarashi, Daisuke Nakagawa, and Tomoya Ueda
+    \newblock {\em Generalization Performance in Predicting Torque Characteristics Using Convolutional Neural Network and Stator Magnetic Flux.}
+    \newblock ICDSCA, 3 Mar 2024.
+    
+    \bibitem[10]{EM MP-2021}
+    \newblock Simone Ferrari, Paolo Ragazzo, Gaetano Dilevrano, Gianmario Pellegrino
+    \newblock {\em Flux-Map Based FEA Evaluation of Synchronous Machine Efficiency Maps}.
+    \newblock WEMDCD, 2021.
+
+    \bibitem[11]{EM 2DFMP-2021}
+    \newblock Vivek Parekh, Dominik Flore, Sebastian Schöps
+    \newblock {\em Deep Learning-Based Prediction of Key Performance Indicators for Electrical Machines}.
+    \newblock Jan 22, 2021.
+
+    \bibitem[12]{EMAP-2020}
+    \newblock Carlos Candelo-Zuluaga, Antonio Garcia Espinosa, Jordi-Roger Riba, Pere Tubert Blanch
+    \newblock {\em Computationally Efficient Analysis of Spatial and Temporal Harmonics Content of the Magnetic Flux Distribution in a PMSM for Efficiency Maps Computation.}
+    \newblock 2020.
+    
+    \bibitem[13]{EM SM-2023}
+    \newblock Yihao Xu, Bingnan Wang, Yusuke Sakamoto, Tatsuya Yamamoto, and Yuki Nishimura
+    \newblock {\em Comparison of Learning-based Surrogate Models for Electric Motors}.
+    \newblock COMPUMAG, 2023.
+
+    \bibitem[14]{IM HML-2021}
+    \newblock Marius Stender, Oliver Wallscheid, Joachim Böcker
+    \newblock {\em Accurate Torque Estimation for Induction Motors by Utilizing a Hybrid Machine Learning Approach}.
+    \newblock PEMC, 2021.
+
+    \bibitem[15]{EM FEM-2020}
+    \newblock Katsuyuki Narita, Hiroyuki Sano, Nicolas Schneider, Kazuki Semba, Koji Tani, Takashi Yamada, Ryosuke Akaki
+    \newblock {\em An Accuracy Study of Finite Element Analysis- based Efficiency Map for Traction Interior Permanent Magnet Machines}:
+    \newblock 2020.
+    
+    \bibitem[16]{EM TL-2020}
+    \newblock Jo Asanuma, Shuhei Doi, Hajime Igarashi
+    \newblock {\em Transfer Learning Through Deep Learning: Application to Topology Optimization of Electric Motor}.
+    \newblock 3 Mar 2020.
+
     \end{thebibliography}
 \newpage 
 
