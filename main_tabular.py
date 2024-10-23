@@ -5,8 +5,8 @@ from src.utils import remove_faulty_files
 import os
 from tqdm import tqdm
 
-directory = '/home/k64889/Masters-Thesis/data/Testing/raw'
-# directory = '/home/k64889/Masters-Thesis/data/AllTopologies'
+directory = '/home/k64889/Masters-Thesis/data/raw'
+# directory = '/home/k64889/Masters-Thesis/data/Tests'
 
 remove_faulty_files(directory)
 
