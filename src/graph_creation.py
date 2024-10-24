@@ -1,3 +1,4 @@
+import ast
 import networkx as nx
 import numpy as np
 import openpyxl
@@ -5,6 +6,7 @@ import pandas as pd
 import os
 import matplotlib.pyplot as plt
 from collections import defaultdict
+import json
 
 
 def create_heterograph(file_path):
@@ -23,30 +25,12 @@ def create_heterograph(file_path):
 
         G = nx.MultiDiGraph()  # Use MultiDiGraph for heterogeneous graph
 
-        # Define node types and their features
-        node_types = {
-            #'v': ['v1m1', 'v1m2', 'v2m1', 'v2m2'],##Automate to take based on topology type V1, V3?
-            'v': ['v11', 'v12', 'v21', 'v22'],##Automate to take based on topology type V1, V3?
-           # 'vb': ['vb'],##Automate to take based on topology type V1, V3?
-            'vm': ['v1m1', 'v1m2', 'v2m1', 'v2m2'],##Automate to take based on topology type V1, V3?
-            'r':['rr', 'ra', 'o'],
-            's': ['s1', 's2', 's3', 's4', 's5', 's6'],##Automate to take from N?
-            'sw':['s1w1', 's1w2', 's1w3', 's1w4',
-                  's2w1', 's2w2', 's2w3', 's2w4', 
-                  's3w1', 's3w2', 's3w3', 's3w4', 
-                  's4w1', 's4w2', 's4w3', 's4w4', 
-                  's5w1', 's5w2', 's5w3', 's5w4', 
-                  's6w1', 's6w2', 's6w3', 's6w4'],
-        }
+        # Load edge dictionaries from the JSON file
+        with open('/home/k64889/Masters-Thesis/Intermediate/DoubleVGraph.json', 'r') as f:
+            graph_dict = json.load(f)
 
-        #Automate to take based on naming convention maybe?
-        node_features = {
-            'v': ['lmsov', 'lth1v', 'lth2v', 'r1v', 'r11v', 'r2v', 'r3v', 'r4v', 'rmt1v', 'rmt4v', 'rlt1v', 'rlt4v', 'hav'],
-            'vm': ['mbv', 'mhv', 'rmagv'],
-            'r':['0'],
-            's': ['b_nng', 'b_nzk', 'b_s', 'h_n','h_s', 'r_sn', 'r_zk', 'r_ng'], 
-            'sw':['bhp', 'hhp', 'rhp']
-        }
+        node_types = graph_dict['node_types']
+        node_features = graph_dict['node_features']
 
         # Add nodes with their types and features
         ##TODO add a check when there are no features
@@ -119,149 +103,31 @@ def create_heterograph(file_path):
             ],
         }
         
-        #         edge_d1 = {
-        # ('v1m1', 'v1m2'): ['deg_phiv1'],
-        # ('v2m1', 'v2m2'): ['deg_phiv2'],
-        # ('v11', 'v12'): ['dsmv1', 'dsmuv1'],
-        # ('v21', 'v22'): ['dsmv2', 'dsmuv2'],
-        # ('v11', 'rr'): ['amtrv1', 'dsrv1'],
-        # ('v12', 'rr'): ['amtrv1', 'dsrv1'],
-        # ('v21', 'rr'): ['dsrv2'],
-        # ('v22', 'rr'): ['dsrv2'],
-        # ('v11', 'v1m1'): ['lmav1', 'lmiv1', 'lmov1', 'lmuv1'],
-        # ('v12', 'v1m2'): ['lmav1', 'lmiv1', 'lmov1', 'lmuv1'],
-        # ('v21', 'v2m1'): ['lmav2', 'lmiv2', 'lmov2', 'lmuv2'],
-        # ('v22', 'v2m2'): ['lmav2', 'lmiv2', 'lmov2', 'lmuv2'],
-        # ('rr', 's1'):['airgap'],
-        # ('rr', 's2'):['airgap'],
-        # ('rr', 's3'):['airgap'], 
-        # ('rr', 's4'):['airgap'],
-        # ('rr', 's5'):['airgap'],
-        # ('rr', 's6'):['airgap'],
-        # ('s1', 's1w1'):['dhphp'],
-        # ('s1', 's1w2'):['dhphp'],
-        # ('s1', 's1w3'):['dhphp'],
-        # ('s1', 's1w4'):['dhphp'],
-        # ('s2', 's2w1'):['dhphp'],
-        # ('s2', 's2w2'):['dhphp'],
-        # ('s2', 's2w3'):['dhphp'],
-        # ('s2', 's2w4'):['dhphp'],
-        # ('s3', 's3w1'):['dhphp'],
-        # ('s3', 's3w2'):['dhphp'],
-        # ('s3', 's3w3'):['dhphp'],
-        # ('s3', 's3w4'):['dhphp'],
-        # ('s4', 's4w1'):['dhphp'],
-        # ('s4', 's4w2'):['dhphp'],
-        # ('s4', 's4w3'):['dhphp'],
-        # ('s4', 's4w4'):['dhphp'],
-        # ('s5', 's5w1'):['dhphp'],
-        # ('s5', 's5w2'):['dhphp'],
-        # ('s5', 's5w3'):['dhphp'],
-        # ('s5', 's5w4'):['dhphp'],
-        # ('s6', 's6w1'):['dhphp'],
-        # ('s6', 's6w2'):['dhphp'],
-        # ('s6', 's6w3'):['dhphp'],
-        # ('s6', 's6w4'):['dhphp'],
-        # ('s1w1', 's1w2'):['dhpng'],
-        # ('s1w2', 's1w3'):['dhpng'],
-        # ('s1w3', 's1w4'):['dhpng'],
-        # ('s2w1', 's2w2'):['dhpng'],
-        # ('s2w2', 's2w3'):['dhpng'],
-        # ('s2w3', 's2w4'):['dhpng'],
-        # ('s3w1', 's3w2'):['dhpng'],
-        # ('s3w2', 's3w3'):['dhpng'],
-        # ('s3w3', 's3w4'):['dhpng'],
-        # ('s4w1', 's4w2'):['dhpng'],
-        # ('s4w2', 's4w3'):['dhpng'],
-        # ('s4w3', 's4w4'):['dhpng'],
-        # ('s5w1', 's5w2'):['dhpng'],
-        # ('s5w2', 's5w3'):['dhpng'],
-        # ('s5w3', 's5w4'):['dhpng'],
-        # ('o', 'ra'):['r_a']
-        # }
-        
-        edge_a = {
-        ('v1m1', 'v1m2'): ['deg_phiv1'],
-        ('v2m1', 'v2m2'): ['deg_phiv2'],
-        }
-        edge_d1 = {
-        ('v21', 'rr'): ['dsrv2'],
-        ('v22', 'rr'): ['dsrv2'],
-        ('rr', 's1'):['airgap'],
-        ('rr', 's2'):['airgap'],
-        ('rr', 's3'):['airgap'], 
-        ('rr', 's4'):['airgap'],
-        ('rr', 's5'):['airgap'],
-        ('rr', 's6'):['airgap'],
-        ('s1', 's1w1'):['dhphp'],
-        ('s1', 's1w2'):['dhphp'],
-        ('s1', 's1w3'):['dhphp'],
-        ('s1', 's1w4'):['dhphp'],
-        ('s2', 's2w1'):['dhphp'],
-        ('s2', 's2w2'):['dhphp'],
-        ('s2', 's2w3'):['dhphp'],
-        ('s2', 's2w4'):['dhphp'],
-        ('s3', 's3w1'):['dhphp'],
-        ('s3', 's3w2'):['dhphp'],
-        ('s3', 's3w3'):['dhphp'],
-        ('s3', 's3w4'):['dhphp'],
-        ('s4', 's4w1'):['dhphp'],
-        ('s4', 's4w2'):['dhphp'],
-        ('s4', 's4w3'):['dhphp'],
-        ('s4', 's4w4'):['dhphp'],
-        ('s5', 's5w1'):['dhphp'],
-        ('s5', 's5w2'):['dhphp'],
-        ('s5', 's5w3'):['dhphp'],
-        ('s5', 's5w4'):['dhphp'],
-        ('s6', 's6w1'):['dhphp'],
-        ('s6', 's6w2'):['dhphp'],
-        ('s6', 's6w3'):['dhphp'],
-        ('s6', 's6w4'):['dhphp'],
-        ('s1w1', 's1w2'):['dhpng'],
-        ('s1w2', 's1w3'):['dhpng'],
-        ('s1w3', 's1w4'):['dhpng'],
-        ('s2w1', 's2w2'):['dhpng'],
-        ('s2w2', 's2w3'):['dhpng'],
-        ('s2w3', 's2w4'):['dhpng'],
-        ('s3w1', 's3w2'):['dhpng'],
-        ('s3w2', 's3w3'):['dhpng'],
-        ('s3w3', 's3w4'):['dhpng'],
-        ('s4w1', 's4w2'):['dhpng'],
-        ('s4w2', 's4w3'):['dhpng'],
-        ('s4w3', 's4w4'):['dhpng'],
-        ('s5w1', 's5w2'):['dhpng'],
-        ('s5w2', 's5w3'):['dhpng'],
-        ('s5w3', 's5w4'):['dhpng'],
-        ('s6w1', 's6w2'):['dhpng'],
-        ('s6w2', 's6w3'):['dhpng'],
-        ('s6w3', 's6w4'):['dhpng'],
-        ('o', 'ra'):['r_a']
-        }
-        edge_d2 = {
-        ('v11', 'v12'): ['dsmv1', 'dsmuv1'],
-        ('v21', 'v22'): ['dsmv2', 'dsmuv2'],
-        ('v11', 'rr'): ['amtrv1', 'dsrv1'],
-        ('v12', 'rr'): ['amtrv1', 'dsrv1'],
-        }
-        edge_d4 = {
-        ('v11', 'v1m1'): ['lmav1', 'lmiv1', 'lmov1', 'lmuv1'],
-        ('v12', 'v1m2'): ['lmav1', 'lmiv1', 'lmov1', 'lmuv1'],
-        ('v21', 'v2m1'): ['lmav2', 'lmiv2', 'lmov2', 'lmuv2'],
-        ('v22', 'v2m2'): ['lmav2', 'lmiv2', 'lmov2', 'lmuv2'],
-        }
+        def convert_str_to_tuple(d):
+            converted_dict = {}
+            for k, v in d.items():
+                # Remove the parentheses and split by comma
+                k = k.strip('()').replace("'", "").split(',')
+                # Create tuple from the two elements
+                tuple_key = (k[0].strip(), k[1].strip())
+                converted_dict[tuple_key] = v
+            return converted_dict
 
-        edge_d2_calc = {    
-            ('o', 'rr'):['r_i','airgap'],
-        }
-    
-        edge_d4_calc = {    
-            ('s1', 'ra'):['r_a', 'r_i', 'h_n', 'h_zk'],
-            ('s2', 'ra'):['r_a', 'r_i', 'h_n', 'h_zk'], 
-            ('s3', 'ra'):['r_a', 'r_i', 'h_n', 'h_zk'], 
-            ('s4', 'ra'):['r_a', 'r_i', 'h_n', 'h_zk'], 
-            ('s5', 'ra'):['r_a', 'r_i', 'h_n', 'h_zk'], 
-            ('s6', 'ra'):['r_a', 'r_i', 'h_n', 'h_zk']
-        }
+        # Convert the edge dictionaries
+        edge_a = convert_str_to_tuple(graph_dict['edge_a'])
+        edge_d1 = convert_str_to_tuple(graph_dict['edge_d1'])
+        edge_d2 = convert_str_to_tuple(graph_dict['edge_d2'])
+        edge_d4 = convert_str_to_tuple(graph_dict['edge_d4'])
+        edge_d2_calc = convert_str_to_tuple(graph_dict['edge_d2_calc'])
+        edge_d4_calc = convert_str_to_tuple(graph_dict['edge_d4_calc'])
+
+        # edge_a = graph_dict['edge_a']
+        # edge_d1 = graph_dict['edge_d1']
+        # edge_d2 = graph_dict['edge_d2']
+        # edge_d4 = graph_dict['edge_d4']
+        # edge_d2_calc = graph_dict['edge_d2_calc']
+        # edge_d4_calc = graph_dict['edge_d4_calc']
+        
 
         for edge, desc in edge_a.items():
             features = []
@@ -323,7 +189,7 @@ def create_heterograph(file_path):
         sheet_mgrenz = wb['Mgrenz']
         mgrenz_values = [cell.value for cell in sheet_mgrenz[1] if cell.value is not None]
 
-        G.graph['mgrenz_values'] = mgrenz_values
+        G.graph['mgrenz_values'] = mgrenz_values ##Renamed from mgrenz_values to mgrenz
         # G.graph['eta'] = mgrenz_values
         
         # print(f"File name{os.path.basename(file_path)}")
