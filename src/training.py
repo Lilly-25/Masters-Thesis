@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from sklearn.metrics import r2_score
-import matplotlib.pyplot as plt
 import wandb
 import numpy as np
     
