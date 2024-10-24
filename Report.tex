@@ -17,6 +17,7 @@
 \usepackage{longtable}%to split tables over multiple pages
 \usepackage{array}
 \usepackage{booktabs}
+\usepackage{caption}
 
 \usepackage{fancyheadings}
 %
@@ -162,20 +163,23 @@ The 3 motor topologies manufactured by Valeo are as below:
 \begin{figure}[H]
     \centering
     \begin{minipage}[b]{0.325\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{./ReportImages/1V_Magnet.png}
-        \caption{V1 Magnet \\ (Source:Valeo)}
+        \caption{\centering V1 Magnet \\ (Source: Valeo)} % Center the caption here
         \label{fig:V1 Magnet}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.325\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{./ReportImages/2V_Magnet.png}
-        \caption{V2 Magnet\\ (Source:Valeo)}
+        \caption{\centering V2 Magnet\\ (Source:Valeo)}
         \label{fig:V2 Magnet}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.325\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{./ReportImages/Nabla_Magnet.png}
-        \caption{Nabla Magnet\\ (Source:Valeo)}
+        \caption{\centering Nabla Magnet\\ (Source:Valeo)}
         \label{fig:Nabla Magnet}
     \end{minipage}
 \end{figure}
@@ -216,7 +220,7 @@ In order to model our problem as a graph, we need to represent it as a Heterogen
 \ac{GNN} in general have not been to less explored even so more the heterogeneous \ac{GNN}.
 Particularly in the scenario of Electric Motor Modelling, there has been no publications with \ac{GNN}s.
 Hence the need to check its feasibility and its performance with our benchmarks on tabular data.
-Additionally, Existing Heterogeneous \ac{GNN}s words e.g on social networks involves one large graph with multiple node and edge types. 
+Additionally, Existing Heterogeneous \ac{GNN}s words e.g on recommendation networks, academic networks, information networks, social networks etc even research paper citing graphs involves one large graph with multiple node and edge types. 
 However, our problem involves creation of multiple heterogeneous graphs ie, 1 per \ac{EM} variant.\\
 Therefore, the applicability of Heterogeneous \ac{GNN}s for our problem is to be seen.\\
 
@@ -260,7 +264,7 @@ Below is the geometry of 1/8 cross-section of the same motor.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{./ReportImages/EMCrosssection.jpg} 
+    \includegraphics[width=1\textwidth]{./ReportImages/EMCrosssectionFiltered.png} 
     \caption{1/8 Motor Crossection}
     \label{fig:1/8 Motor Crossection}
 \end{figure}
@@ -543,6 +547,68 @@ The best performing model is then chosen from the folds based on the model which
 We intended to model our problem as a Graph and solve using Graph Neural Networks. 
 We presume this will be a more clever way of representing our usecase in comparision to tabular data..
 The idea was to make use of the Graph dynamics in our usecase and aggregate features that are semantically similar.
+
+GNNs are primarily designed for homogeneous graphs associated with a single type of nodes
+and edges, following a neighborhood aggregation scheme to capture structural information of a graph, where the representation 
+of each node is computed by recursively aggregating the features of neighbor node \cite{02}.
+
+These relations can be composited with each other to form high-level semantic relations, which are represented as metapath \cite{02}.
+
+Heterogeneous graphs contain more comprehensive information and rich semantics and require specifically designed models  \cite{02}.
+
+% e two main categories of HGNNs.
+% Metapath-based methods (Schlichtkrull et al. 2018; Zhang
+% et al. 2019; Wang et al. 2019; Fu et al. 2020) capture the
+% structural information of the same semantic first and then
+% fuse different semantic information. These models first ag-
+% gregate neighbor features at the scope of each metapath to
+% generate semantic vectors, and then fuse these semantic vec-
+% tors to generate the final embedding vector. Metapath-free
+% methods (Zhu et al. 2019; Hong et al. 2020; Hu et al. 2020b;
+% Lv et al. 2021) capture structural and semantic information
+% simultaneously. These models aggregate messages from a
+% node’s local neighborhood like traditional GNNs, but use ex-
+% tra modules (e.g. attentions) to embed semantic information
+% such as node types and edge types into propagated messages
+
+% findings from \cite{02}
+% (1) semantic attention is essential while neighbor attention is not necessary,
+% (2) models with a single-layer structure and long metapaths outperform those with multi-layers and short metapaths
+
+
+% To easily capture structural information, SeHGNN pre-computes the neighbor aggregation in the pre-processing step us-
+% ing a light-weight mean aggregator, which removes the overused neighbor attention and avoids repeated neighbor 
+% aggregation in every training epoch. To better utilize semantic information, SeHGNN adopts the single- layer structure with long metapaths to extend the recep-
+% tive field, as well as a transformer-based semantic fusion module to fuse features from different metapaths.
+
+% Definition 1 Heterogeneous graphs. A heterogeneous
+% graph is defined as G = {V, E, T v , T e}, where V is the set
+% of nodes with a node type mapping function ϕ : V → T v ,
+% and E is the set of edges with an edge type mapping func-
+% tion ψ : E → T e. Each node vi∈V is attached with a node
+% type ci=ϕ(vi)∈T v . Each edge et←s∈E (ets for short) is at-
+% tached with a relation rct←cs =ψ(ets)∈T e (rctcs for short),
+% pointing from the source node s to the target node t. When
+% |T v |=|T e|=1, the graph degenerates into homogeneous.
+
+% Definition 2 Metapaths. A metapath defines a composite
+% relation of several edge types, represented as P ≜ c1 ←
+% c2 ← . . . ← cl (P = c1c2 . . . cl for short).
+% Given the metapath P, a metapath instance p is a node
+% sequence following the schema defined by P, represented
+% as p(v1, vl) = {v1, e12, v2, . . . , vl−1, e(l−1)l, vl : vi ∈
+% V ci , ei(i+1) ∈ Ecici+1 }. In particular, p(v1, vl) indicates the
+% relationship of (l−1)-hop neighborhood where v1 is the tar-
+% get node and vl is one of v1’s metapath-based neighbors.
+% Given a metapath P with the node types of its two
+% ends as c1, cl, a metapath neighbor graph GP =
+% {V c1 S V cl , EP } can be constructed out of G, where an
+% edge eij ∈ EP , ϕ(i) = c1, ϕ(j) = cl exists in GP if and
+% only if there is an metapath instance p(vi, vj ) of P in G
+
+Heterogeneous graph neural networks (HGNNs) have powerful capability to embed rich structural and semantic information of a heterogeneous graph into node representations. \cite{02}
+
+
 The main method of aggregating information within the nodes of a Graph is through Message Passing.
 Graph Neural Networks can be broadly classified as :
 Homogeneous GNN
@@ -554,167 +620,57 @@ Standard Message Passing GNNs (MP-GNNs) can not trivially be applied to heteroge
 A natural way to circumvent this is to implement message and update functions individually for each edge type. 
 During runtime, the MP-GNN algorithm would need to iterate over edge type dictionaries during message computation and over node type dictionaries during node updates.
 
-\section{Data Preprocessing for \ac{GNN}}\label{sec:Data Preprocessing for GNN}
+
+% A heterogeneous graph [ 29 ] can be defined as 𝐺 = {𝑉 , 𝐸, 𝜙,𝜓 }, where 𝑉 is the set of nodes and 𝐸 is the set of edges. 
+% Each node 𝑣 has a type 𝜙 (𝑣), and each edge 𝑒 has a type 𝜓 (𝑒). The sets of possible node types and edge types are denoted by 𝑇𝑣 = {𝜙 (𝑣) : ∀𝑣 ∈ 𝑉 } and 𝑇𝑒 = {𝜓 (𝑒) : ∀𝑒 ∈ 𝐸}, respectively. 
+% When |𝑇𝑣 | = |𝑇𝑒 | = 1, the graph degenerates into an ordinary homogeneous graph.\cite{04}
+
+% GNNs aim to learn a representation vector 𝒉(𝐿) 𝑣 ∈ R𝑑𝐿 for each
+% node 𝑣 after L-layer transformations, based on the graph structure and the initial node feature 𝒉(0)𝑣 ∈ R𝑑0. \cite{04}
+
+% Graph Convolution Network (GCN) [21 ] is the pioneer of
+% GNN models, where the 𝑙𝑡ℎ layer is defined as
+% 𝑯 (𝑙) = 𝜎 ( ˆ𝑨𝑯 (𝑙−1) 𝑾 (𝑙) ), (1)
+% where 𝑯 (𝑙) is the representation of all nodes after the 𝑙𝑡ℎ layer.
+% 𝑾 (𝑙) is a trainable weight matrix. 𝜎 is the activation function, and
+% ˆ𝑨 is the normalized adjacency matrix with self-connections.
+% Graph Attention Network (GAT) [32 ] later replaces the av-
+% erage aggregation from neighbors, i.e., ˆ𝑨𝑯 (𝑙−1) , as a weighted
+% one, where the weight 𝛼𝑖 𝑗 for each edge ⟨𝑖, 𝑗⟩ is from an attention
+% mechanism as (layer mark (𝑙) is omitted for simplicity)
+% 𝛼𝑖 𝑗 =
+% exp
+% 
+% LeakyReLU
+% 
+% 𝒂𝑇 [𝑾𝒉𝑖 ∥𝑾𝒉𝑗 ]
+% 
+% Í𝑘 ∈N𝑖 exp LeakyReLU 𝒂𝑇 [𝑾𝒉𝑖 ∥𝑾𝒉𝑘 ] , (2)
+% where 𝒂 and 𝑾 are learnable weights and N𝑖 represents the neigh-
+% bors of node 𝑖.
+
+% homogeneous GNNs can also handle heterogeneous graphs by simply ignoring the node and edge types.\cite{04}.
+%  This could be one of the future works that can be taken for our tasks as part of ablation studiesto benchmark the performance yet again 
+
+% A meta-path is a path with a pre-
+% defined (node or edge) types pattern, i.e., P ≜ 𝑛1
+% 𝑟1
+% −−→ 𝑛2
+% 𝑟2
+% −−→ · · · 𝑟𝑙
+% −→
+% 𝑛𝑙+1, where 𝑟𝑖 ∈ 𝑇𝑒 and 𝑛𝑖 ∈ 𝑇𝑣
+
+% Given a meta-path P, we can re-connect the nodes in 𝐺 to get a
+% meta-path neighbor graph 𝐺 P . Edge 𝑢 → 𝑣 exists in 𝐺 P if and
+% only if there is at least one path between 𝑢 and 𝑣 following the
+% meta-path P in the original graph 𝐺
 
 
-\textbf{Node types}
+% Linear Transformation. As the input feature of different types of nodes may vary in dimension, we use a linear layer with bias for
+% each node type to map all node features to a shared feature space.\cite{04}
 
-\begin{enumerate}
-    \item \textbf{General}
-    
-    \begin{itemize}
-        \item General parameters:
-        \[
-            r = \{r_{i}\} \quad \forall i \in \{a, r, o\} 
-        \]
-        
-        \textit{where:
-        \begin{itemize}
-            \item $r_{a}$: Outer Radius of the Stator
-            \item $r_{r}$: Outer Radius of the Rotor
-            \item $r_{o}$: Center of the \ac{EM}
-        \end{itemize}}
-    \end{itemize}
-    
-    \item \textbf{Stator}
-    
-    \begin{itemize}
-        \item Slot windings:
-        \[
-            sw = \{s_{i}w_{j}\} \quad \forall i \in \{1, \dots, QSim\}, \quad \forall j \in \{1, \dots, N\} 
-        \]
-        
-        \item Slots:
-        \[
-            s = \{s_{i}\} \quad \forall i \in \{1, \dots, QSim\}
-        \]
-
-        \textit{where
-        \begin{itemize}
-            \item Qsim : Count of slots in the Stator
-            \item N : Count of copper windings per slot
-        \end{itemize}}
-    \end{itemize}
-    
-    \item \textbf{Rotor}
-    
-    \begin{itemize}
-        \item Magnet Flux Barriers:
-        \[
-            v = \{v_{ij}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
-        \]
-        
-        \item Magnets:
-        \[
-            vm = \{v_{i}m_{j}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
-        \]
-        \textit{where
-        \begin{itemize}
-            \item T : Topology type of the \ac{EM}
-            \item V : Type of Magnet
-        \end{itemize}
-        As Valeo only manufactures Double V magnets we consider it to be 2}
-    \end{itemize}    
-    
-\end{enumerate}
-
-\textbf{Edge types}
-
-\begin{enumerate}
-    \item \textbf{Angle} \\
-    \textbf{Relevant Paths}
-    \[
-    vm--vm = \{ v_{i_{1}}m_{j_{1}} - v_{i_{2}}m_{j_{2}} \}
-    \forall i_1, i_2 \in \{1, \dots, T\}, \quad \forall j_1, j_2 \in \{1, \dots, V\} \mid
-    i_1 = i_2, \quad j_1 \neq j_2
-    \]
-
-    \textbf{angle}=vm-vm
-
-    \item \textbf{Distance} \\
-    \textbf{Relevant Paths}
-    % \[
-    %     v-v = \{ (v_{i_1 j_1} - v_{i_2 j_2}), \forall i_1, i_2, j_1, j_2 \in \{1, \dots, T\} \mid i_1i_2 \neq j_1j_2 \ \land (i_1 == i_2 \lor j_1 == j_2) \}
-    % \]
-    \[
-        vi--vi = \{v_{i j_1} - v_{i j_2}\}, \forall i \in \{1, \dots, T\}, \forall j_1, j_2 \in \{1, \dots, V\} \mid  j_1 \neq j_2
-    \]
-    \[
-        vi--vj = \{v_{i_1 j} - v_{i_2 j}\}, \forall i_1, i_2 \in \{1, \dots, T\}, \forall j \in \{1, \dots, V\} \mid  i_1 \neq i_2
-    \]
-    \[
-        v--vm = \{v_{i j} - v_{i}m_{j}\} \forall i  \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
-    \]
-    \[
-        v--rr = \{v_{i j} - r_{r}\}, \forall i, j  \in \{1, \dots, T\}
-    \]
-    \[
-        o--r = \{ (o - r_{r}), (o - r_{a})\}
-    \]
-    \[
-        rr--s = \{r_{r} - s_{i}\}, \forall i  \in \{1, \dots, QSim\}
-    \]
-    \[
-        s--sw = \{s_{i} - s_{i}w_{j}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\}
-    \]
-    \[
-        s--ra = \{s_{i} - r_{a}\}, \forall i  \in \{1, \dots, QSim\}
-    \]
-    \[
-        sw--sw = \{s_{i}w_{j_1} - s_{i}w_{j_2}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\} \mid (j_1 == j_2-1)
-    \]
-
-    \textbf{distance} = vi--vi + vi--vj + v--vm + v--rr + o--r + rr--s + s--sw + s--ra + sw--sw
-
-\end{enumerate}
-
-\textbf{Node Features}
-
-\begin{enumerate}
-
-    \item \textbf{v} = \{lmsov, lth1v, lth2v, r1v, r11v, r2v, r3v, r4v, rmt1v, rmt4v, rlt1v, rlt4v, hav\}
-
-    \item \textbf{vm} = \{mbv, mhv, rmagv\}
-
-    \item \textbf{r} = \{r\}
-
-    \item \textbf{s} = \{b\_nng, b\_nzk, b\_s, h\_n, h\_s, r\_sn, r\_zk, r\_ng, h\_zk\}
-
-    \item \textbf{sw} = \{bhp, hhp, rhp\}
-\end{enumerate}
-
-\textbf{Path Features}
-
-\begin{enumerate}
-
-    \item \textbf{vm--vm} = \{deg\_phi\}
-
-    \item \textbf{vi--vi} = \{dsm, dsmu\}
-
-    \item \textbf{vi--vj} = \{amtrvj-amtrvi\}
-
-    \item \textbf{v--vm} = \{lmav, lmiv, lmov, lmuv\}
-
-    \item \textbf{v--r} = \{amtrv, dsrv\}
-    
-    \item \textbf{o--r} = \{r\}
-
-    \item \textbf{rr--s} = \{airgap\}
-
-    \item \textbf{s--sw} = \{dhphp\}
-    
-    \item \textbf{sw--sw} = \{dhpng\}
-    
-    \item \textbf{s--ra} = \{r\_a-(r\_i + h\_n + h\_zk)\}
-    
-\end{enumerate}
-The heterogeneous graph that was constructed earlier is as below:
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{./ReportImages/graph.png} 
-    \caption{HetGraph}
-    \label{fig:Graph}
-\end{figure}
+% GNNs are hard to be deep due to the over-smoothing and gradient vanishing problems\cite{04}. To mitigate this problem pre activation  residual connection is proposed.
 
 
 \section{Heterogeneous \ac{GNN} Model}\label{sec:Heterogeneous GNN Model}
@@ -723,7 +679,9 @@ We find the heterogeneous graph to be most apt for our use case with its differe
 This property is crucial in modelling our use case as we will then have similar node-edge types per topology. \\
 In addition the count of certain parameters with the motor such as stator poles with its corresponding slot and rotor magnets is made more comprehendable to the model having new nodes and edges whereas for the \ac{MLP} architecture this information is represented only as a number in yet another column. \\
 Heterogeneous \ac{GNN} generally work by having separate non linear functions convolve over each edge type during message computation and over each node type when aggregating the learned information. \\
- 
+
+Inspired by the promising advantages of HGNN, we took the effort of modelling one for only the Double V Magnet Topology
+
 \newpage 
 \chapter{Modelling \& Evaluation}
 
@@ -798,6 +756,7 @@ Our deduction is that a single value calculated for the entire curve may not be 
 A reason to attribute this could be the model's struggle to attempt to generate the next point in the curve to be smaller than the previous point yet also for the further point in addition to making sure the \ac{MSE} is calculated accurately.
 Our hypothesis is this loss regularization creates a tug of war between the \ac{MSE} loss and the regularization term when predicting the whole curve and hence the ever fluctuating curve being generated.\\
 
+% We add regularization term to help learn the parameters.
 
 \subsection{Loss Customization for \ac{3D} \ac{KPI}(Efficiency Grid)}\label{sec:Loss Customization for 3D KPI}
 
@@ -944,7 +903,7 @@ Furthermore as part of post processing, we slice the 3D ETA grid to only contain
 
 \section{Experiments with \ac{MLP}}\label{sec:Experiments with MLP}
 
-The hyperparameters were chosen via a random grid search and we finalized those that resulted in the ideal scores for both y1 ad y2 respectively.
+The learnable parameters were chosen via a random grid search and we finalized those that resulted in the ideal scores for both y1 ad y2 respectively.
 The hyperparmaters for the model was tuned over observations of the model's performance across 5 fold cross validation training.\\
 The splits are saved locally and can be used to later to ensure reproducibility.
 
@@ -959,8 +918,8 @@ The splits are saved locally and can be used to later to ensure reproducibility.
     batch\_size & Batch Size & 72 \\
     epochs & Number of Epochs & 8 \\
     p & Dropout Probability& 0.2 \\
-    lambda\_y1 & Y1 Loss Regularizer & 2.5 \\
-    lambda\_y2 & Y2 Loss Regularizer & 1.5 \\
+    lambda\_y1 & Y1 Loss Regularizer & 6 \\
+    lambda\_y2 & Y2 Loss Regularizer & 3 \\
     w\_y1 & Weightage of Y1 Loss & 0.8 \\
     w\_y2 & Weightage of Y2 Loss & 0.2 \\
     \hline
@@ -971,26 +930,26 @@ The splits are saved locally and can be used to later to ensure reproducibility.
 
 Over the 5 folds, the model performance is observed to ensure its stability and the best performing model is saved to be loaded later for performance.
 The criteria for choosing the best performing model is roughly estimated based on the least combined loss and the combined score closest to 0.\\
-We chose \ac{Wandb} to log metrics from the training run and to monitor model performance across folds. \\
+We chose \texttt{Wandb}\footnote{Weights \& Biases} to log metrics from the training run and to monitor model performance across folds. \\
 Below is the visualisation of the training and validation metrics for both \ac{KPI}s.\\
 
 \begin{figure}[H]
     \centering
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/train_loss.png}
-        \caption{Aggregated Training Loss}
+        \caption{\centering Aggregated Training Loss}
         \label{fig:Aggregated Training Loss}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/train_loss_y1.png}
-        \caption{Training Loss for Torque Curve}
+        \caption{\centering Training Loss for Torque Curve}
         \label{fig:Training Loss for Torque Curve}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/train_loss_y2.png}
-        \caption{Training Loss for ETA grid}
+        \caption{\centering Training Loss for ETA grid}
         \label{fig:Training Loss for ETA grid}
     \end{minipage}
 \end{figure}
@@ -999,19 +958,19 @@ Below is the visualisation of the training and validation metrics for both \ac{K
     \centering
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/train_score.png}
-        \caption{Aggregated Training Score}
+        \caption{\centering Aggregated Training Score}
         \label{fig:Aggregated Training Score}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/train_score_y1.png}
-        \caption{Training Score for Torque Curve}
+        \caption{\centering Training Score for Torque Curve}
         \label{fig:Training Score for Torque Curve}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/train_score_y2.png}
-        \caption{Training Score for ETA grid}
+        \caption{\centering Training Score for ETA grid}
         \label{fig:Training Score for ETA grid}
     \end{minipage}
 \end{figure}
@@ -1022,18 +981,18 @@ From the training plots we see that the model has converged after having run for
     \centering
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/val_loss.png}
-        \caption{Aggregated Validation Loss}
+        \caption{\centering Aggregated Validation Loss}
         \label{fig:Aggregated Validation Loss}
     \end{minipage}
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/val_loss_y1.png}
-        \caption{Validation Loss for Torque Curve}
+        \caption{\centering Validation Loss for Torque Curve}
         \label{fig:Validation Loss for Torque Curve}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/val_loss_y2.png}
-        \caption{Validation Loss for ETA grid}
+        \caption{\centering Validation Loss for ETA grid}
         \label{fig:Validation Loss for ETA grid}
     \end{minipage}
 \end{figure}
@@ -1042,18 +1001,18 @@ From the training plots we see that the model has converged after having run for
     \centering
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/val_score.png}
-        \caption{Aggregated Validation Score}
+        \caption{\centering Aggregated Validation Score}
         \label{fig:Aggregated Validation Score}
     \end{minipage}
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/val_score_y1.png}
-        \caption{Validation Score for Torque Curve}
+        \caption{\centering Validation Score for Torque Curve}
         \label{fig:Validation Score for Torque Curve}
     \end{minipage}
     \hfill
     \begin{minipage}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{./ReportImages/val_score_y2.png}
-        \caption{Validation Score for ETA grid}
+        \caption{\centering Validation Score for ETA grid}
         \label{fig:Validation Score for ETA grid}
     \end{minipage}
 \end{figure}
@@ -1231,18 +1190,22 @@ We also have the score statistics of how the Baseline model performs over the te
 
 As part of ablation studies, we have compared our evaluations of both the \ac{MLP} and the Baseline model on both targets respectively.
 
-\begin{table}[H]
-    \centering
-    \begin{tabularx}{1\linewidth}{|X|X|X|}
-    \hline {\bf Model} & {\bf Y1 Score} & {\bf Y2 Score}\\
-    \hline 
-    Baseline & 6.170 & 1.927 \\
-    MLP & 5.1994 & 0.4962 \\
-    \hline
-    \end{tabularx}
-    \caption{Ablation Studies}
-    \label{tab:Ablation Studies}
-\end{table}
+\begin{minipage}[t]{\textwidth}
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{|l|l|l|}
+        \hline {\bf Model} & {\bf Y1 Score} & {\bf Y2 Score}\\
+        \hline 
+        Baseline & 4.3656 & 4.3149 \\
+        MLP & 1.6886 & 3.1482 \\
+        MLP\footnote{\centering MLP without Loss Regularization}  & 2.7681 &  5.1206 \\
+        \hline
+        \end{tabular}
+        \caption{Ablation Studies}
+        \label{tab:Ablation Studies}
+    \end{table}
+\end{minipage}
+
 
 We draw the inferences that our model has performed relatively better than the baseline for 2D KPI.
 The inferences shown are strictly speaking from the Double V Magnet Topology which assumed the bulk of the data we had received.
@@ -1267,6 +1230,170 @@ Such a model could serve as yet another ablation study to our problem.
 \newpage 
 
 \newpage 
+
+\chapter*{Appendix}
+
+\section{Data Preprocessing for \ac{GNN}}\label{sec:Data Preprocessing for GNN}
+
+
+\textbf{Node types}
+
+\begin{enumerate}
+    \item \textbf{General}
+    
+    \begin{itemize}
+        \item General parameters:
+        \[
+            r = \{r_{i}\} \quad \forall i \in \{a, r, o\} 
+        \]
+        
+        \textit{where:
+        \begin{itemize}
+            \item $r_{a}$: Outer Radius of the Stator
+            \item $r_{r}$: Outer Radius of the Rotor
+            \item $r_{o}$: Center of the \ac{EM}
+        \end{itemize}}
+    \end{itemize}
+    
+    \item \textbf{Stator}
+    
+    \begin{itemize}
+        \item Slot windings:
+        \[
+            sw = \{s_{i}w_{j}\} \quad \forall i \in \{1, \dots, QSim\}, \quad \forall j \in \{1, \dots, N\} 
+        \]
+        
+        \item Slots:
+        \[
+            s = \{s_{i}\} \quad \forall i \in \{1, \dots, QSim\}
+        \]
+
+        \textit{where
+        \begin{itemize}
+            \item Qsim : Count of slots in the Stator
+            \item N : Count of copper windings per slot
+        \end{itemize}}
+    \end{itemize}
+    
+    \item \textbf{Rotor}
+    
+    \begin{itemize}
+        \item Magnet Flux Barriers:
+        \[
+            v = \{v_{ij}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
+        \]
+        
+        \item Magnets:
+        \[
+            vm = \{v_{i}m_{j}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
+        \]
+        \textit{where
+        \begin{itemize}
+            \item T : Topology type of the \ac{EM}
+            \item V : Type of Magnet
+        \end{itemize}
+        As Valeo only manufactures Double V magnets we consider it to be 2}
+    \end{itemize}    
+    
+\end{enumerate}
+
+\textbf{Edge types}
+
+\begin{enumerate}
+    \item \textbf{Angle} \\
+    \textbf{Relevant Paths}
+    \[
+    vm--vm = \{ v_{i_{1}}m_{j_{1}} - v_{i_{2}}m_{j_{2}} \}
+    \forall i_1, i_2 \in \{1, \dots, T\}, \quad \forall j_1, j_2 \in \{1, \dots, V\} \mid
+    i_1 = i_2, \quad j_1 \neq j_2
+    \]
+
+    \textbf{angle}=vm-vm
+
+    \item \textbf{Distance} \\
+    \textbf{Relevant Paths}
+    % \[
+    %     v-v = \{ (v_{i_1 j_1} - v_{i_2 j_2}), \forall i_1, i_2, j_1, j_2 \in \{1, \dots, T\} \mid i_1i_2 \neq j_1j_2 \ \land (i_1 == i_2 \lor j_1 == j_2) \}
+    % \]
+    \[
+        vi--vi = \{v_{i j_1} - v_{i j_2}\}, \forall i \in \{1, \dots, T\}, \forall j_1, j_2 \in \{1, \dots, V\} \mid  j_1 \neq j_2
+    \]
+    \[
+        vi--vj = \{v_{i_1 j} - v_{i_2 j}\}, \forall i_1, i_2 \in \{1, \dots, T\}, \forall j \in \{1, \dots, V\} \mid  i_1 \neq i_2
+    \]
+    \[
+        v--vm = \{v_{i j} - v_{i}m_{j}\} \forall i  \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
+    \]
+    \[
+        v--rr = \{v_{i j} - r_{r}\}, \forall i, j  \in \{1, \dots, T\}
+    \]
+    \[
+        o--r = \{ (o - r_{r}), (o - r_{a})\}
+    \]
+    \[
+        rr--s = \{r_{r} - s_{i}\}, \forall i  \in \{1, \dots, QSim\}
+    \]
+    \[
+        s--sw = \{s_{i} - s_{i}w_{j}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\}
+    \]
+    \[
+        s--ra = \{s_{i} - r_{a}\}, \forall i  \in \{1, \dots, QSim\}
+    \]
+    \[
+        sw--sw = \{s_{i}w_{j_1} - s_{i}w_{j_2}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\} \mid (j_1 == j_2-1)
+    \]
+
+    \textbf{distance} = vi--vi + vi--vj + v--vm + v--rr + o--r + rr--s + s--sw + s--ra + sw--sw
+
+\end{enumerate}
+
+\textbf{Node Features}
+
+\begin{enumerate}
+
+    \item \textbf{v} = \{lmsov, lth1v, lth2v, r1v, r11v, r2v, r3v, r4v, rmt1v, rmt4v, rlt1v, rlt4v, hav\}
+
+    \item \textbf{vm} = \{mbv, mhv, rmagv\}
+
+    \item \textbf{r} = \{r\}
+
+    \item \textbf{s} = \{b\_nng, b\_nzk, b\_s, h\_n, h\_s, r\_sn, r\_zk, r\_ng, h\_zk\}
+
+    \item \textbf{sw} = \{bhp, hhp, rhp\}
+\end{enumerate}
+
+\textbf{Path Features}
+
+\begin{enumerate}
+
+    \item \textbf{vm--vm} = \{deg\_phi\}
+
+    \item \textbf{vi--vi} = \{dsm, dsmu\}
+
+    \item \textbf{vi--vj} = \{amtrvj-amtrvi\}
+
+    \item \textbf{v--vm} = \{lmav, lmiv, lmov, lmuv\}
+
+    \item \textbf{v--r} = \{amtrv, dsrv\}
+    
+    \item \textbf{o--r} = \{r\}
+
+    \item \textbf{rr--s} = \{airgap\}
+
+    \item \textbf{s--sw} = \{dhphp\}
+    
+    \item \textbf{sw--sw} = \{dhpng\}
+    
+    \item \textbf{s--ra} = \{r\_a-(r\_i + h\_n + h\_zk)\}
+    
+\end{enumerate}
+The heterogeneous graph that was constructed earlier is as below:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{./ReportImages/graph.png} 
+    \caption{HetGraph}
+    \label{fig:Graph}
+\end{figure}
 
 \listoffigures
 
