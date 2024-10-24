@@ -1,13 +1,13 @@
 from torch_geometric.data import Dataset
 import os
 import pickle
-import torch
 from tqdm import tqdm
 import traceback
-import networkx as nx
 from typing import Optional, Callable
-from src.data_preprocessing import collect_features_by_type, compute_scaling_params, scale_graph, graph_to_heterodata
+from src.data_preprocessing_graph import type_features, heterodata_graph
+from src.scaling import graph_scaling_params, scale_graph
 from src.graph_creation import create_heterograph, visualize_heterograph
+import numpy as np
 
 class HeterogeneousGraphDataset(Dataset):
     def __init__(self, root: str, transform: Optional[Callable] = None, 
@@ -74,16 +74,19 @@ class HeterogeneousGraphDataset(Dataset):
         print("Starting graph creation")
         self.graphs = []  # Initialize graphs list
         
+        y2 = np.load('./data/TabularDataETA.npy')
+        
         with tqdm(total=len(self.raw_file_names), desc="Processing files") as pbar:
             for i, raw_path in enumerate(self.raw_paths):
                 try:
-                    nx_graph = create_heterograph(raw_path)  # Your existing function
-                    self.graphs.append(nx_graph)  # Store graph in memory
+                    G = create_heterograph(raw_path)  # Your existing function
+                    G.graph['eta']=y2[i, :, :]
+                    self.graphs.append(G)  # Store graph in memory
                     
                     # Save the graph to processed directory
                     nx_file_path = os.path.join(self.processed_dir, f'data_{i}.gpickle')
                     with open(nx_file_path, 'wb') as f:
-                        pickle.dump(nx_graph, f)
+                        pickle.dump(G, f)
                         
                 except Exception as e:
                     print(f"\nError creating graph file {os.path.basename(raw_path)}: {str(e)}")
@@ -94,6 +97,7 @@ class HeterogeneousGraphDataset(Dataset):
         if self.graphs:  # If we have at least one graph
             print('Visualizing sample heterograph')
             visualize_heterograph(self.graphs[0])  # Your existing function
+            
 
     def graph_scaling(self):
         """Scale features across all graphs."""
@@ -102,11 +106,11 @@ class HeterogeneousGraphDataset(Dataset):
         
         try:
             # Collect features for scaling
-            node_features_by_type, edge_features_by_type = collect_features_by_type(self.graphs)
+            node_features_by_type, edge_features_by_type = type_features(self.graphs)
             
             # Compute scaling parameters
-            self.node_scalers = compute_scaling_params(node_features_by_type)
-            self.edge_scalers = compute_scaling_params(edge_features_by_type)
+            self.node_scalers = graph_scaling_params(node_features_by_type)
+            self.edge_scalers = graph_scaling_params(edge_features_by_type)
             
             # Scale each graph
             for i, G in enumerate(self.graphs):
@@ -134,7 +138,7 @@ class HeterogeneousGraphDataset(Dataset):
         try:
             for i, graph in enumerate(self.scaled_graphs):
                 try:
-                    hetero_data = graph_to_heterodata(graph)  # Your existing function
+                    hetero_data = heterodata_graph(graph)  # Your existing function
                     if self.pre_transform is not None:
                         hetero_data = self.pre_transform(hetero_data)
                     self.hetero_data_list.append(hetero_data)
@@ -170,10 +174,3 @@ class HeterogeneousGraphDataset(Dataset):
             
         return data
     
-    def __getitem__(self, idx):
-        """Alias for get() to support indexing syntax."""
-        return self.get(idx)
-    
-    def __len__(self) -> int:
-        """Return the number of graphs in the dataset."""
-        return len(self.hetero_data_list)

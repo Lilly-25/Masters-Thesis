@@ -4,6 +4,7 @@ import re
 import os
 import csv
 import numpy as np
+import json
 
 def create_tabular_data(file_path, purpose):
     try:
@@ -19,18 +20,18 @@ def create_tabular_data(file_path, purpose):
                 except ValueError:
                     params_dict[param] = value
                     
-        params_rotor_v=['lmsov', 'lth1v', 'lth2v', 'r1v', 'r11v', 'r2v', 'r3v', 'r4v', 'rmt1v', 'rmt4v', 'rlt1v', 'rlt4v', 
-                      'hav', 'mbv', 'mhv', 'rmagv',
-                        'dsmv', 'dsmuv', 'amtrv', 'dsrv', 'deg_phiv', 'lmav', 'lmiv', 'lmov', 'lmuv']
-        
-        params_rotor_delta=['lmsob','lthb', 'r2b', 'r3b', 'r4b', 'r5b', 'lgr3b', 'lgr4b',
-                            'mbb', 'mhb', 'mtbb', 'rmagb',
-                            'amtrb', 'dsr3b', 'dsr4b', 'deg_phi3b', 'deg_phi4b', 'lmob', 'lmub', 'lmsub']
-        
-        params_stator=['airgap', 'b_nng', 'b_nzk', 'b_s', 'h_n','h_s', 'r_sn', 'r_zk', 'r_ng', 'h_zk', 'bhp', 'hhp', 'rhp',
-                'dhphp', 'dhpng']
-        
-        params_general=['N', 'simQ','r_a', 'r_i']
+        # Save parameters to a JSON file
+        params_file = '/home/k64889/Masters-Thesis/Intermediate/EMTabular.json'
+
+
+        # Load parameters from the JSON file
+        with open(params_file, 'r') as f:
+            params = json.load(f)
+
+        params_rotor_v = params["params_rotor_v"]
+        params_rotor_delta = params["params_rotor_delta"]
+        params_stator = params["params_stator"]
+        params_general = params["params_general"]
  
         df_features=pd.DataFrame()
         

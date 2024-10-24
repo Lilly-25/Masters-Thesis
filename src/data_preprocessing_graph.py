@@ -1,9 +1,8 @@
-import numpy as np
 from collections import defaultdict
 import torch
 from torch_geometric.data import HeteroData
 
-def collect_features_by_type(graphs):
+def type_features(graphs):
     """
     Collect features for nodes and edges with proper edge type handling.
     """
@@ -33,85 +32,8 @@ def collect_features_by_type(graphs):
     return dict(node_features_by_type), dict(edge_features_by_type)
 
 
-def compute_scaling_params(features_by_type):
-    """
-    Compute mean and standard deviation for each feature.
-    
-    Args:
-        features_by_type (dict): Dictionary containing features by type
-    
-    Returns:
-        dict: Dictionary containing mean and std for each feature
-    """
-    scaling_params = {}
-    
-    for type_name, features_dict in features_by_type.items():
-        scaling_params[type_name] = {
-            'mean': {},
-            'std': {}
-        }
-        
-        for feature_idx, feature_values in features_dict.items():
-            values = np.array(feature_values)
-            mean = np.mean(values)
-            std = np.std(values)
-            # Handle zero standard deviation
-            if std == 0:
-                std = 1
-                
-            scaling_params[type_name]['mean'][feature_idx] = mean
-            scaling_params[type_name]['std'][feature_idx] = std
-    
-    return scaling_params
 
-def scale_graph(G, node_scaling_params, edge_scaling_params):
-    """
-    Scale features using complete edge type information.
-    """
-    scaled_G = G.copy()
-    
-    # Scale node features
-    for node, data in scaled_G.nodes(data=True):
-        node_type = data['type']
-        features = np.array(data['features'])
-        
-        scaled_features = []
-        for i, feature in enumerate(features):
-            mean = node_scaling_params[node_type]['mean'][i]
-            std = node_scaling_params[node_type]['std'][i]
-            scaled_feature = (feature - mean) / std
-            scaled_features.append(scaled_feature)
-        
-        scaled_G.nodes[node]['features'] = scaled_features
-    
-    # Scale edge features using complete edge type
-    for u, v, k, data in scaled_G.edges(data=True, keys=True):
-        # Get complete edge type descriptor
-        src_type = G.nodes[u]['type']
-        dst_type = G.nodes[v]['type']
-        edge_type = data['type']
-        full_edge_type = (src_type, edge_type, dst_type)
-        
-        features = np.array(data['features'])
-        scaled_features = []
-        
-        try:
-            for i, feature in enumerate(features):
-                mean = edge_scaling_params[full_edge_type]['mean'][i]
-                std = edge_scaling_params[full_edge_type]['std'][i]
-                scaled_feature = (feature - mean) / std
-                scaled_features.append(scaled_feature)
-            
-            scaled_G.edges[u, v, k]['features'] = scaled_features
-            
-        except KeyError as e:
-            print(f"Error scaling edge {u}->{v} of type {full_edge_type}")
-            print(f"Available edge types: {list(edge_scaling_params.keys())}")
-            raise e
-    
-    return scaled_G
-
-def create_node_mapping(G):
+def node_mapping(G):
     """
     Create a mapping of node IDs for each node type.
     
@@ -141,7 +63,7 @@ def create_node_mapping(G):
     
     return node_mappings, num_nodes_dict
 
-def create_edge_indices(G, node_mappings):
+def edge_mapping(G, node_mappings):
     """
     Create edge index tensors for each edge type.
     
@@ -184,7 +106,7 @@ def create_edge_indices(G, node_mappings):
     
     return edge_dict
 
-def graph_to_heterodata(G):
+def heterodata_graph(G):
     """
     Convert a NetworkX graph to PyTorch Geometric HeteroData.
     
@@ -197,7 +119,7 @@ def graph_to_heterodata(G):
     data = HeteroData()
     
     # Create node mappings
-    node_mappings, num_nodes_dict = create_node_mapping(G)
+    node_mappings, num_nodes_dict = node_mapping(G)
     
     # Add node features
     for node_type in node_mappings:
@@ -210,7 +132,7 @@ def graph_to_heterodata(G):
         data[node_type].num_nodes = num_nodes_dict[node_type]
     
     # Add edge indices and features
-    edge_dict = create_edge_indices(G, node_mappings)
+    edge_dict = edge_mapping(G, node_mappings)
     for (src_type, edge_type, dst_type), (edge_index, edge_attr) in edge_dict.items():
         data[src_type, edge_type, dst_type].edge_index = edge_index
         data[src_type, edge_type, dst_type].edge_attr = edge_attr
