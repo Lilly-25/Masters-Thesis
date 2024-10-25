@@ -16,7 +16,8 @@ class mlp_kpi3d(nn.Module):
             nn.BatchNorm1d(hidden_size*2),
             nn.ReLU(),
             nn.Dropout(dropout_rate),
-            nn.Linear(hidden_size*2, y1_shape[1])
+            nn.Linear(hidden_size*2, y1_shape[1]),
+            nn.ReLU()
         )
         self.y2_layers = nn.Sequential(
             # nn.Linear(hidden_size, hidden_size * 4),
@@ -31,8 +32,8 @@ class mlp_kpi3d(nn.Module):
             nn.BatchNorm1d(hidden_size * 16),
             nn.ReLU(),
             nn.Dropout(dropout_rate),
-            nn.Linear(hidden_size * 16, y2_shape[1] * y2_shape[2])
-            # nn.ReLU(),
+            nn.Linear(hidden_size * 16, y2_shape[1] * y2_shape[2]),
+            nn.ReLU()
             # nn.Linear(hidden_size * 64, y2_shape[1] * y2_shape[2])
         )
         self.y2_shape = y2_shape
