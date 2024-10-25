@@ -1,128 +1,176 @@
-
-import os
-import torch
 from torch_geometric.data import Dataset
-import pandas as pd
+import os
+import pickle
 from tqdm import tqdm
 import traceback
+from typing import Optional, Callable
+from src.data_preprocessing_graph import type_features, heterodata_graph
+from src.scaling import graph_scaling_params, scale_graph
 from src.graph_creation import create_heterograph, visualize_heterograph
-from src.data_preprocessing import pyg_graph
+import numpy as np
 
-class HeterogeneousGraphDataset(Dataset):  # Changed from Dataset to HeteroData
-    def __init__(self, root, transform=None, pre_transform=None, force_process=False):
+class HeterogeneousGraphDataset(Dataset):
+    def __init__(self, root: str, transform: Optional[Callable] = None, 
+                 pre_transform: Optional[Callable] = None, force_process: bool = False):
+        """
+        Initialize the heterogeneous graph dataset.
+        
+        Args:
+            root: Root directory where the dataset should be saved
+            transform: Optional transform to be applied on each data object
+            pre_transform: Optional transform to be applied on each data object before saving
+            force_process: If True, process the data even if it exists in processed_dir
+        """
         self.root = root
         self.force_process = force_process
-        self.edge_types=[]
+        self.edge_types = []
+        self.graphs = []  # Raw NetworkX graphs
+        self.scaled_graphs = []  # Scaled NetworkX graphs
+        self.hetero_data_list = []  # List of HeteroData objects
+        self.node_scalers = {}
+        self.edge_scalers = {}
+        
         super(HeterogeneousGraphDataset, self).__init__(root, transform, pre_transform)
         
         # Create directories if they don't exist
         os.makedirs(self.raw_dir, exist_ok=True)
         os.makedirs(self.processed_dir, exist_ok=True)
         
-        if self.force_process or not self._processed_file_exists:
-            self.process()
+        if self.force_process or not self._processed_file_exists():
+            self.graph_creation()
         else:
-            self.data_list = self._load_processed_files()
+            self.graphs = self._load_graphs()
+        
+        self.graph_scaling()
+        self.tensor_graphs()
 
     @property
     def raw_file_names(self):
+        """Get list of raw file names."""
         return [f for f in os.listdir(self.raw_dir) if f.endswith('.xlsx')]
 
     @property
     def processed_file_names(self):
-        return [f'data_{i}.pt' for i in range(len(self.raw_file_names))]
+        """Get list of processed file names."""
+        return [f'data_{i}.gpickle' for i in range(len(self.raw_file_names))]
 
-    @property
     def _processed_file_exists(self):
-        return all(os.path.exists(os.path.join(self.processed_dir, f)) for f in self.processed_file_names)
+        """Check if processed files exist."""
+        return all(os.path.exists(os.path.join(self.processed_dir, f)) 
+                  for f in self.processed_file_names)
 
-    def _load_processed_files(self):
-        data_list = []
+    def _load_graphs(self):
+        """Load processed NetworkX graphs."""
+        graphs = []
         for file_name in self.processed_file_names:
             file_path = os.path.join(self.processed_dir, file_name)
-            data = torch.load(file_path)
-            data_list.append(data)
-        return data_list
-    
+            with open(file_path, 'rb') as f:
+                graph = pickle.load(f)
+            graphs.append(graph)
+        return graphs
 
-    def process(self):
-        self.data_list = []  # Clear the list before processing
-        print("Starting process method")
-        # Create a single progress bar for all files
+    def graph_creation(self):
+        """Create and save NetworkX graphs from raw data."""
+        print("Starting graph creation")
+        self.graphs = []  # Initialize graphs list
+        
+        y2 = np.load('./data/TabularDataETA.npy')
+        
         with tqdm(total=len(self.raw_file_names), desc="Processing files") as pbar:
             for i, raw_path in enumerate(self.raw_paths):
                 try:
-                    nx_graph = create_heterograph(raw_path)
-                    if nx_graph is not None:
-                        try:
-                            data = pyg_graph(nx_graph)
-                            torch.save(data, os.path.join(self.processed_dir, self.processed_file_names[i]))
-                            self.data_list.append(data)
-                        except Exception as e:
-                            print(f"\nError converting graph to PyG for file {os.path.basename(raw_path)}: {str(e)}")
-                            traceback.print_exc()
+                    G = create_heterograph(raw_path)  # Your existing function
+                    G.graph['eta']=y2[i, :, :]
+                    self.graphs.append(G)  # Store graph in memory
+                    
+                    # Save the graph to processed directory
+                    nx_file_path = os.path.join(self.processed_dir, f'data_{i}.gpickle')
+                    with open(nx_file_path, 'wb') as f:
+                        pickle.dump(G, f)
+                        
                 except Exception as e:
-                    print(f"\nError processing file {os.path.basename(raw_path)}: {str(e)}")
+                    print(f"\nError creating graph file {os.path.basename(raw_path)}: {str(e)}")
                     traceback.print_exc()
                 pbar.update(1)
-        #self.edge_types= [t[1] for t in data.edge_types]
-        #print(data.edge_types)
-        print("Finished process method")
-        print('Visualizing sample heterograph')
-        visualize_heterograph(nx_graph)
+                
+        print("Finished graph creation")
+        if self.graphs:  # If we have at least one graph
+            print('Visualizing sample heterograph')
+            visualize_heterograph(self.graphs[0])  # Your existing function
+            
+
+    def graph_scaling(self):
+        """Scale features across all graphs."""
+        print("Starting graph scaling")
+        self.scaled_graphs = []  # Initialize scaled graphs list
+        
+        try:
+            # Collect features for scaling
+            node_features_by_type, edge_features_by_type = type_features(self.graphs)
+            
+            # Compute scaling parameters
+            self.node_scalers = graph_scaling_params(node_features_by_type)
+            self.edge_scalers = graph_scaling_params(edge_features_by_type)
+            
+            # Scale each graph
+            for i, G in enumerate(self.graphs):
+                try:
+                    scaled_G = scale_graph(G, self.node_scalers, self.edge_scalers)
+                    self.scaled_graphs.append(scaled_G)
+                except Exception as e:
+                    print(f"Error scaling graph {i+1}:")
+                    print(str(e))
+                    raise e
+                    
+            print("Finished graph scaling")
+            return self.scaled_graphs, self.node_scalers, self.edge_scalers
+            
+        except Exception as e:
+            print("Error in graph scaling:")
+            print(str(e))
+            raise e
+
+    def tensor_graphs(self):
+        """Convert scaled NetworkX graphs to PyTorch Geometric HeteroData objects."""
+        print("Starting tensor conversion")
+        self.hetero_data_list = []  # Initialize HeteroData list
+        
+        try:
+            for i, graph in enumerate(self.scaled_graphs):
+                try:
+                    hetero_data = heterodata_graph(graph)  # Your existing function
+                    if self.pre_transform is not None:
+                        hetero_data = self.pre_transform(hetero_data)
+                    self.hetero_data_list.append(hetero_data)
+                except Exception as e:
+                    print(f"Error converting graph {i+1} to tensor:")
+                    print(str(e))
+                    raise e
+                    
+            print("Finished tensor conversion")
+            
+        except Exception as e:
+            print("Error in tensor conversion:")
+            print(str(e))
+            raise e
 
     def len(self):
-        return len(self.processed_file_names)
+        """Return the number of graphs in the dataset."""
+        return len(self.hetero_data_list)
 
     def get(self, idx):
-        if hasattr(self, 'data_list') and self.data_list:
-            return self.data_list[idx]
-        else:
-            file_path = os.path.join(self.processed_dir, self.processed_file_names[idx])
-            return torch.load(file_path)
+        """Get a graph from the dataset.
         
-    def inspect_dataset(self):
-        print(f"Dataset contains {len(self.data_list)} graphs")
-
-        # Inspect the first graph in detail
-        sample_graph = self.data_list[0]
-        print("\nDetailed information for the first graph:")
-
-        # Node types and features
-        print("\nNode Types and Features:")
-        for node_type in sample_graph.node_types:
-            num_nodes = sample_graph[node_type].num_nodes
-            feature_dim = sample_graph[node_type].num_features
-            print(f"  {node_type}: {num_nodes} nodes, {feature_dim} features")
-            if num_nodes > 0:
-                print(f"    Sample features: {sample_graph[node_type].x[0][:5]}...")  # Print first 5 features of first node
-
-        # Edge types and structure
-        print("\nEdge Types and Structure:")
-        for edge_type in sample_graph.edge_types:
-            num_edges = sample_graph[edge_type].num_edges
-            print(f"  {edge_type}: {num_edges} edges")
-            if num_edges > 0:
-                print(f"    Edge indices: {sample_graph[edge_type].edge_index[:, :5]}")  # Print first 5 edge indices
-                if hasattr(sample_graph[edge_type], 'edge_attr'):
-                    edge_attr_dim = sample_graph[edge_type].edge_attr.size(1)
-                    print(f"    Edge features: {edge_attr_dim} dimensions")
-                    print(f"    Sample edge features: {sample_graph[edge_type].edge_attr[0][:5]}...")  # Print first 5 features of first edge
-
-        # Global attributes
-        if hasattr(sample_graph, 'global_attr'):
-            print("\nGlobal Attributes:")
-            print(f"  {sample_graph.global_attr}")
-
-        # Labels
-        if hasattr(sample_graph, 'y'):
-            print("\nLabels:")
-            print(f"  Shape: {sample_graph.y.shape}")
-            print(f"  Sample labels: {sample_graph.y[:5]}...")  # Print first 5 labels
-
-        # Additional statistics
-        print("\nAdditional Statistics:")
-        total_nodes = sum(sample_graph[nt].num_nodes for nt in sample_graph.node_types)
-        total_edges = sum(sample_graph[et].num_edges for et in sample_graph.edge_types)
-        print(f"  Total nodes: {total_nodes}")
-        print(f"  Total edges: {total_edges}")
+        Args:
+            idx (int): Index of the graph to get
+            
+        Returns:
+            HeteroData: The requested graph
+        """
+        data = self.hetero_data_list[idx]
+        
+        if self.transform is not None:
+            data = self.transform(data)
+            
+        return data
+    

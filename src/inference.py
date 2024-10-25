@@ -207,7 +207,10 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
             ax2 = axs[row, col].twinx()
             ax2.plot(nn_kpi_2d, deviations, label='Difference', color='green', linestyle='--')
             ax2.plot(nn_kpi_2d, percentage_diff, label='Percentage Diff', color='purple', linestyle='--')
-            ax2.set_ylabel('Difference & Percentage Differences')
+            ax2.set_ylabel('Difference & Percentage Differences', color='red')
+            ax2.tick_params(axis='y', colors='red')
+            ax2.spines['right'].set_color('red')  # Color the right spine red
+            ax2.spines['top'].set_visible(False)  # Hide the top spine for the twin axis
 
             # Combine the legends of both y-axes
             lines_1, labels_1 = axs[row, col].get_legend_handles_labels()
@@ -476,6 +479,8 @@ def plot_kpi2d_stddev(df_y1_avg, df_test_y1_targets, plot, model):
                 linestyle='--', alpha=0.7)
 
     ax2.tick_params(axis='y', labelcolor='red')
+    ax2.spines['right'].set_color('red')  # Color the right spine red
+    ax2.spines['top'].set_visible(False)  # Hide the top spine for the twin axis
 
     plt.title(f'Average {plot} and Element-wise {plot} of Test Dataset with {model} Model', fontsize=14)
     plt.grid(True, alpha=0.3)
@@ -517,17 +522,104 @@ def plot_scores(scores, target, model):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     
-def plot_eta(etas, ax, n):
-    for i, eta_array in enumerate(etas):
-        x = np.linspace(-300, 300, len(eta_array))
-        ax.plot(x, eta_array, label=f'Array {i+1}', linestyle='--')
+# def plot_eta(etas, ax, n):
+#     for i, eta_array in enumerate(etas):
+#         x = np.linspace(-300, 300, len(eta_array))
+#         ax.plot(x, eta_array, label=f'Array {i+1}', linestyle='--')
     
+#     ax.set_xlabel('Torque (Nm)')
+#     ax.set_ylabel('Efficiency (%)')
+#     ax.set_title(f'Efficiency at Speed {n} rpm')
+#     ax.spines['top'].set_visible(False)
+#     ax.spines['right'].set_visible(False)
+
+# def plot_eta_statistics(eta, speed_ranges, input):
+#     num_plots = len(eta)
+
+#     num_cols = min(3, num_plots)  
+#     num_rows = (num_plots - 1) // num_cols + 1
+
+#     fig, axs = plt.subplots(num_rows, num_cols, figsize=(6*num_cols, 5*num_rows))
+#     fig.suptitle(f'Standard Deviation of {input} Efficiency across NN ranges', fontsize=16)
+
+#     if num_plots > 1:
+#         axs = axs.flatten()
+        
+#     n=speed_ranges[0] * 100
+
+#     for i, etas in enumerate(eta):
+#         if num_plots > 1:
+#             ax = axs[i]
+#         else:
+#             ax = axs
+#         plot_eta(etas, ax, n)
+#         n+= 2000
+
+#     # Remove any unused subplots
+#     if num_plots > 1:
+#         for j in range(num_plots, len(axs)):
+#             fig.delaxes(axs[j])
+
+#     plt.tight_layout()
+#     plt.subplots_adjust(top=0.95)
+    # plt.show()
+    
+def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta):
+    
+    plt.figure(figsize=(10, 6))
+    plt.errorbar(speed_ranges, mean_eta, yerr=std_eta, fmt='o', capsize=5, label="Mean ± Std Dev", ecolor='red', linestyle='--', marker='s')
+    plt.xlabel("Speed*100(rpm) ")
+    plt.ylabel("Efficiency(%)")
+    plt.title("Standard Deviation of ETA values ranging NN speed")
+    ax=plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    plt.legend(loc='upper right')
+    plt.show()
+    
+def pad_array(arr, target_length):
+    pad_size = target_length - len(arr)
+    if pad_size > 0:
+        return np.pad(arr, (0, pad_size), 'constant', constant_values=np.nan)
+    else:
+        return arr  
+
+def plot_eta(etas, ax, n):
+    
+    max_length = max(len(inner_array[inner_array.shape[0]//2:]) for inner_array in etas)
+    etas_padded = np.array([pad_array(inner_array[inner_array.shape[0]//2:], max_length) for inner_array in etas])
+
+    mean_eta = np.mean(etas_padded, axis=0)  
+    std_eta = np.std(etas_padded, axis=0)    
+
+    x = np.linspace(0, 300, len(mean_eta))
+
+    ax.plot(x, mean_eta, label=f'Mean Efficiency', color='blue', linewidth=2)
+    ax.fill_between(x, mean_eta - std_eta, mean_eta + std_eta, 
+                    alpha=0.2, color='red', label=f'± Std Dev')
+    ax.legend(loc='upper right')
+    
+    # Create a twin axis for Difference plots
+    ax2 = ax.twinx()
+    ax2.set_ylabel('Difference', color='red')
+    ax2.tick_params(axis='y', colors='red')
+    ax2.spines['right'].set_color('red')  
+    ax2.spines['top'].set_visible(False)  
+    
+    for _, eta_array in enumerate(etas):
+        pos_eta_grid = eta_array[eta_array.shape[0]//2:]
+        
+        target_values = mean_eta[:len(pos_eta_grid)]
+        prediction_values = pos_eta_grid
+        difference = prediction_values - target_values
+
+        ax2.plot(x[:len(pos_eta_grid)], difference, linestyle='--', alpha=0.7)
+
     ax.set_xlabel('Torque (Nm)')
     ax.set_ylabel('Efficiency (%)')
     ax.set_title(f'Efficiency at Speed {n} rpm')
     ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-
+    
 def plot_eta_statistics(eta, speed_ranges, input):
     num_plots = len(eta)
 
@@ -535,13 +627,12 @@ def plot_eta_statistics(eta, speed_ranges, input):
     num_rows = (num_plots - 1) // num_cols + 1
 
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(6*num_cols, 5*num_rows))
-    fig.suptitle(f'Standard Deviation of {input} Efficiency across NN ranges', fontsize=16)
+    fig.suptitle(f'Deviation of {input} Positive Efficiency across NN ranges', fontsize=16)
 
     if num_plots > 1:
         axs = axs.flatten()
         
     n=speed_ranges[0] * 100
-
     for i, etas in enumerate(eta):
         if num_plots > 1:
             ax = axs[i]
@@ -557,17 +648,4 @@ def plot_eta_statistics(eta, speed_ranges, input):
 
     plt.tight_layout()
     plt.subplots_adjust(top=0.95)
-    plt.show()
-    
-def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta):
-    
-    plt.figure(figsize=(10, 6))
-    plt.errorbar(speed_ranges, mean_eta, yerr=std_eta, fmt='o', capsize=5, label="Mean ± Std Dev", ecolor='red', linestyle='--', marker='s')
-    plt.xlabel("Speed*100(rpm) ")
-    plt.ylabel("Efficiency(%)")
-    plt.title("Standard Deviation of ETA values ranging NN speed")
-    ax=plt.gca()
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    plt.legend(loc='upper right')
     plt.show()
