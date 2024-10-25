@@ -40,12 +40,12 @@ def read_file_2d(file_path, sheet_name):
         row_data = [cell.value if cell.value is not None else np.nan for cell in row]
         y2_pos.append(row_data)
     
-    y2 = []
-    y2_neg = y2_pos[-1:0:-1] # Mirroring negative grid of ETA to be same as the predicted positive grid excl mid row
-    y2 = y2_neg + y2_pos
-    while len(y2) < sheet.max_row:
-        y2.append([np.nan] * len(y2[0]))
-    return np.array(y2, dtype=float)
+    # y2 = []
+    # y2_neg = y2_pos[-1:0:-1] # Mirroring negative grid of ETA to be same as the predicted positive grid excl mid row
+    # y2 = y2_neg + y2_pos
+    # while len(y2) < sheet.max_row:
+    #     y2.append([np.nan] * len(y2[0]))
+    return np.array(y2_pos, dtype=float)
         
         
 def plot_kpi2d(nn_values, mgrenz_values):
