@@ -76,31 +76,31 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_
             y2_sliced = y2[i, mid_eta-max_mgrenz_rounded:mid_eta+max_mgrenz_rounded+1 , :]
             cumulative_counts = cumulative_col_count(mgrenz_values)
             # print('Cumulative counts', cumulative_counts)
-            negative_eta=[]
-            j = 0
-            k=0
-            # while i < y2_sliced.shape[0]//2 + 1:
-            for i in range(y2_sliced.shape[0]//2 + 1): 
-                if j < len(cumulative_counts):
-                    negative_columns = cumulative_counts[j]
-                else:
-                    negative_columns = cumulative_counts[-1]
+            # negative_eta=[]
+            # j = 0
+            # k=0
+            # # while i < y2_sliced.shape[0]//2:
+            # for i in range(y2_sliced.shape[0]//2): 
+            #     if j < len(cumulative_counts):
+            #         negative_columns = cumulative_counts[j]
+            #     else:
+            #         negative_columns = cumulative_counts[-1]
                 
-                padded_eta = np.full(191, np.nan)
-                padded_eta[:negative_columns] = y2_sliced[i, :negative_columns]
-                negative_eta.append(padded_eta)
+            #     padded_eta = np.full(191, np.nan)
+            #     padded_eta[:negative_columns] = y2_sliced[i, :negative_columns]
+            #     negative_eta.append(padded_eta)
 
-                # Update j based on mgrenz_values
-                if negative_columns < len(mgrenz_values) and k == 0:
-                    k = abs(mgrenz_values[negative_columns-1] - mgrenz_values[negative_columns])
-                if k == 1:
-                    j+=1
-                k -= 1
-            eta_predicted.extend(negative_eta)
+            #     # Update j based on mgrenz_values
+            #     if negative_columns < len(mgrenz_values) and k == 0:
+            #         k = abs(mgrenz_values[negative_columns-1] - mgrenz_values[negative_columns])
+            #     if k == 1:
+            #         j+=1
+            #     k -= 1
+            # eta_predicted.extend(negative_eta)
             positive_eta=[]
             j=0
             k=0
-            for i in range(y2_sliced.shape[0] - 1, y2_sliced.shape[0]//2, -1): # Loop through each row in the sample
+            for i in range(y2_sliced.shape[0] - 1, y2_sliced.shape[0]//2 - 1, -1): # Loop through each row in the sample
                 if j < len(cumulative_counts):
                     positive_columns = cumulative_counts[j]
                 else:
@@ -116,7 +116,8 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_
                 k -= 1
             eta_predicted.extend(reversed(positive_eta))
 
-        mm_matrix.append(list(range(-max_mgrenz_rounded, max_mgrenz_rounded + 1)))
+        # mm_matrix.append(list(range(-max_mgrenz_rounded, max_mgrenz_rounded + 1)))
+        mm_matrix.append(list(range(0, max_mgrenz_rounded + 1)))
         eta_matrix.append(np.array(eta_predicted))
     return df_y1, y2, mm_matrix, eta_matrix
 
@@ -336,66 +337,61 @@ def plot_std_kpi2d(df_targets, df_predictions):#per sample row wise
     plt.tight_layout()
     plt.show()
     
-def eval_plot_kpi3d(nn, mm1, eta1, mm2, eta2, filename):
+
+def eta_difference(mm_kpi3d, eta_kpi3d, mm_predicted, eta_predicted):
+    
+    mm_diff = mm_kpi3d if len(mm_kpi3d) <= len(mm_predicted) else mm_predicted
+    
+    cleaned_eta_kpi3d=(np.nan_to_num(eta_kpi3d, nan=0.0))
+    cleaned_eta_predicted=(np.nan_to_num(eta_predicted, nan=0.0))
+
+    min_shape = min(cleaned_eta_kpi3d.shape[0], cleaned_eta_predicted.shape[0])
+    eta_diff = cleaned_eta_kpi3d[:min_shape, :] - cleaned_eta_predicted[:min_shape, :] 
+    
+    return mm_diff, eta_diff    
+
+def eval_plot_kpi3d(nn, mm1, eta1, mm2,  eta2, mm_diff, eta_diff, filename):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(36, 10))
     fig.suptitle(f'Motor Efficiency', fontsize=16)
 
-    Z_global_min, Z_global_max = 0.00, 100.00
+    Z_global_min = 0.00
+    Z_global_max = 100.00
     norm = Normalize(vmin=Z_global_min, vmax=Z_global_max)
 
-    def plot_data(ax, X, Y, Z, title, cmap='jet'):
+    for ax, mm, eta, title in zip([ax1, ax2, ax3], [mm1, mm2, mm_diff], [eta1, eta2,eta_diff], ['Original', 'Predicted', 'Difference']):
+        if mm.shape[0] != eta.shape[0]:
+            i = 1 if eta.shape[0] % 2 != 0 else 0
+            min_rows = min(mm.shape[0], eta.shape[0])
+            mm = mm[mm.shape[0]//2 - min_rows//2 : mm.shape[0]//2 + min_rows//2 + i]
+            eta = eta[eta.shape[0]//2 - min_rows//2 : eta.shape[0]//2 + min_rows//2 + i, :]
+
+        X, Y = np.meshgrid(nn, mm)
+        Z = eta
+        cmap='jet'
+        if title == 'Difference':
+            cmap='Reds'
         im = ax.pcolormesh(X, Y, Z, cmap=cmap, norm=norm, shading='auto')
         ax.set_xlabel('Angular Velocity [rpm]', fontsize=12)
         ax.set_ylabel('Torque [Nm]', fontsize=12)
-        ax.set_title(f'{title}', fontsize=14)
+        ax.set_title(f'{title} Efficiency', fontsize=14)
         cbar = fig.colorbar(im, ax=ax)
-        cbar.set_label('Efficiency' if title != 'Absolute Difference' else 'Absolute Efficiency Difference', fontsize=12)
+        cbar.set_label('Efficiency', fontsize=12)
+        # Set x-axis limits
         ax.set_xlim(0, max(nn))
+
+        # Improve x-axis tick labels
         ax.xaxis.set_major_locator(ticker.MaxNLocator(10))
         ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, p: format(int(x), ',')))
-        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
+        
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
 
-    def prepare_data(nn, mm, eta):
-        min_rows = min(mm.shape[0], eta.shape[0])
-        i = 1 if eta.shape[0] % 2 != 0 else 0
-        eta = eta[eta.shape[0]//2 - min_rows//2 : eta.shape[0]//2 + min_rows//2 + i]
-        mm = mm[mm.shape[0]//2 - min_rows//2 : mm.shape[0]//2 + min_rows//2 + i]
-        
-        X, Y = np.meshgrid(nn, mm)
-        
-        # Remove NaN and infinite values
-        mask = np.isfinite(eta)
-        X_valid = X[mask]
-        Y_valid = Y[mask]
-        eta_valid = eta[mask]
-        return X_valid, Y_valid, eta_valid
-
-    X1, Y1, Z1 = prepare_data(nn, mm1, eta1)
-    X2, Y2, Z2 = prepare_data(nn, mm2, eta2)
-
-    # Create a common grid for interpolation
-    x_min, x_max = min(X1.min(), X2.min()), max(X1.max(), X2.max())
-    y_min, y_max = min(Y1.min(), Y2.min()), max(Y1.max(), Y2.max())
-    xi = np.linspace(x_min, x_max, len(nn))  # Use original nn length
-    yi = np.linspace(y_min, y_max, min(len(mm1), len(mm2)))  # Use minimum mm length
-    XI, YI = np.meshgrid(xi, yi)
-    
-    Z1_interp = griddata((X1, Y1), Z1, (XI, YI), fill_value=np.nan)
-    Z2_interp = griddata((X2, Y2), Z2, (XI, YI), fill_value=np.nan)
-    
-    plot_data(ax1, XI, YI, Z1_interp, 'Original Efficiency')
-    plot_data(ax2, XI, YI, Z2_interp, 'Predicted Efficiency')
-
-    # Calculate and plot the difference
-    Z_diff = np.abs(Z2_interp - Z1_interp)
-    plot_data(ax3, XI, YI, Z_diff, 'Absolute Difference', cmap='Reds')
+        # Rotate x-axis labels for better readability
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')
 
     plt.tight_layout()
     plt.subplots_adjust(top=0.90)
     plt.show()
-    
 
 def y2_score(eta1, eta2):
     
@@ -522,47 +518,6 @@ def plot_scores(scores, target, model):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     
-# def plot_eta(etas, ax, n):
-#     for i, eta_array in enumerate(etas):
-#         x = np.linspace(-300, 300, len(eta_array))
-#         ax.plot(x, eta_array, label=f'Array {i+1}', linestyle='--')
-    
-#     ax.set_xlabel('Torque (Nm)')
-#     ax.set_ylabel('Efficiency (%)')
-#     ax.set_title(f'Efficiency at Speed {n} rpm')
-#     ax.spines['top'].set_visible(False)
-#     ax.spines['right'].set_visible(False)
-
-# def plot_eta_statistics(eta, speed_ranges, input):
-#     num_plots = len(eta)
-
-#     num_cols = min(3, num_plots)  
-#     num_rows = (num_plots - 1) // num_cols + 1
-
-#     fig, axs = plt.subplots(num_rows, num_cols, figsize=(6*num_cols, 5*num_rows))
-#     fig.suptitle(f'Standard Deviation of {input} Efficiency across NN ranges', fontsize=16)
-
-#     if num_plots > 1:
-#         axs = axs.flatten()
-        
-#     n=speed_ranges[0] * 100
-
-#     for i, etas in enumerate(eta):
-#         if num_plots > 1:
-#             ax = axs[i]
-#         else:
-#             ax = axs
-#         plot_eta(etas, ax, n)
-#         n+= 2000
-
-#     # Remove any unused subplots
-#     if num_plots > 1:
-#         for j in range(num_plots, len(axs)):
-#             fig.delaxes(axs[j])
-
-#     plt.tight_layout()
-#     plt.subplots_adjust(top=0.95)
-    # plt.show()
     
 def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta):
     
