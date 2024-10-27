@@ -66,7 +66,7 @@ def plot_kpi2d(nn_values, mgrenz_values):
 
 def plot_kpi3d(nn, mm, eta):
     
-    fig, ax = plt.subplots(figsize=(16, 10))
+    fig, ax = plt.subplots(figsize=(10, 10))
 
     Z_global_min = 0.00
     Z_global_max = 100.00
