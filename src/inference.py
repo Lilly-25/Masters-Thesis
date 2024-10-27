@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from scipy.interpolate import griddata
 from src.scaling import StdScaler
 from src.utils import cumulative_counts as cumulative_col_count
 import matplotlib.ticker as ticker
@@ -67,7 +66,7 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_
         # print('Mgrenz \n',mgrenz_values)
         eta_predicted=[]
         
-        if (2*max_mgrenz_rounded) + 1 > y2[i].shape[0]: # If worse case scenario where we predict a torque higher than expected ETA
+        if (max_mgrenz_rounded) + 1 > y2[i].shape[0]: # If worse case scenario where we predict a torque higher than expected ETA
             print(f"Warning: The maximum torque value for {index[i]} is too high than expected")
             eta_predicted=y2[i]
             
@@ -119,7 +118,7 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_
         # mm_matrix.append(list(range(-max_mgrenz_rounded, max_mgrenz_rounded + 1)))
         mm_matrix.append(list(range(0, max_mgrenz_rounded + 1)))
         eta_matrix.append(np.array(eta_predicted))
-    return df_y1, y2, mm_matrix, eta_matrix
+    return df_y1, mm_matrix, eta_matrix
 
 def plot_testdataset_kpi2d(df_targets, df_predictions,start,end, cols):
     
@@ -130,9 +129,7 @@ def plot_testdataset_kpi2d(df_targets, df_predictions,start,end, cols):
     # cols=2
     row_height=5 
     col_width=5
-
     num_plots = end - start
-
     rows = (num_plots + cols - 1) // cols  # ceiling division to get the number of rows needed
 
     fig, axs = plt.subplots(rows, cols, figsize=(cols * col_width, rows * row_height))  # Adjust fig size based on rows and columns
@@ -184,24 +181,21 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
 
             deviations = np.array(prediction_values) - np.array(target_values)
             variance = np.mean(deviations ** 2)
-            std_dev = np.sqrt(variance)
-            
-            # deviations = np.array(prediction_values) - np.array(target_values)
-            # #print('Difference', deviations)
-            # std_dev = np.mean(abs(deviations))
+            rmse = np.sqrt(variance)
+
                 
             percentage_diff = 100 * abs(deviations) / target_values 
-            #print('Percentage diff', percentage_diff)
             
             axs[row, col].plot(nn_kpi_2d, target_values, label='Target', color='blue')
             axs[row, col].plot(nn_kpi_2d, prediction_values, label='Predictions', color='red')
-            axs[row, col].fill_between(nn_kpi_2d, np.array(target_values) - std_dev, np.array(target_values) + std_dev, 
+            axs[row, col].fill_between(nn_kpi_2d, np.array(target_values) - rmse, np.array(target_values) + rmse, 
                                         alpha=0.2, color='red', label='Prediction Std Dev')
             axs[row, col].set_xlabel('NN')
             axs[row, col].set_ylabel('Mgrenz')
-            #axs[row, col].set_title(f'Mgrenz(Torque Curve) KPI for\n{index[current_index]}', fontsize=10)
+      
             axs[row, col].set_title(f'Mgrenz(Torque Curve) KPI', fontsize=10)
             axs[row, col].legend()
+            axs[row, col].spines['top'].set_visible(False)
             
             # Plot differences
             # Create twin y-axis for differences and percentage differences
@@ -337,18 +331,20 @@ def plot_std_kpi2d(df_targets, df_predictions):#per sample row wise
     plt.tight_layout()
     plt.show()
     
-
-def eta_difference(mm_kpi3d, eta_kpi3d, mm_predicted, eta_predicted):
-    
-    mm_diff = mm_kpi3d if len(mm_kpi3d) <= len(mm_predicted) else mm_predicted
+def clean_eta(eta_kpi3d):
     
     cleaned_eta_kpi3d=(np.nan_to_num(eta_kpi3d, nan=0.0))
-    cleaned_eta_predicted=(np.nan_to_num(eta_predicted, nan=0.0))
+    return cleaned_eta_kpi3d
+
+def eta_difference(eta_kpi3d, eta_predicted):
+    
+    cleaned_eta_kpi3d=clean_eta(eta_kpi3d)
+    cleaned_eta_predicted=clean_eta(eta_predicted)
 
     min_shape = min(cleaned_eta_kpi3d.shape[0], cleaned_eta_predicted.shape[0])
     eta_diff = cleaned_eta_kpi3d[:min_shape, :] - cleaned_eta_predicted[:min_shape, :] 
     
-    return mm_diff, eta_diff    
+    return eta_diff    
 
 def eval_plot_kpi3d(nn, mm1, eta1, mm2,  eta2, mm_diff, eta_diff, filename):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(36, 10))
@@ -393,40 +389,19 @@ def eval_plot_kpi3d(nn, mm1, eta1, mm2,  eta2, mm_diff, eta_diff, filename):
     plt.subplots_adjust(top=0.90)
     plt.show()
 
-def y2_score(eta1, eta2):
+def y2_score(eta_diff):
     
-    if eta1.shape[0] > eta2.shape[0]:
-        larger_eta, smaller_eta = eta1, eta2
-    else:
-        larger_eta, smaller_eta = eta2, eta1
-    
-    rows, cols = larger_eta.shape
-    smaller_rows, smaller_cols = smaller_eta.shape
-    
-    # Create the interpolated grid
-    interpolated_smaller = np.full_like(larger_eta, np.nan)
-    
-    # Calculate the starting row for placing the smaller eta
-    start_row = (rows - smaller_rows) // 2
-    
-    # Place the smaller eta directly into the middle of the larger grid
-    interpolated_smaller[start_row:start_row+smaller_rows, :smaller_cols] = smaller_eta
-    
-    Z_diff = larger_eta - interpolated_smaller
-    
-    valid_diff = np.abs(Z_diff[~np.isnan(Z_diff)])
-    variance = np.mean(valid_diff ** 2)
+    variance = np.mean(eta_diff ** 2)
     score = np.sqrt(variance)
-
     return score
 
-def y1_score(df_predictions_y1, df_test_y1_targets):
+def y1_score(df_predictions_y1, df_test_y1_targets, title):
     index=df_test_y1_targets.index
     score=0
     scores=[]
     for index_no in range(len(index)):
-        target_values = df_test_y1_targets.loc[index[index_no]].tolist()
-        prediction_values = df_predictions_y1.loc[index[index_no]].tolist()
+        target_values = df_test_y1_targets.loc[index[index_no]].tolist() 
+        prediction_values =  df_predictions_y1.loc['Average'].tolist() if title == 'Baseline' else  df_predictions_y1.loc[index[index_no]].tolist()
 
         deviations = np.array(prediction_values) - np.array(target_values)
         variance = np.mean(deviations ** 2)
@@ -437,50 +412,65 @@ def y1_score(df_predictions_y1, df_test_y1_targets):
     y1_score=score/len(index)
     return y1_score, scores
 
-def plot_kpi2d_stddev(df_y1_avg, df_test_y1_targets, plot, model):
+def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
+    
     nn_kpi_2d = list(range(0, 19100, 100))
-
-    # Calculate mean RMSE to identify overlap wih target
-    mean_rmse= ((df_y1_avg.iloc[0] - df_test_y1_targets)**2).mean(axis=0, skipna=True)**0.5
-
-    # # Calculate element-wise RMSE
-    # element_wise_rmse = ((df_y1_avg.iloc[0] - df_test_y1_targets)**2 / len(df_test_y1_targets))**0.5 # Nan not considered in numerator when taking subtraction but in denominator to find mean, it is conidered in len()
-
-    squared_deviations = (df_y1_avg.iloc[0] - df_test_y1_targets)**2
-    non_nan = squared_deviations.count()#Nan values if exists are not counted
-    element_wise_rmse = (squared_deviations / non_nan)**0.5
-
+    
     # Create the plot
     fig, ax1 = plt.subplots(figsize=(15, 8))
+    # Create a twin axis for RMSE
+    ax2 = ax1.twinx()
+    
+    if model == 'Baseline':
+        df_y1_pred_avg = df_y1_pred
+        squared_deviations = (df_y1_pred_avg.iloc[0] - df_test_y1_targets)**2
+        non_nan = squared_deviations.count()#Nan values if exists are not counted
+        element_wise_rmse = (squared_deviations / non_nan)**0.5
+        for i in range(len(element_wise_rmse)):
+            ax2.plot(nn_kpi_2d, element_wise_rmse.iloc[i], 
+                    linestyle='--', alpha=0.7)
+        
+    else:
+        df_predictions_y1_avg = df_y1_pred.mean()
+        df_y1_pred_avg = df_predictions_y1_avg.to_frame(name='Average MLP Prediction').transpose()
+        element_wise_rmse=[]
+        for i in range(len(df_y1_pred)):
+            squared_deviations = (df_y1_pred.iloc[i] - df_test_y1_targets.iloc[i])**2
+            non_nan = squared_deviations.count()
+            rmse = (squared_deviations / non_nan)**0.5
+            element_wise_rmse.append(rmse)
+        # Plot element-wise RMSE for each test sample
+        for i in range(len(element_wise_rmse)):
+            ax2.plot(nn_kpi_2d, element_wise_rmse[i], 
+                    linestyle='--', alpha=0.7) 
+        
+        
+    # Calculate mean RMSE to identify overlap wih target
+    mean_rmse= ((df_y1_pred_avg.iloc[0] - df_test_y1_targets)**2).mean(axis=0, skipna=True)**0.5
+
 
     # Plot average on the first y-axis
-    ax1.plot(nn_kpi_2d, df_y1_avg.iloc[0], label=f'{model} Model', color='blue', linewidth=2)
+    ax1.plot(nn_kpi_2d, df_y1_pred_avg.iloc[0], label=f'{model} Model', color='blue', linewidth=2)
 
     # Plot standard deviation as shaded area
     ax1.fill_between(nn_kpi_2d, 
-                    df_y1_avg.iloc[0] - mean_rmse, 
-                    df_y1_avg.iloc[0] + mean_rmse,
+                    df_y1_pred_avg.iloc[0] - mean_rmse, 
+                    df_y1_pred_avg.iloc[0] + mean_rmse,
+                    
                     alpha=0.2, color='blue', label=f'± Average {plot}')
     ax1.legend(loc='upper right')
     ax1.set_xlabel('Speed (rpm)', fontsize=12)
     ax1.set_ylabel('Torque (N/m)', fontsize=12)
-
-    # Create a twin axis for RMSE
-    ax2 = ax1.twinx()
+    ax1.spines['top'].set_visible(False)
+    
     ax2.set_ylabel(f'{plot}', color='red', fontsize=12)
-
-    # Plot element-wise RMSE for each test sample
-    for i in range(len(element_wise_rmse)):
-        ax2.plot(nn_kpi_2d, element_wise_rmse.iloc[i], 
-                linestyle='--', alpha=0.7)
-
     ax2.tick_params(axis='y', labelcolor='red')
     ax2.spines['right'].set_color('red')  # Color the right spine red
     ax2.spines['top'].set_visible(False)  # Hide the top spine for the twin axis
 
     plt.title(f'Average {plot} and Element-wise {plot} of Test Dataset with {model} Model', fontsize=14)
     plt.grid(True, alpha=0.3)
-    ax1.spines['top'].set_visible(False)
+
     plt.tight_layout()
     plt.show()
     
@@ -492,12 +482,12 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
     plt.figure(figsize=(12, 5))
 
     x_min, x_max = 0, rmse.shape[1]
-    y_min, y_max = -rmse.shape[0]//2, rmse.shape[0]//2
+    y_min, y_max = 0, rmse.shape[0]
 
     im = plt.imshow(rmse, cmap='Reds', extent=[x_min, x_max, y_min, y_max], aspect='auto', origin='lower')
 
     plt.colorbar(im, label='RMSE')
-    plt.title(f'{plot} of Test Dataset Samples from {model} Model')
+    plt.title(f'{plot} of Random Samples from {model}')
     plt.xlabel('Speed (rpm)/100')
     plt.ylabel('Torque (Nm)')
 
@@ -519,81 +509,101 @@ def plot_scores(scores, target, model):
     ax.spines['right'].set_visible(False)
     
     
-def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta):
+def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta, title):
     
     plt.figure(figsize=(10, 6))
     plt.errorbar(speed_ranges, mean_eta, yerr=std_eta, fmt='o', capsize=5, label="Mean ± Std Dev", ecolor='red', linestyle='--', marker='s')
     plt.xlabel("Speed*100(rpm) ")
     plt.ylabel("Efficiency(%)")
-    plt.title("Standard Deviation of ETA values ranging NN speed")
+    plt.title(f"Standard Deviation of {title} ETA values ranging NN speed")
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     plt.legend(loc='upper right')
     plt.show()
     
-def pad_array(arr, target_length):
-    pad_size = target_length - len(arr)
-    if pad_size > 0:
-        return np.pad(arr, (0, pad_size), 'constant', constant_values=np.nan)
-    else:
-        return arr  
 
-def plot_eta(etas, ax, n):
+def plot_eta(predicted_etas, target_etas, ax1, n, model):
     
-    max_length = max(len(inner_array[inner_array.shape[0]//2:]) for inner_array in etas)
-    etas_padded = np.array([pad_array(inner_array[inner_array.shape[0]//2:], max_length) for inner_array in etas])
+    min_shape = min(predicted_etas.shape[0], min(target_eta.shape[0] for target_eta in target_etas)) if model == 'Baseline' else min(min(eta.shape[0] for eta in predicted_etas), min(target_eta.shape[0] for target_eta in target_etas))
+    predicted_etas = clean_eta(predicted_etas[:min_shape]) if model == 'Baseline' else np.array([clean_eta(eta[:min_shape]) for eta in predicted_etas]) 
+    mean_eta = np.array(predicted_etas) if model == 'Baseline' else np.mean(predicted_etas, axis=0)
 
-    mean_eta = np.mean(etas_padded, axis=0)  
-    std_eta = np.std(etas_padded, axis=0)    
-
-    x = np.linspace(0, 300, len(mean_eta))
-
-    ax.plot(x, mean_eta, label=f'Mean Efficiency', color='blue', linewidth=2)
-    ax.fill_between(x, mean_eta - std_eta, mean_eta + std_eta, 
-                    alpha=0.2, color='red', label=f'± Std Dev')
-    ax.legend(loc='upper right')
+    target_etas = np.array([clean_eta(eta[:min_shape]) for eta in target_etas])
     
-    # Create a twin axis for Difference plots
-    ax2 = ax.twinx()
-    ax2.set_ylabel('Difference', color='red')
-    ax2.tick_params(axis='y', colors='red')
-    ax2.spines['right'].set_color('red')  
-    ax2.spines['top'].set_visible(False)  
+    mm = np.linspace(0, len(mean_eta), len(mean_eta))
+
+    # Create a twin axis for RMSE
+    ax2 = ax1.twinx()
     
-    for _, eta_array in enumerate(etas):
-        pos_eta_grid = eta_array[eta_array.shape[0]//2:]
+    if model == 'Baseline':
+        element_wise_rmse=[]
+        for i in range(target_etas.shape[0]):
+            squared_deviations = (target_etas[i] - predicted_etas)**2
+            non_nan = len(squared_deviations)
+            rmse = (squared_deviations / non_nan)**0.5
+            element_wise_rmse.append(rmse)
+        for i in range(len(element_wise_rmse)):
+            ax2.plot(mm, element_wise_rmse[i], 
+                    linestyle='--', alpha=0.7) 
         
-        target_values = mean_eta[:len(pos_eta_grid)]
-        prediction_values = pos_eta_grid
-        difference = prediction_values - target_values
+    else:
+        element_wise_rmse=[]
+        for i in range(target_etas.shape[0]):
+            squared_deviations = (target_etas[i] - predicted_etas[i])**2
+            non_nan = len(squared_deviations)
+            rmse = (squared_deviations / non_nan)**0.5
+            element_wise_rmse.append(rmse)
+        # Plot element-wise RMSE for each test sample
+        for i in range(len(element_wise_rmse)):
+            ax2.plot(mm, element_wise_rmse[i], 
+                    linestyle='--', alpha=0.7) 
 
-        ax2.plot(x[:len(pos_eta_grid)], difference, linestyle='--', alpha=0.7)
+        
+    # Calculate mean RMSE to identify overlap wih target
+    mean_rmse= ((mean_eta - target_etas)**2).mean(axis=0)**0.5
 
-    ax.set_xlabel('Torque (Nm)')
-    ax.set_ylabel('Efficiency (%)')
-    ax.set_title(f'Efficiency at Speed {n} rpm')
-    ax.spines['top'].set_visible(False)
+    # Plot average on the first y-axis
+    ax1.plot(mm, mean_eta, label=f'Mean', color='blue', linewidth=2)
+
+    # Plot standard deviation as shaded area
+    ax1.fill_between(mm, 
+                    mean_eta - mean_rmse, 
+                    mean_eta + mean_rmse,
+                    
+                    alpha=0.2, color='red', label=f'± Average RMSE')
     
-def plot_eta_statistics(eta, speed_ranges, input):
+    ax1.legend(loc='upper right')
+    ax1.set_xlabel('Torque (N/m)', fontsize=12)
+    ax1.set_ylabel('Efficiency(%)', fontsize=12)
+    ax1.set_title(f'Efficiency at Speed {n} rpm')
+    ax1.spines['top'].set_visible(False)
+    
+    ax2.set_ylabel('RMSE', color='red', fontsize=12)
+    ax2.tick_params(axis='y', labelcolor='red')
+    ax2.spines['right'].set_color('red')  # Color the right spine red
+    ax2.spines['top'].set_visible(False)  # Hide the top spine for the twin axis
+
+    
+def plot_eta_statistics(eta, target_eta, speed_ranges, input):
     num_plots = len(eta)
 
     num_cols = min(3, num_plots)  
     num_rows = (num_plots - 1) // num_cols + 1
 
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(6*num_cols, 5*num_rows))
-    fig.suptitle(f'Deviation of {input} Positive Efficiency across NN ranges', fontsize=16)
+    fig.suptitle(f'RMSE of {input} Positive Efficiency across NN ranges', fontsize=16)
 
     if num_plots > 1:
         axs = axs.flatten()
         
     n=speed_ranges[0] * 100
-    for i, etas in enumerate(eta):
+    for i in range(len(eta)):
         if num_plots > 1:
             ax = axs[i]
         else:
             ax = axs
-        plot_eta(etas, ax, n)
+        plot_eta(eta[i], target_eta[i], ax, n, input)
         n+= 2000
 
     # Remove any unused subplots
