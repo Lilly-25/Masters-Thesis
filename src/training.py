@@ -30,13 +30,9 @@ class Y1LossRegularisation(nn.Module):
         return mse_loss + self.lambda1_y1 * regularized_factor_smoothened_curve + self.lambda2_y1 * regularized_factor_decreasing_curve
     
 class Y2LossRegularisation(nn.Module):
-    def __init__(self, lambda1_y2, lambda2_y2, lambda3_y2, lambda4_y2, lambda5_y2, border_threshold, curve_threshold, low_nn_threshold, low_mm_threshold):
+    def __init__(self, lambda_y2, border_threshold, curve_threshold, low_nn_threshold, low_mm_threshold):
         super(Y2LossRegularisation, self).__init__()
-        self.lambda1_y2 = lambda1_y2
-        self.lambda2_y2 = lambda2_y2
-        self.lambda3_y2 = lambda3_y2
-        self.lambda4_y2 = lambda4_y2
-        self.lambda5_y2 = lambda5_y2
+        self.lambda_y2 = lambda_y2
         self.border_threshold = border_threshold
         self.curve_threshold = curve_threshold
         self.low_nn_threshold = low_nn_threshold
@@ -47,19 +43,24 @@ class Y2LossRegularisation(nn.Module):
     
     def forward(self, y_pred, y_target):
         mse_loss = self.mse_loss(y_pred, y_target)
-        violations_nn_0 = torch.abs(y_pred[:, 0, :]) # If not 0, it is a violation...Extract middle row values ie, where NN is 0
-        violations_nn_max_mgrenz = torch.abs(y_pred[:, -self.border_threshold, :] - y_target[:, -self.border_threshold, :] ) # Compute difference for last row values to ensure grid max torque is same as the predicted by y1 max
-        violations_nn_curve_shape = torch.abs(y_pred[:, :, -self.curve_threshold] - y_target[:, :, -self.curve_threshold] )# Force model to learn the boundary of the curveby penalising it more
-        violations_low_nn = torch.abs(y_pred[:, :, :self.low_nn_threshold] - y_target[:, :, :self.low_nn_threshold] ) # Compute difference for last row values to ensure grid max torque is same as the predicted by y1 max
-        violations_low_mm = torch.abs(y_pred[:, :self.low_mm_threshold, :] - y_pred[:, :self.low_mm_threshold, :])# Force model to learn the boundary of the curveby penalising it more
-        regularized_factor_nn_0=  violations_nn_0.sum()/violations_nn_0.numel()
-        regularized_factor_nn_maxmgrenz=  violations_nn_max_mgrenz.sum()/violations_nn_max_mgrenz.numel()
-        regularized_factor_curve_shape=  violations_nn_curve_shape.sum()/violations_nn_curve_shape.numel()
-        regularized_factor_low_nn=  violations_low_nn.sum()/violations_low_nn.numel()
-        regularized_factor_low_mm=  violations_low_mm.sum()/violations_low_mm.numel()
-        #MSE across each element average over all elements in batch, regularization...matrix reshaping is not necessary
-        return mse_loss + self.lambda1_y2 * regularized_factor_nn_0 + self.lambda2_y2 * regularized_factor_nn_maxmgrenz + self.lambda3_y2 * regularized_factor_curve_shape + self.lambda4_y2 * regularized_factor_low_nn + self.lambda5_y2 * regularized_factor_low_mm 
-    
+        
+        violations_nn_max_mgrenz = (y_pred[:, -self.border_threshold, :] - y_target[:, -self.border_threshold, :]) ** 2
+        violations_nn_curve_shape = (y_pred[:, :, -self.curve_threshold] - y_target[:, :, -self.curve_threshold]) ** 2
+        violations_low_nn = (y_pred[:, :, :self.low_nn_threshold] - y_target[:, :, :self.low_nn_threshold]) ** 2
+        violations_low_mm = (y_pred[:, :self.low_mm_threshold, :] - y_pred[:, :self.low_mm_threshold, :]) ** 2
+        
+        # Compute regularized factors as averages of squared violations
+        regularized_factor_nn_maxmgrenz = violations_nn_max_mgrenz.sum() / violations_nn_max_mgrenz.numel()
+        regularized_factor_curve_shape = violations_nn_curve_shape.sum() / violations_nn_curve_shape.numel()
+        regularized_factor_low_nn = violations_low_nn.sum() / violations_low_nn.numel()
+        regularized_factor_low_mm = violations_low_mm.sum() / violations_low_mm.numel()
+
+        # Combine MSE loss with L2 regularization
+        return mse_loss + self.lambda_y2 * (regularized_factor_nn_maxmgrenz + 
+                                               regularized_factor_curve_shape + 
+                                               regularized_factor_low_nn + 
+                                               regularized_factor_low_mm)
+
 class MSELoss(nn.Module):
     def __init__(self):
         super(MSELoss, self).__init__()
