@@ -488,7 +488,7 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
 
     plt.colorbar(im, label='RMSE')
     plt.title(f'{plot} of Random Samples from {model}')
-    plt.xlabel('Speed (rpm)/100')
+    plt.xlabel('Speed (rpm) * 100')
     plt.ylabel('Torque (Nm)')
 
     x_ticks = np.arange(x_min, x_max, 20)  # x ticks are incorrect here and follows the actual speed /100
