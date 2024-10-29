@@ -144,3 +144,60 @@ def cumulative_counts(arr):
             result.append(count)
     
     return result
+
+def plot_wandb_logs(df, filename, metric):
+    """
+    Plot training metrics from a DataFrame and save the plot as an image file.
+
+    Parameters:
+    df (DataFrame): DataFrame containing the training metrics.
+    filename (str): Name of the file (used in the title of the plot and filename).
+    metric (str): Metric name for the y-axis label.
+    """
+    fig, ax = plt.subplots(figsize=(8, 6)) 
+    # Plot training loss for each fold
+    for fold in range(1, 6):
+        fold_loss = df[f'Fold {fold} - {filename}']
+        ax.plot(df['epoch'], fold_loss, label=f'Fold {fold}', linewidth=2)
+
+    ax.set_xlabel('Epoch')
+    ax.set_ylabel(f'{metric}')
+    ax.legend()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/wandb/Train-Val Pics', f'{filename}.png')  # Adjust the path as needed
+    plt.savefig(save_path, bbox_inches='tight')
+    plt.close(fig)
+    
+def scoring_from_pdiff(percentage_difference, min_value, max_value):
+    """
+    Calculate the score based on a percentage difference relative to a specified range.
+    
+    Parameters:
+    percentage_difference (float): The percentage difference to evaluate.
+    min_value (float): The minimum value of the range.
+    max_value (float): The maximum value of the range.
+    
+    Returns:
+    float: The calculated score.
+    """
+
+    range_value = max_value - min_value
+    score = (percentage_difference / 100 * range_value)
+    return score
+
+def pdiff_from_scoring(score, range):
+    """
+    Calculate the percentage difference of a score relative to a maximum value.
+    
+    Parameters:
+    score (float): The score to evaluate.
+    max_value (float): The maximum value of the range.
+    
+    Returns:
+    float: The percentage difference.
+    """
+    
+    percentage_difference = (score / range) * 100
+    return percentage_difference
