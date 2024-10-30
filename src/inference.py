@@ -7,6 +7,7 @@ from src.scaling import StdScaler
 from src.utils import cumulative_counts as cumulative_col_count
 import matplotlib.ticker as ticker
 from matplotlib.colors import Normalize
+import os
 
 def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_stddev, device):
     
@@ -153,6 +154,7 @@ def plot_testdataset_kpi2d(df_targets, df_predictions,start,end, cols):
     plt.tight_layout(rect=[0, 0, 1, 0.96])  
     plt.show()
     
+    
 def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
     
     nn_kpi_2d = list(range(0, 19100, 100)) # NN values alyways range from 0 to 19000 rpm
@@ -217,6 +219,8 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
             axs[row, col].axis('off')
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
+    save_path = '/home/k64889/Masters-Thesis/temp/ReportPics/kpi2d_predictions.png'
+    plt.savefig(save_path, bbox_inches='tight')
     plt.show()
     
 
@@ -260,76 +264,7 @@ def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
     plt.tight_layout()
     plt.subplots_adjust(top=0.90)
     plt.show()
-    
-def plot_mean_std_kpi2d(df_targets, df_predictions):#column wise  ##pretty useless  ##to deleteeeee
-    nn_kpi_2d = list(range(0, 19100, 100))  # NN values always range from 0 to 19000 rpm
-    
-    #for each of the 191 NN values, calculate the mean and standard deviation of the target and prediction values
-    target_mean = df_targets.mean().values
-    target_std = df_targets.std().values
-    pred_mean = df_predictions.mean().values
-    pred_std = df_predictions.std().values
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    
-    # Plot mean
-    ax.plot(nn_kpi_2d, target_mean, label='Target Mean', color='blue')
-    ax.plot(nn_kpi_2d, pred_mean, label='Prediction Mean', color='red')
-    
-    # Plot standard deviation as shaded area
-    ax.fill_between(nn_kpi_2d, target_mean - target_std, target_mean + target_std, 
-                    alpha=0.2, color='blue', label='Target Std Dev')
-    ax.fill_between(nn_kpi_2d, pred_mean - pred_std, pred_mean + pred_std, 
-                    alpha=0.2, color='red', label='Prediction Std Dev')
-
-    ax.set_xlabel('NN (rpm)')
-    ax.set_ylabel('Mgrenz')
-    ax.set_title('Mean and Standard Deviation of Mgrenz(Torque Curve) KPI')
-    ax.legend()
-    
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-
-    plt.tight_layout()
-    plt.show()
-
-def plot_std_kpi2d(df_targets, df_predictions):#per sample row wise
-    nn_kpi_2d = list(range(0, 19100, 100))  # NN values always range from 0 to 19000 rpm
-    
-    #for each of the 191 NN values, calculate the mean values
-    target_mean = df_targets.mean().values
-    pred_mean = df_predictions.mean().values
-    
-    pred_std = []
-
-    # Calculate standard deviation of predictions based on the means of the target columns
-    for col in df_predictions.columns:
-        deviations = df_predictions[col].values - df_targets[col].mean()
-        variance = np.mean(deviations ** 2)
-        std_dev = np.sqrt(variance)
-        pred_std.append(std_dev)
-
-    pred_std = np.array(pred_std)
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    
-    # Plot mean
-    ax.plot(nn_kpi_2d, target_mean, label='Target Mean', color='blue')
-    ax.plot(nn_kpi_2d, pred_mean, label='Prediction Mean', color='red', linestyle='dashed')
-    ax.plot(nn_kpi_2d, pred_mean, label='Standard deviation', color='yellow', linestyle='dotted')
-    
-    ax.fill_between(nn_kpi_2d, target_mean - pred_std, target_mean + pred_std, 
-                    alpha=0.2, color='pink', label='Prediction Std Dev')
-
-    ax.set_xlabel('NN (rpm)')
-    ax.set_ylabel('Mgrenz')
-    ax.set_title('Standard Deviation of Mgrenz(Torque Curve) KPI from the Target Mean')
-    ax.legend()
-
-    ax.spines['top'].set_visible(False)
-    
-    plt.tight_layout()
-    plt.show()
+   
     
 def clean_eta(eta_kpi3d):
     
@@ -472,6 +407,9 @@ def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
     plt.grid(True, alpha=0.3)
 
     plt.tight_layout()
+    
+    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/', f'{plot}_{model}_y1.png')  # Adjust the path as needed
+    plt.savefig(save_path, bbox_inches='tight')
     plt.show()
     
 def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
@@ -496,6 +434,11 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+    
+    
+    save_path = '/home/k64889/Masters-Thesis/temp/ReportPics/pos_stddev_y2.png'
+    plt.savefig(save_path, bbox_inches='tight')
+    
     plt.show()
     
 def plot_scores(scores, target, model):
@@ -507,6 +450,9 @@ def plot_scores(scores, target, model):
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
+    
+    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/', f'score_{model}_{target}.png')  # Adjust the path as needed
+    plt.savefig(save_path, bbox_inches='tight')
     
     
 def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta, title):
@@ -520,6 +466,8 @@ def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta, title):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     plt.legend(loc='upper right')
+    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/', f'stddev_y2_nn_{title}.png')  # Adjust the path as needed
+    plt.savefig(save_path, bbox_inches='tight')
     plt.show()
     
 
@@ -613,4 +561,7 @@ def plot_eta_statistics(eta, target_eta, speed_ranges, input):
 
     plt.tight_layout()
     plt.subplots_adjust(top=0.95)
+    
+    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/', f'rmse_eta_{input}.png')  # Adjust the path as needed
+    plt.savefig(save_path, bbox_inches='tight')
     plt.show()
