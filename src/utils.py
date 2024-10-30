@@ -66,7 +66,7 @@ def plot_kpi2d(nn_values, mgrenz_values):
 
 def plot_kpi3d(nn, mm, eta):
     
-    fig, ax = plt.subplots(figsize=(10, 10))
+    fig, ax = plt.subplots(figsize=(10, 6))
 
     Z_global_min = 0.00
     Z_global_max = 100.00
@@ -166,7 +166,7 @@ def plot_wandb_logs(df, filename, metric):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
-    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/wandb/Train-Val Pics', f'{filename}.png')  # Adjust the path as needed
+    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/Train-Val Pics', f'{filename}.png')  # Adjust the path as needed
     plt.savefig(save_path, bbox_inches='tight')
     plt.close(fig)
     
