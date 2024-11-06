@@ -5,17 +5,17 @@ from torch_geometric.nn import HeteroConv, SAGEConv, Linear, global_mean_pool
 
 
 class mlp_kpi3d(nn.Module):
-    def __init__(self, input_size, hidden_size, y1_shape, y2_shape, dropout_rate):
+    def __init__(self, input_size, hidden_size, y1_shape, y2_shape, dropout_rate_shared, dropout_rate_y2):
         super(mlp_kpi3d, self).__init__()
         self.shared_layers = nn.Sequential(
             nn.Linear(input_size, hidden_size),
             nn.BatchNorm1d(hidden_size),
             nn.ReLU(),
-            nn.Dropout(dropout_rate),
+            nn.Dropout(dropout_rate_shared),
             nn.Linear(hidden_size, hidden_size),
             nn.BatchNorm1d(hidden_size),
             nn.ReLU(),
-            nn.Dropout(dropout_rate),
+            nn.Dropout(dropout_rate_shared),
         )
         self.y1_layers = nn.Sequential(
             nn.Linear(hidden_size, y1_shape[1]),
@@ -25,11 +25,11 @@ class mlp_kpi3d(nn.Module):
             nn.Linear(hidden_size, hidden_size * 8),
             nn.BatchNorm1d(hidden_size * 8),
             nn.ReLU(),
-            nn.Dropout(dropout_rate),
+            nn.Dropout(dropout_rate_y2),
             nn.Linear(hidden_size*8, hidden_size * 16),
             nn.BatchNorm1d(hidden_size * 16),
             nn.ReLU(),
-            nn.Dropout(dropout_rate),
+            nn.Dropout(dropout_rate_y2),
             nn.Linear(hidden_size * 16, y2_shape[1] * y2_shape[2]),
             nn.ReLU()
             # nn.Linear(hidden_size * 64, y2_shape[1] * y2_shape[2])
