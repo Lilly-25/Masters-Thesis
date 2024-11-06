@@ -97,8 +97,8 @@ The KPIs to be predicted are plots on Efficiency grid(3D) and Torque curve(2D).\
 We aim to first parameterize the Electric Motor design such that it is feasible to convert into a tabular representation. \\
 Next, we would create a table with relevant attributes and design a Multi Linear Perceptron(MLP) with the table as input and the plots in its numerical format as vectors of values.\\
 Additionally we conduct a study to model the task as its graph representation and use Graph Neural Networks(GNN) to predict the KPIs.\\
-Then we will regularize the loss functions in a way that would smoothen out the plot curves of the prediction values.\\
-After which we will evaluate the predictions with the test target values by experimenting with various hyperparameter tuning settings and as a baseline with the average of the parameters.\\
+Subsequently we will regularize the loss functions in a way that would smoothen out the plot curves of the prediction values.\\
+Then we will evaluate the predictions with the test target values by experimenting with various hyperparameter tuning settings and as a baseline with the average of the parameters.\\
 Finally we will enable the KPI's plot visualisation in a manner presentable to the client Valeo(Automaker Company).\\
 
 \newpage 
@@ -190,7 +190,7 @@ The 3 motor topologies manufactured by Valeo are as below:
     \end{minipage}
 \end{figure}
 
-Figure \ref{fig:Torque Curve} and \ref{fig:Efficiency Grid} gives a glimpse of the \ac{EM} \ac{KPI}s to be predicted. \\
+Figure \ref{fig:Torque Curve} and Figure \ref{fig:Efficiency Grid} gives a glimpse of the \ac{EM} \ac{KPI}s to be predicted. \\
 \begin{figure}[H]
     \centering
     \begin{minipage}[b]{0.475\textwidth}
@@ -208,8 +208,8 @@ Figure \ref{fig:Torque Curve} and \ref{fig:Efficiency Grid} gives a glimpse of t
     \end{minipage}
 \end{figure}
 
-The current approach to predict the \ac{KPI}s of different \ac{EM} design variants is to create a design mesh from the paramteric description of the motor with Matlab.
-Multiple FEM simulations which are by nature Partial Differential Equations(PDE) is done on this mesh which is then post processed and the intermediary outputs are forwarded to the Motor Builder.
+The current pipeline to predict the \ac{KPI}s of different \ac{EM} design variants is to create a design mesh from the parametric description of the motor with Matlab.
+Multiple \ac{FEM} simulations which are by nature Partial Differential Equations(PDE) is done on this mesh which is then post processed and the intermediary outputs are forwarded to the Motor Builder.
 Several Motor builder settings are then adjusted to get the plots of the desired \ac{KPI}s.\\
 This master thesis explores a way to do surrogate modelling of the current process as is highlighted in Figure \ref{fig:EM Design Flowchart} by making use of \ac{GNN} or \ac{MLP} for the modelling of electrical engine designs described parameterically. \\
 \begin{figure}[H]
@@ -242,7 +242,8 @@ Both the outputs are continuous values which makes it a regression problem. \\
 \end{enumerate}
 
 \section{Research Question}\label{sec:Research Question}
-\ac{GNN} in general have not been to less explored even so more the heterogeneous \ac{GNN}.
+\ac{GNN}s are relatively more expressive models as they can acapture the variability and complexity of our data better.\\
+However, \ac{GNN} in general have not been to less explored even so more the heterogeneous \ac{GNN}.
 Particularly in the scenario of \ac{EM} Modelling, there has been no publications with \ac{GNN}s.
 Hence the need to check its feasibility and its performance with our benchmarks on tabular data.
 Additionally, existing Heterogeneous \ac{GNN}s works e.g on recommendation networks, academic networks, information networks, social networks etc involves one large graph with multiple node and edge types. 
@@ -256,16 +257,21 @@ Alternatively we could also build 2 models one for each KPIs and thus feed in th
 However, it would be computationally expensive and does not help in the scenario when we might need to generate \ac{EM} parameteric descriptions.
 Additionally we deemed it unnecessary as the dimensions of the ETA grid vary with the torque curve and not necessarily the ETA values. \\
 
+Our thesis is loosely inspired from \cite{ML HGNN-2023} which has strived to extend \ac{MP} into Heterogeneous \ac{GNN}s.\\
+
+
 \section{Thesis Structure}\label{sec:Thesis Structure}
 
 Over the course of the thesis we shall refer the Torque curve as Mgrenz KPI and the Efficiency grid as ETA KPI respectively.\\
-The thesis is structured to follow sections namely Literature Review, Dataset, Modelling, Experiments and Results, Conclusion, and Bibliography.\\
+The remainder of the thesis is organized to follow sections namely Literature Review, Dataset, Graph Modelling, Modelling, Experiments and Results, Conclusion, and Bibliography.\\
 In Literature Review section will introduce the works that has already been carried out in this domain. \\
 In the Dataset section a detailed insight to how our data is structured is elaborated.\\
-In the Modelling section, we introduce the methodologies used to tackle the problem. \\
-The Experiments and Results chapter gives an outlook on the outcomes of our work in addition to other findings we unearth.\\ 
+Graph Modelling section is an empirical study which outlines the background of \ac{GNN}s primarily Heterogeneous \ac{GNN}s and defines its concepts.\\
+In the Modelling section, we introduce the network architectures and loss regularization techniques used to tackle the problem. \\
+The outcomes of our work are presented in Experiments and Results chapter in addition to other findings we unearth.\\ 
 Conclusion chapter summarizes the thesis briefly and would also give a glimpse into areas of improvement. \\
 Finally the Bibliography section lists out the articles cited for this thesis.\\
+
 \newpage 
 
 \chapter{Literature Review} 
@@ -283,7 +289,7 @@ There has been close to no work of \ac{GNN}s in this domain. However we see prog
 \chapter{Dataset} 
 Valeo an automotive company has supplied the dataset consisting of close to 1500 Double V Electric Motor parameters. 
 Around 89 parameters which comprises of the geometric, physical and simulation properties of the motor are chosen among the 196 parameters depending on its overall variability and significance.
-
+This was a design decision we made based on our understanding of the data.\\
 Figure \ref{fig:Full Motor} shows the geometry of a whole Double V motor which can be sliced into 8 symmetrical parts.
 
 \begin{figure}[H]
@@ -306,39 +312,34 @@ This comes in handy when creating the graph representation of the motor.\\
 \newpage 
 
 Valeo has shared 1481 Excel Workbook files for each motor variant. Each of the excel files contain multiple sheets.
-The sheets of interest to us are detailed out in Table \ref{tab:Excel File Structure} :
+Table \ref{tab:Excel File Structure} summarizes the sheets of interest to us:
 \begin{table}[H]
     \centering
-    \begin{tabular}{|p{2cm}|p{2cm}|p{11cm}|}
-    \hline {\bf Sheet} & {\bf Sheet Name} & {\bf Description}\\
-    \hline Motor Parameters & input\_data & 
-    \begin{itemize}
-        \item Contains the input parameters for the motor model.
-        \item Includes geometric, physical, and simulation properties.
-        \item Unit dimensions if applicable are generally mm or degrees 
-    \end{itemize}\\
+    \begin{tabular}{|p{3cm}|p{2.5cm}|p{10cm}|}
+    \hline 
+    {\bf Sheet} & {\bf Sheet Name} & {\bf Description} \\
+    \hline 
+    Motor Parameters & input\_data & 
+    Contains the input parameters for the motor model. \\
+    & & Includes geometric, physical, and simulation properties. \\
+    & & Unit dimensions, if applicable, are generally in mm or degrees. \\
     Speed Grid & NN & 
-    \begin{itemize}
-        \item Contains the input parameters for the motor model.
-        \item Includes geometric, physical, and simulation properties.
-        \item Unit dimensions if applicable are generally mm or degrees 
-    \end{itemize}\\
+    Contains the speed grid. \\
+    & & Used for plotting the Mgrenz \ac{KPI} and ETA \ac{KPI}. \\
+    & & Unit dimensions is rpm. \\
     Torque Grid & MM & 
-    \begin{itemize}
-        \item Contains the torque grid.
-        \item Used for plotting the ETA \ac{KPI}.
-    \end{itemize}\\
+    Contains the torque grid. \\
+    & & Used for plotting the ETA \ac{KPI}. \\
+    & & Unit dimensions is Nm. \\
     ETA Grid & ETA & 
-    \begin{itemize}
-        \item Contains the ETA \ac{KPI}.
-        \item Have the same dimensions as that of NN and MM sheets
-    \end{itemize}\\
+    Contains the ETA \ac{KPI}. \\
+    & & Has the same dimensions as the NN and MM sheets. \\
+    & & Percentage values do not have unit dimensions. \\
     Torque Curve & Mgrenz & 
-    \begin{itemize}
-        \item Contains the values corresponding to Mgrenz \ac{KPI}.
-        \item Have the same columns corresponding to the speed grid.
-    \end{itemize}\\
-    \hline
+    Contains the values corresponding to the Mgrenz \ac{KPI}. \\
+    & & Has the same columns as the speed grid. \\
+    & & Unit dimensions is Nm. \\
+    \hline 
     \end{tabular}
     \caption{Excel File Structure of an \ac{EM} variant}
     \label{tab:Excel File Structure}
@@ -356,10 +357,10 @@ All parameters including the additional ones in each topology are considered as 
 The values are read and stored in their float equivalent to preserve data precision. \\
 Furthermore all degree columns are converted to their equivalent radian values as the latter are directly related to the geometry and makes derivation of other parameters much simpler whereas degrees is a notion of denoting a sliced angle.\\
 
-Table \ref{tab:Input Parameters} shows the input parameters of the motor. 
+Table \ref{tab:Input Parameters} shows the summary statistics of the input parameters of the motor. 
 
 %Median a column??
-\begin{longtable}{|p{1.5cm}|p{1cm}|p{1.5cm}|p{1.5cm}|p{3.5cm}|p{1cm}|p{1cm}|p{1cm}|}
+\begin{longtable}{|p{1.75cm}|p{1cm}|p{1.5cm}|p{1.5cm}|p{3.5cm}|p{1cm}|p{1cm}|p{1cm}|}
 
     \hline
     \textbf{Parameter} & \textbf{Unit of Dimension} & \textbf{Mean} & \textbf{Standard Deviation} & \textbf{Value Range} & \textbf{Single V Magnet Topology} & \textbf{Double V Magnet Topology} & \textbf{Nabla Magnet Topology}\\
@@ -513,7 +514,7 @@ This step ensures that we grant the model the correct dimensions of the ETA \ac{
 Efficiency values for negative torque values correspond to when motor is in generating mode and those of positive torque values when motor is in monitoring mode.\\
 In both modes, the efficiency is almost similar however from Figure \ref{fig:Standard Deviation of 3D KPI(ETA)}, we note it is not the case for our data. 
 This is evident from low speed-high torque distribution area where we can see \ac{NaN} values.\\
-Since these are FEM simulations, it is probably an effect of a post processing step taken by the Motor builder.
+Since these are \ac{FEM} simulations, it is probably an effect of a post processing step taken by the Motor builder.
 This observation made us decide on dropping the negative ETA \ac{KPI} and only predict the positive ETA \ac{KPI}.\\
 The latter can be mirrored in order to obtain the negative ETA \ac{KPI} values if necessary.
 It can be mirrored to replicate the efficiency when it is in generating mode.\\
@@ -540,8 +541,8 @@ This is yet another finding we use in Post Processing as is further elaborated i
 \end{figure}
 
 Figure \ref{fig:Standard Deviation of 3D KPI(ETA) Positive Grid across Speed Intervals} gives us the big picture of how the efficiency values are distributed across equally spaced intervals of speed.
-At extreme speeds we find a greater deviation in the efficiency values particularly towards higher speeds. This is because we have fewer efficiency values as speed increases beyond a range and is evident from our targets\\
-
+The distributions shows skewness towards extreme speeds, extreme torques. We discuss in Section \ref{sec:Loss for 3D KPI} how we integrate this finding into teaching over model.
+In addition, we notice skewness at the border of the curve within the grid, we discuss in Section \ref{sec:Post Processing} how this is learned.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{./ReportImages/stddev_y2_nn_Target.png} 
@@ -595,7 +596,7 @@ We decided against scaling the targets owing to below 2 reasons :
     \item They do not enter the network architecture but are only used during loss calculation.
     \item If we scale the target we will have to scale each example from the train dataset and then average the calculated scaling parameters.
     % This in turn would mean 1 scaling parameter i.e, mean and standard deviation each for the entire dataset.
-    It is not a good practice to do so as we will have lost a lot of originality in each example and is now introducing noise to new examples.\\
+    It is not a good practice to do so as we will have lost a lot of originality in each example and is now introducing noise to new examples especially when they have a different data distribution.\\
 \end{enumerate}
 
 During our experimentations where we initially scaled the targets, we observed that then the network required substantially less effort to learn and consequently lower learning rate and fewer epochs.
@@ -604,7 +605,7 @@ Since this comes at a tradeoff of losing precision, we continued with the origin
 \section{Dataset splitting}\label{sec:Dataset splitting}
 
 We convert the data to float tensors for better precision and collate them into a Tensor Dataset.
-We have also split the dataset to have about 50 samples for test and the remaining is used for 5 fold cross validation with 80:20 split for training and validation. \\
+We have also partitioned the dataset to have about 50 samples for test and the remaining is used for 5 fold cross validation with 80:20 split for training and validation. \\
 The reason we have a separate test dataset from the validation is to ensure that there is no data leakage as we do not want to overfit the test dataset with the hyperparameters we choose during training. \\
 
 Within 5 folds, we expect to cover most grounds on training and have good monitoring on the model's performance for each fold.
@@ -617,42 +618,112 @@ We intended to model our problem as a Graph and solve using a \ac{GNN}.
 We presume this will be a more clever way of representing our usecase in comparision to tabular data..
 The idea was to make use of the Graph dynamics in our usecase and aggregate features that are semantically similar.
 
+The node features captures the information of the node's role in the network and likewise does the edge features. They also take into account their respective neighbourhoods.\\
+
 \ac{GNN}s aim to learn a representation vector for each node using the \ac{MP} algorithm.
 \ac{MP} is based on the graph structure and initial node features.
 For each node in the graph over each successive hop of its neighbourhood until it has covered the entire graph, the model updates the learned node representation recursively aggregating its neighbour node features.\\
 At the end of the \ac{MP} algorithm, each node in the graph would have a good understanding of the other nodes within the same graph.
 Therefore the final representation will be rich enough to have captured all the information within the graph and be used for downstream tasks namely :
 
+\ac{GNN}s have several applications where data are generated from non-Euclidean domains and are represented as graphs with complex relationships and interdependency between objects \cite{GNN-2019}.\\
+\ac{GNN}s applications range from Recommendation Systems, Chemistry, Traffic, Academic Networks, Information Networks to Social Networks \cite{HGNN-2020}.\\
+These networks are generally represented by a giant graph in which case graph batching, splitting are unique.
+However our task requires us to build 1 graph each for each \ac{EM} variant.
+
+\ac{GNN} predictions can be categorized broadly into : \cite{GNN-2019}
 \begin{enumerate}
-    \item Node Classification
-    \item Edge Prediction
-    \item Graph Prediction
+    \item Node Level Prediction - represents the node classification and regression
+    \item Edge Level Prediction - focuses on edge classification and link prediction
+    \item Graph Level Prediction - relate to graph prediction tasks.\\
+    Incidently our task is a Graph Level prediction.
 \end{enumerate}
 
+Graphs in general can have the following taxonomy: \cite{GNN-2019}
 
-\section{\ac{GNN} Introduction}\label{sec:GNN Introduction}
-\ac{GNN}'s can be broadly classified into 2 types :
+\begin{enumerate}
+    \item Directed Graph - A graph in which the edges have a direction.
+    \item Undirected Graph - A graph in which for edge there will be its respective reverse edge in the opposite direction and the Adjacency matrix is symmetric.
+\end{enumerate}
+
+In addition to their ability to incorporate both entity features and network features into a single, simultaneously trained model, most GNNs scale linearly with the number of edges in the network, making them applicable to large
+networks. A huge benefit of GNNs in practical use cases is that they are inductive rather than transductive. While transductive model can only be used on the specific data that was present during training, 
+inductive models can be applied to entirely new data without having to be retrained. \cite{ML HGNN-2023}
+
+\section{Introduction}\label{sec:Introduction}
+
+
+We largely adopt the commonly used notations from CITE and reformulate it slightly to meet our needs:
+we use bold uppercase characters to
+denote matrices and bold lowercase characters denote vectors
+
+A graph is represented as \( G = (V, E) \) where \( V \) is the set of vertices or nodes , and \( E \) is the set of edges. 
+Let \( v_i \in V \) denote a node and \( e_{ij} = (v_i, v_j) \in E \) denote an edge pointing from \( v_j \) to \( v_i \). 
+The neighborhood of a node \( v \) is defined as \( N(v) = \{ u \in V \mid (v, u) \in E \} \).
+The adjacency matrix \( A \) is a \( n \times n \) matrix with \( A_{ij} = 1 \) if \( e_{ij} \in E \) and \( A_{ij} = 0 \) if \( e_{ij} \notin E \). 
+A graph may have node attributes \( X \), where \( X \in \mathbb{R}^{n \times d} \) is a node feature matrix with \( x_v \in \mathbb{R}^d \)
+representing the feature vector of a node \( v \). 
+Meanwhile, a graph may have edge attributes \( X_e \), where \( X_e \in \mathbb{R}^{m \times c} \) is an edge
+feature matrix with \( x_{v,u} \in \mathbb{R}^c \) representing the feature vector of an edge \( (v, u) \).
+
+A graph is represented by \( G = (V, E) \), where \( V \)
+is the vertex set with \( |V| = n \) and \( E \) is the edge set.
+In this paper, we consider undirected graphs. Denote by
+\( A = [a_{ij}] \in \mathbb{R}^{n \times n} \) the adjacency matrix, which is nonnegative. 
+Denote by \( D = \operatorname{diag}(d_1, d_2, \dots, d_n) \) the degree matrix
+of \( A \), where \( d_i = \sum_{j} a_{ij} \) is the degree of vertex \( i \).
+The graph Laplacian (Chung, 1997) is defined as \( L := D - A \), and the
+two versions of normalized graph Laplacians are defined as
+\[
+L_{\text{sym}} := D^{-\frac{1}{2}} L D^{-\frac{1}{2}}.
+\]
+
+
+A GN block contains three “update” functions, \( \phi \), and three “aggregation” functions, \( \rho \), \cite{GNNs-2018}
+\[
+e'_k = \phi_e(e_k, v_{r_k}, v_{s_k}, u)
+\]
+\[
+v'_i = \phi_v(\bar{e}'_i, v_i, u)
+\]
+\[
+u' = \phi_u(\bar{e}', \bar{v}', u)
+\]
+\[
+\bar{e}'_i = \rho_{e \to v}(E'_i)
+\]
+\[
+\bar{e}' = \rho_{e \to u}(E')
+\]
+\[
+\bar{v}' = \rho_{v \to u}(V')
+\]
+
+A hallmark of \ac{GNN}s is that they can efficiently learn the architecture parameters from the training data \cite{PO GNN-2018}.
+
+\ac{GNN}s cannot be too deep due to the oversmoothing problem. This is because the \ac{MP} algorithm would have already traversed over all hops and made all features indistinguishable from one another.
+Besides a deep \ac{GNN} would have a large number of parameters and would be computationally expensive to train.\\
+\cite{GCN-2018} addresses this concern with the Graph Convolutional Network.
+Studies also tells us that it can be mitigated by including pre activation residual connections in the network.\\
+
+Researchers have broadly classified \ac{GNN}s following 2 distinct paradigms:
 \begin{enumerate}
     \item Homogeneous \ac{GNN} \\
         Homogeneous \ac{GNN} are designed for graphs with a single type of nodes and edges. \ac{MP} is done for neighbouring nodes and edges over hops until it learns a representation equivalent from its neighbours.\\
         Homogeneous \ac{GNN} are typically build to capture the structural information within a graph.\\
+        These models are effective when the node and  edge heterogeneity is negligible \cite{EHR HGNN-2024}. \\
     \item Heterogeneous \ac{GNN}    
         Heterogeneous \ac{GNN} are designed for graphs with different type of nodes and edges. With different types of nodes and edges, also imply difference in features and dimensionality.
+        Therefore, each type of node and edge reveal unique semantic information \cite{{HNNC-2023}}.\\
         As a single function cannot cater to each type, hence different \ac{MP} and node updating functions needs to be implemented for each edge and node type respectively.\\
         Therefore \ac{MP} is conditioned on the node and edge type thus allowing the flow of information to be more controlled. \\
         In addition to the structural information, Heterogeneous \ac{GNN}s also excel to capture semantic information within the graph.\\
 \end{enumerate}
 
-\ac{GNN}s applications range from Recommendation Networks, Academic Networks, Information Networks to Social Networks.\\
-These networks are generally represented by a giant graph in which case graph batching, splitting are unique.
-
-However our task requires us to build 1 graph each for each \ac{EM} variant.
-
-\ac{GNN}'s cannot be too deep due to the oversmoothing problem. This is because the \ac{MP} algorith would have already traversed over all hops.
-Studies tells us that it can be mitigated by including pre activation residual connections in the network.\\
-
 \section{Heterogeneous \ac{GNN}}\label{sec:Heterogeneous GNN}
 
+Graphs are ubiquitously heterogeneous because of its capability to have different node and edge types on top of its inherent graph feature to model relations between objects.\\
+Heterogeneous \ac{GNN}s also takes into account homophily ie., nodes close on a network have similar embeddings \cite{HGNN-2020} this is in essence the structural property and is true for all \ac{GNN}s.\\
 A heterogeneous graph can be defined as \( G = \{ V, E, \phi, \psi \} \) \cite{SE HGNN-2023}, where: \\
 \( V \) is the set of nodes, with a node type mapping function \( \phi : V \rightarrow T_v \), \\
 \( E \) is the set of edges, with an edge type mapping function \( \psi : E \rightarrow T_e \).\\
@@ -670,101 +741,97 @@ GNNs aim to learn a representation vector \( \mathbf{h}^{(L)}_v \in \mathbb{R}^{
 based on the graph structure and the initial node feature \( \mathbf{h}^{(0)}_v \in \mathbb{R}^{d_0} \) \cite{REF HGNN-2021}.
 
 Heterogeneous \ac{GNN} generally work by having separate non linear functions convolve over each edge type during message computation and over each node type when aggregating the learned information. \\
+The graph structure of \( G \) can be represented by a series of adjacency matrices \(\{A_r : r \in T_e\}\). 
+For each relation \(r_{c_t c_s} \in T_e\), \(A_{c_t c_s} \in \mathbb{R}^{|V_{c_t}| \times |V_{c_s}|}\) is the corresponding 
+adjacency matrix where the nonzero values indicate positions of edges \(E_{c_t c_s}\) of the current relation.
 
-% e two main categories of HGNNs.
-% Metapath-based methods (Schlichtkrull et al. 2018; Zhang
-% et al. 2019; Wang et al. 2019; Fu et al. 2020) capture the
-% structural information of the same semantic first and then
-% fuse different semantic information. These models first ag-
-% gregate neighbor features at the scope of each metapath to
-% generate semantic vectors, and then fuse these semantic vec-
-% tors to generate the final embedding vector. Metapath-free
-% methods (Zhu et al. 2019; Hong et al. 2020; Hu et al. 2020b;
-% Lv et al. 2021) capture structural and semantic information
-% simultaneously. These models aggregate messages from a
-% node’s local neighborhood like traditional GNNs, but use ex-
-% tra modules (e.g. attentions) to embed semantic information
-% such as node types and edge types into propagated messages
+A metapath defines a composite relation of several edge types, represented as \(P \equiv c_1 \leftarrow c_2 \leftarrow \ldots \leftarrow c_l\) (\(P = c_1c_2 \ldots c_l\) for short).
+They are composite relationships between nodes that help to capture the structural information of heterogeneous graphs.
 
-% findings from \cite{02}
-% (1) semantic attention is essential while neighbor attention is not necessary,
-% (2) models with a single-layer structure and long metapaths outperform those with multi-layers and short metapaths
+The Metapaths in Heterogeneous \ac{GNN}s are divided into 2 streams:
+\begin{enumerate}
+    \item Metapath based method\\
+    It aggregates the neighbourhood features of the same semantic first and then fuses different semantic information.
+    \item Metapath free method\\
+    It aggregates message from neighbourhood of the same hop for all node types and so captures both structural and semantic information simultaneously.
 
+Multiple \ac{MP} operations are done across different metapaths which are finally aggregated into a new representation for the node.\cite{ML HGNN-2023}.\\
 
-% To easily capture structural information, SeHGNN pre-computes the neighbor aggregation in the pre-processing step us-
-% ing a light-weight mean aggregator, which removes the overused neighbor attention and avoids repeated neighbor 
-% aggregation in every training epoch. To better utilize semantic information, SeHGNN adopts the single- layer structure with long metapaths to extend the recep-
-% tive field, as well as a transformer-based semantic fusion module to fuse features from different metapaths.
+Each metapath captures the proximity of nodes in a graph from a specific semantic view \cite{HGNN-2020}.
 
-
-% Definition 2 Metapaths. A metapath defines a composite
-% relation of several edge types, represented as P ≜ c1 ←
-% c2 ← . . . ← cl (P = c1c2 . . . cl for short).
-% Given the metapath P, a metapath instance p is a node
-% sequence following the schema defined by P, represented
-% as p(v1, vl) = {v1, e12, v2, . . . , vl−1, e(l−1)l, vl : vi ∈
-% V ci , ei(i+1) ∈ Ecici+1 }. In particular, p(v1, vl) indicates the
-% relationship of (l−1)-hop neighborhood where v1 is the tar-
-% get node and vl is one of v1’s metapath-based neighbors.
-% Given a metapath P with the node types of its two
-% ends as c1, cl, a metapath neighbor graph GP =
-% {V c1 S V cl , EP } can be constructed out of G, where an
-% edge eij ∈ EP , ϕ(i) = c1, ϕ(j) = cl exists in GP if and
-% only if there is an metapath instance p(vi, vj ) of P in G
-
+\end{enumerate}
 
 % During runtime, the \ac{MP}-\ac{GNN} algorithm would need to iterate over edge type dictionaries during message computation and over node type dictionaries during node updates.
+\section{\ac{GNN} Literature Review}\label{sec:GNN Literature Review}
+
+Existing works \cite{PR-HGNN-2024} on modelling heterogeneous graphs usually split the graph into multiple homogeneous subgraphs based on their node types each retaining an aspect of the heterogeneity.
+This is ineffective in exploiting hidden rich semantic associations between different types of edges for large scale multi relational graphs. \\
+\cite{RSHGNN-2019}'s work does not undertake this methodology and is also independent of metapaths making it effective in dealing with large number of complex relations.\\
+Bias amplification can be handled much better when a graph is can be is modelled as a heterogeneous graph \cite{EV HGNN-2023}. \\
+Modelling Heterogeneous Graphs with customized metapath generally require domain specific knowledge. 
+In order to combat this, \cite{HGT-2022} has used meta relations instead and a distinct edge based matrix for each edge type.\\
+Works by \cite{MHGNN-2023} also use meta relations to extract soft metapaths and does message passing over multi hop neighborhood of nodes. \\
+Metarelations are triples n a heterogeneous network and is most often used in knowledge graphs which contain rich schema. Such meta relations are shallow embeddings and not deep as the meta paths \cite{HGNN-2020}. \\
+
+\cite{HNNC-2023} proposes a heterogeneous network node classification model which converts the heterogeneous network into multiple semantic graphs through meta-paths. 
+The polynomial graph convolutional kernel is also described in this paper.\\ 
+
+Most of the existing works also do not consider the edge features in their model. However \cite{ML HGNN-2023} uses edge features as transactions in a financial network to detect cases of money laundering.
+It also breaks down the large heterogeneous graph into subgraphs based on  of different node edge type combinations. The paper also brings to light that GraphSAGE does not incorporate the edge weights.\\
+
+Message Passing Neural Network (MPNN) framework, unifying a
+large group of different GNN models. Apart from the unifying framework, the most essential contribution
+of this model is in our view that it applies a learned message-passing function that utilizes edge features.\\
+
+GCN achieves this by breaking down the heterogeneous graph into multiple homogeneous ones, one for each edge type. In each layer, GCN is applied to each homogeneous graph, and the resulting node embeddings are element-wise
+summed to form the final output.  drawback of RGCN is that it does not take node heterogeneity into account. \\
+
+Additionally \cite{EHR HGNN-2024} has used heterogeneous \ac{GNN}s to model the heterogeneity and sparsity in Electronic Health Records of patients. 
+This work takes into account the relational features of the dataset which is arguably the most important factor in this domain. 
+Their work also claim to learn its multi-task nature. However we note that this work works on meta relations but donot factor in edge features.\\
+
+\cite{QC-MP-2017} introduces modelling that makes it capable of learning features of molecular graphs directly and is invariant to graph isomorphism. 
+They also suggest that edge features in the network can be learned by introducing hidden states for all edges in the graph and updating them.
+It also implements a message passing network which factors in the edge types.\\
+
+A \textit{heterogeneous graph} is defined as a directed graph \( G = (V, E, A, R) \) where each node \( v \in V \) and each edge \( e \in E \) are associated with their type mapping functions \( \tau(v) : V \rightarrow A \) and \( \varphi(e) : E \rightarrow R \), respectively.
+
+For an edge \( e = (s, t) \) linked from source node \( s \) to target node \( t \), its \textit{meta relation} is denoted as
+\[
+\langle \tau(s), \varphi(e), \tau(t) \rangle.
+\]
+Naturally, \( \varphi(e)^{-1} \) represents the inverse of \( \varphi(e) \).
+
+The classical \textit{meta path paradigm} [17–19] is defined as a sequence of such meta relations.\\
+
+This is in essence the relation triple ie., \(  (node type of s, edge type, node type of t) \)
+
+\textbf{Definition 1. Heterogeneous Networks}. Given a graph \( G = (V, E, A, R) \), if the graph has a node type mapping function \( \epsilon : V \rightarrow A \) and a link type mapping function \( \xi : E \rightarrow R \), where \( A \) and \( R \) are predefined node type sets and link type sets, and \( A = 2^{R^*} \), the network is called a \textit{heterogeneous network}.
+
+\textbf{Definition 2. Metapath}. Given a path
+\[
+A_1 \xrightarrow{R_1} A_2 \xrightarrow{R_2} \cdots \xrightarrow{R_l} A_{l+1}
+\]
+(abbreviated as \( A_1 \xrightarrow{R_1 \cdots R_l} A_{l+1} \)), if the path describes the composite relationship \( R_1 \circ R_2 \circ \cdots \circ R_l \) between nodes of type \( A_1 \) and \( A_{l+1} \), then the path is called a \textit{meta-path}.
 
 
-% Graph Convolution Network (GCN) [21 ] is the pioneer of
-% GNN models, where the 𝑙𝑡ℎ layer is defined as
-% 𝑯 (𝑙) = 𝜎 ( ˆ𝑨𝑯 (𝑙−1) 𝑾 (𝑙) ), (1)
-% where 𝑯 (𝑙) is the representation of all nodes after the 𝑙𝑡ℎ layer.
-% 𝑾 (𝑙) is a trainable weight matrix. 𝜎 is the activation function, and
-% ˆ𝑨 is the normalized adjacency matrix with self-connections.
-% Graph Attention Network (GAT) [32 ] later replaces the av-
-% erage aggregation from neighbors, i.e., ˆ𝑨𝑯 (𝑙−1) , as a weighted
-% one, where the weight 𝛼𝑖 𝑗 for each edge ⟨𝑖, 𝑗⟩ is from an attention
-% mechanism as (layer mark (𝑙) is omitted for simplicity)
-% 𝛼𝑖 𝑗 =
-% exp
-% 
-% LeakyReLU
-% 
-% 𝒂𝑇 [𝑾𝒉𝑖 ∥𝑾𝒉𝑗 ]
-% 
-% Í𝑘 ∈N𝑖 exp LeakyReLU 𝒂𝑇 [𝑾𝒉𝑖 ∥𝑾𝒉𝑘 ] , (2)
-% where 𝒂 and 𝑾 are learnable weights and N𝑖 represents the neigh-
-% bors of node 𝑖.
+\textbf{Definition 3. Metapath-based Neighbors} . Given a node \( m_1 \) and a meta-path \( \epsilon \) in a heterogeneous graph, the neighbors \( N_{m_1}^{\epsilon} \) of node \( m_1 \) based on the meta-path \( \epsilon \) are defined as the set of nodes connected to \( m_1 \) via the meta-path \( \epsilon \). This set of neighbors based on the meta-path also includes \( m_1 \) itself.\\
 
-% homogeneous GNNs can also handle heterogeneous graphs by simply ignoring the node and edge types.\cite{04}.
-%  This could be one of the future works that can be taken for our tasks as part of ablation studiesto benchmark the performance yet again 
+In HAN a meta-path M, the representation of node u is aggregated from its meta-path based neighbors NM(u) = {u} union {v|v connects with u via the meta-path M}.
 
-% A meta-path is a path with a pre-
-% defined (node or edge) types pattern, i.e., P ≜ 𝑛1
-% 𝑟1
-% −−→ 𝑛2
-% 𝑟2
-% −−→ · · · 𝑟𝑙
-% −→
-% 𝑛𝑙+1, where 𝑟𝑖 ∈ 𝑇𝑒 and 𝑛𝑖 ∈ 𝑇𝑣
+In RGCN, during message passing, neighbors under the same edge type will be aggregated and normalized first. 
 
-% Given a meta-path P, we can re-connect the nodes in 𝐺 to get a
-% meta-path neighbor graph 𝐺 P . Edge 𝑢 → 𝑣 exists in 𝐺 P if and
-% only if there is at least one path between 𝑢 and 𝑣 following the
-% meta-path P in the original graph 𝐺
+GraphSAGE does not utlize edge features. \\
 
-
-% Linear Transformation. As the input feature of different types of nodes may vary in dimension, we use a linear layer with bias for
-% each node type to map all node features to a shared feature space.\cite{04}
-
-% GNNs are hard to be deep due to the over-smoothing and gradient vanishing problems\cite{04}. To mitigate this problem pre activation  residual connection is proposed.
-
+\cite{HGNN-2020}
 
 \section{\ac{EM} Heterogeneous \ac{GNN} Model}\label{sec:EM Heterogeneous GNN Model}
 
 We find the Heterogeneous graph to be most apt for our use case with its different node and edge types as it preserves both the structural and semantics of our data. \\
 This property is crucial in modelling our use case as we will then have similar node-edge types per topology. \\
+In contrast Homogeneous graphs would lead to suboptimal results as it cannot factor in the heterogeneity and thus the semantic nature of the usecase fully. \\
+
+Given the \ac{EM} data D, our goal is to construct a heterogeneous graph G from D. Let T1, T2 on G be the 2 \ac{KPI}s we need to learn from D. We aim to train a multi-task \ac{GNN} model M such that M can deliver high performance on T1 and T2 .
 
 \subsection{\ac{EM} Heterogeneous Graph Construction}\label{subsec:EM Heterogeneous Graph Construction}
 Inspired by the promising advantages of HGNN, we took the effort of modelling one for only the Double V Magnet Topology.\\
@@ -793,6 +860,7 @@ We construct the heterogeneous graph adaptable for each of the \ac{EM} variants 
     \item Edge Types \\
     \( T_e = \{ a, d1, d2, d4\} \)\\
     The edge type mapping functions of each edge type in the graph are as follows : \\
+    We define the meta relations as well for each of the edge type \\
     \begin{enumerate}
         \item \( T_1\) : Angular/Radian Edges (\textit{a}) 
         \item \( T_2\) : Distance Edge with 1 feature (\textit{d1}) 
@@ -811,7 +879,9 @@ Figure \ref{fig:HetGraph} shows the heterogeneous graph we constructed
     \label{fig:HetGraph}
 \end{figure}
 The count of certain parameters within the motor such as stator poles with its corresponding stator windings and rotor magnets is made more comprehendable to the model having new nodes and edges whereas for the \ac{MLP} architecture this information is represented only as a number in yet another column. \\
+By leveraging the relational features introduced by the meta relations, we can obtain a good graph representation of the data.\\
 
+We then learn the constructed heterogeneous graph through a heterogeneous \ac{GNN} model.\\   
 
 \newpage 
 \chapter{Modelling \& Evaluation}
@@ -827,7 +897,7 @@ We have a hyperparameter to control the number of neurons in each hidden layer t
 % A point of consideration is the hidden size for the shared layers and the MLP Mgrenz layers cannot be varied much. This is further discussed in \ref{tab:Hyperparameter Tunings}.\\
 \ac{ReLU} layers were also added in between to serve as the activation function and produce non-linearities and so noise in the network. \\
 Dropout layers ensure that not all neurons in each layer are used up during training to prevent the model from memorizing the data and hence overfitting.  
-We have 2 hyperparameter to control the dropout rate at which we freeze the neurons when training also to be discussed in Table \ref{tab:Hyperparameter Tunings}.
+We have 2 hyperparameters to control the dropout rate at which we freeze the neurons when training also to be discussed in Table \ref{tab:Hyperparameter Tunings}.
 The 2 dropouts are for shared layers of the \ac{MLP} and for the layers corresponding to ETA \ac{KPI}.\\
 Batch normalisation layers are used to normalize the input from the \ac{ReLU} activations applied on it and so mitigate internal covariate shift to the next layer and hence speed up the training process.\\
 Thus both batch normalisation and dropout layers stabilize the network training.\\
@@ -870,7 +940,7 @@ We discuss each component of the architecture below :
 
 \section{Loss Functions}\label{sec:Loss Functions}
 The \ac{MSE} loss is the loss function used for our problem with the intention that the squared losses penalize the model and inturn encourage it to minimize it further.
-In addition to its contribution in exaggerating the loss, \ac{MSE} also ensures that deviations are positive and donot confuse the model by negating the losses of different signs. \\
+In addition to its contribution in exaggerating the loss, \ac{MSE} also ensures that deviations are positive and do not confuse the model by negating the losses of different signs. \\
 
 \subsection{Loss for Mgrenz \ac{KPI}(Torque curve)}\label{sec:Loss for 2D KPI}
 
@@ -961,8 +1031,8 @@ The \ac{MSE} loss for the \ac{3D} \ac{KPI} is formulated as in Equation \ref{eq:
         \textit{where
                 \begin{itemize}
                     \item $M_{ijk}$ : Mask matrix
-                    \item w : Rows of \ac{3D} vector
-                    \item h : Columns of \ac{3D} vector
+                    \item w : Rows of \ac{2D} vector
+                    \item h : Columns of \ac{2D} vector
                 \end{itemize}}
     \end{minipage}
 }
@@ -988,7 +1058,7 @@ To do so, we have attempted to retrieve the last rows our ETA \ac{KPI} and those
 We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_MM_Max_Mgrenz}
 
 \begin{equation}
-    \text{Y2 Loss Regularization MM Max Mgrenz} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{t1} \sum_{j=-t1}^{w} \frac{1}{h} \sum_{k=1}^{h} (y_{ijk} - \hat{y}_{ijk})^2
+    \text{Y2 Loss Regularization MM Max Mgrenz} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{t_{1}} \sum_{j=-t_{1}}^{w} \frac{1}{h} \sum_{k=1}^{h} (y_{ijk} - \hat{y}_{ijk})^2
     \label{eq:Y2_Loss_Regularization_MM_Max_Mgrenz}
 \end{equation}
 
@@ -997,7 +1067,7 @@ We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_MM_
         \centering
         \textit{where
         \begin{itemize}
-            \item t1 : Threshold for inital ETA \ac{KPI} Envelope boundary 
+            \item $t_{1}$ : Threshold for inital ETA \ac{KPI} Envelope boundary 
         \end{itemize}
         }
     \end{minipage}
@@ -1005,44 +1075,16 @@ We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_MM_
 
 \vspace{0.2cm} % Adjusts vertical space between equation and text
 
-The number of last rows is determined by a threshold t1
+The number of last rows is determined by a threshold $t_{1}$
 
-\item Efficiency along the shape of the ETA \ac{KPI} Envelope \\
-
-To ensure that the envelope follows the shape of the Mgrenz \ac{KPI} curve, we penalise the model heavily in case of deviations at the border.
-This was developed by considering the last columns for each row of the ETA grid and penalising the squared difference with that of the target.
-
-We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Envelope}
-
-\begin{equation}
-    \text{Y2 Loss Regularization Envelope} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{w} \sum_{j=1}^{w} \frac{1}{t2} \sum_{k=-t2}^{h} (y_{ijk} - \hat{y}_{ijk})^2
-    \label{eq:Y2_Loss_Regularization_Envelope}
-\end{equation}
-
-\makebox[\textwidth][c]{%
-    \begin{minipage}{0.4\textwidth}
-        \centering
-        \textit{where
-                \begin{itemize}
-                    \item t2 : Threshold for ETA \ac{KPI} Envelope
-                \end{itemize}
-                }
-    \end{minipage}
-}
-
-\vspace{0.2cm} % Adjusts vertical space between equation and text
-
-
-The number of last rows is determined by a threshold t2
-
-\item Efficiency at low speeds \\
+\item Efficiency at low Speeds \\
 
 To force the model to pay more attention at lower speeds, we have regularized the loss for the first few columns of each row of the ETA grid and penalise the squared difference with that of the target.
 
 We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Low_Speed}:
 
 \begin{equation}
-    \text{Y2 Loss Regularization Low Speed} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{w} \sum_{j=1}^{w} \frac{1}{t3} \sum_{k=1}^{t3} (y_{ijk} - \hat{y}_{ijk})^2
+    \text{Y2 Loss Regularization Low Speed} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{w} \sum_{j=1}^{w} \frac{1}{t_{2}} \sum_{k=1}^{t_{2}} (y_{ijk} - \hat{y}_{ijk})^2
     \label{eq:Y2_Loss_Regularization_Low_Speed}
 \end{equation}
 
@@ -1051,7 +1093,7 @@ We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Low
         \centering
         \textit{where
                 \begin{itemize}
-                    \item t3 : Threshold for Low Speed
+                    \item $t_{2}$ : Threshold for Low Speed
                 \end{itemize}
                 }
     \end{minipage}
@@ -1059,17 +1101,18 @@ We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Low
 
 \vspace{0.2cm} % Adjusts vertical space between equation and text
 
-The number of first columns is determined by a threshold t3. \\
+The number of first columns is determined by a threshold $t_{2}$. \\
 It is a known fact that at 0 Torque, the corresponding efficiency values for the motor is 0. With this regularization, this learning as well is incorporated into the loss function.\\
 
 \item Efficiency at low Torque \\
 
+At extreme speeds we find a greater deviation in the efficiency values particularly towards higher speeds. This is because we have fewer efficiency values as speed increases beyond a range asnot all torque values participate.
 To force the model to be more careful at low torque, we have regularized the loss for the first few rows of each column of the ETA \ac{KPI} and penalise the squared difference with that of the target.
 
 We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Low_Torque}:
 
 \begin{equation}
-    \text{Y2 Loss Regularization Low Torque} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{t4} \sum_{j=1}^{t4} \frac{1}{h} \sum_{k=1}^{h} (y_{ijk} - \hat{y}_{ijk})^2
+    \text{Y2 Loss Regularization Low Torque} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{t_{3}} \sum_{j=1}^{t_{3}} \frac{1}{h} \sum_{k=1}^{h} (y_{ijk} - \hat{y}_{ijk})^2
     \label{eq:Y2_Loss_Regularization_Low_Torque}
 \end{equation}
 
@@ -1078,7 +1121,7 @@ We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Low
         \centering
         \textit{where
                 \begin{itemize}
-                    \item t4 : Threshold for High Torque
+                    \item $t_{3}$ : Threshold for High Torque
                 \end{itemize}
                 }
     \end{minipage}
@@ -1086,7 +1129,7 @@ We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Low
 
 \vspace{0.2cm} % Adjusts vertical space between equation and text
 
-The number of first rows is determined by a threshold t4
+The number of first rows is determined by a threshold $t_{3}$.
 
 \end{enumerate}
 
@@ -1097,7 +1140,7 @@ We aggregate all the above regularizations to form the Y2 Loss Regularization as
 
 \begin{equation}
     \begin{split}
-\text{Y2 Loss Regularization} = \text{Y2 Loss Regularization MM Max Mgrenz} + \text{Y2 Loss Regularization Envelope} \\
+\text{Y2 Loss Regularization} = \text{Y2 Loss Regularization MM Max Mgrenz} \\
     + \text{Y2 Loss Regularization Low Speed} + \text{Y2 Loss Regularization Low Torque}
     \end{split}
     \label{eq:Y2 Loss Regularization}
@@ -1112,8 +1155,8 @@ The Total Loss is calculated in Equation \ref{eq:Total Loss}
 
 \begin{equation}
     \begin{split}
-\text{Total Loss} = \text{wt} \times (\text{Y1 Loss} + (\lambda_{\text{1y1}} \times \text{Y1 Smoothening Loss Regularization}) + \\
-(\lambda_{\text{2y1}} \times \text{Y1 Declining Loss Regularization })) + \text{(1-wt)} \times (\text{Y2 Loss} + (\lambda_{\text{y2}} \times \text{Y2 Loss Regularization}))
+\text{Total Loss} = \text{wt} \times (\text{Y1 Loss} + (\lambda_{\text{1y1}} \times \text{Y1 Smoothening Loss Regularization}) +  (\lambda_{\text{2y1}} \times \\
+\text{Y1 Declining Loss Regularization })) + \text{(1-wt)} \times (\text{Y2 Loss} + (\lambda_{\text{y2}} \times \text{Y2 Loss Regularization}))
     \end{split}
     \label{eq:Total Loss}
 \end{equation}
@@ -1128,7 +1171,6 @@ The Total Loss is calculated in Equation \ref{eq:Total Loss}
             \item $\lambda_{\text{y2}}$ : Y2 Loss Regularization Parameter
             \item wt: Y1 Loss Weightage
             \item 1-wt: Y2 Loss Weightage
-            % \item $w_{\text{y2}}$: Y2 Loss Weightage
         \end{itemize}
     \end{minipage}
 }
@@ -1146,8 +1188,7 @@ We have added a Weightage parameter that controls the contribution of the Y1 Los
     Therefore, in theory have higher weightage for the Mgrenz \ac{KPI} as its loss in performing well is costlier but as its value range is relatively higher we make decisions from monitoring the perdiction performances.\\
     We reflect on these decisions based on whether the envelope of the ETA \ac{KPI} grid is more valuable that the efficiency values within it.\\
     To counter the Mgrenz \ac{KPI} loss dominating the total loss, we have implemented quite a few regularization techniques to the ETA \ac{KPI} loss.\\
-    Ultimately we decided on prioritizing the efficiency values itself as we incorporate the envelope shape of the grid as part of the loss regularization in Equation \ref{eq:Y2_Loss_Regularization_Envelope}.\\
-    Neverthelss we donot remove the post processing step even so as it guarantees us that values outside the envelope donot appear.
+    Ultimately we decided on prioritizing the efficiency values.
 \end{enumerate}
 Furthermore, the weightage parameters for both target is designed to sum upto 1 keeping in mind improved training stability as a result of normalized weights. \\
 
@@ -1204,8 +1245,8 @@ The Y2 score for the ETA \ac{KPI} is formulated in Equation \ref{eq:Y2 Score} :
         \centering
         \textit{where
                 \begin{itemize}
-                    \item w : Rows of 2D vector
-                    \item h : Columns of 2D vector
+                    \item w : Rows of \ac{2D} vector
+                    \item h : Columns of \ac{2D} vector
                     \item Y2 \ac{RMSE} : \ac{RMSE} for each test sample
                 \end{itemize}
                 }
@@ -1232,30 +1273,30 @@ This brings us back to the point that it is imperative the prediction of the Mgr
 
 \section{Experiments with \ac{MLP}}\label{sec:Experiments with MLP}
 
-The learnable parameters were chosen via a random grid search  and was tuned by monitoring the model's performance across 5 fold cross validation training.\\
-The splits are saved locally and can be used later to ensure reproducibility.
+After an exhaustive random grid search of the hyperparamter space, we present the parameters in Table \ref{tab:Hyperparameter Tunings} by monitoring the model's performance across 5 fold cross validation training.\\
+We use different splits for each round of training and tune the hyperparameters on the validation set. The final splits are saved locally and can be used later to ensure reproducibility. 
 
 \begin{table}[H]
     \centering
-    \begin{tabularx}{1\linewidth}{|X|X|X|}
-    \hline {\bf Hyperparameters} & {\bf Description} & {\bf Value}\\
+    % \begin{tabularx}{1\linewidth}{|X|X|X|X|}
+    \begin{tabularx}{\linewidth}{|p{0.2\textwidth}|p{0.4\textwidth}|p{0.15\textwidth}|p{0.145\textwidth}|}
+    \hline {\bf Hyperparameters} & {\bf Description} & {\bf Value} & {\bf Value Ranges}\\
     \hline 
-    lr & Learning Rate & 0.075 \\
-    hidden size & Dimensionality of Hidden Layers& 128 \\
-    lr gamma & Exponential Learning Rate Scheduler Gamma Parameter & 0.9 \\
-    batch size & Batch Size & 72 \\
-    epochs & Number of Epochs & 10 \\
-    py1 & Dropout Probability for Shared Layers & 0.35 \\
-    py2 & Dropout Probability for ETA Layers & 0.2 \\
-    lambda1 y1 & Y1 Smoothening Curve Loss Regularizer & 0.5 \\
-    lambda2 y1 & Y1 Decreasing Curve Loss Regularizer & 0.5 \\
-    lambda y2 & Y2 Loss Regularizer & 3.75 \\
-    t1 & Y2 Initial Envelope Boundary Threshold & 51 \\
-    t2 & Y2 Envelope Threshold & 10 \\
-    t3 & Y2 Low Speed Threshold & 20 \\
-    t4 & Y2 Low Torque Threshold & 20 \\
-    wt & Weightage of Y1 Loss & 0.05 \\
-    1-wt & Weightage of Y2 Loss & 0.95 \\
+    lr & Learning Rate & 0.075 & 0.025 - 0.25\\
+    hidden size & Dimensionality of Hidden Layers& 128 & 64, 128\\
+    lr gamma & Exponential Learning Rate Scheduler Gamma Parameter & 0.9 & 0.5-0.9\\
+    batch size & Batch Size & 72 & 32-72\\
+    epochs & Number of Epochs & 10 & 6-10\\
+    $p_{y1}$ & Dropout Probability for Shared Layers & 0.35 & 0.4-0.2\\
+    $p_{y2}$ & Dropout Probability for ETA Layers & 0.2 & 0.2-0.1\\
+    $\lambda_{1y1}$ & Y1 Smoothening Curve Loss Regularizer & 0.5 & 0-0.75\\
+    $\lambda_{2y1}$ & Y1 Decreasing Curve Loss Regularizer & 0.5 & 0-0.75\\
+    $\lambda_{y2}$ & Y2 Loss Regularizer & 3.75 & 0-5\\
+    $t_{1}$ & Y2 Initial Envelope Boundary Threshold & 5 & 0-5\\
+    $t_{2}$ & Y2 Low Speed Threshold & 20 & 0-30\\
+    $t_{3}$ & Y2 Low Torque Threshold & 20 & 0-30\\
+    wt & Weightage of Y1 Loss & 0.05 & 0-1\\
+    1-wt & Weightage of Y2 Loss & 0.95 & 0-1\\
     \hline
     \end{tabularx}
     \caption{Hyperparameter Tuning}
@@ -1264,19 +1305,20 @@ The splits are saved locally and can be used later to ensure reproducibility.
 
 We are using an exponential learning rate scheduler which reduces the learning rate exponentially by the \textit{lr gamma parameter} to decay learning as training progresses across epochs.
 This is to ensure that the model does not overshoot after few cycles of training.\\
-The \textit{batch size} is limited to the capacity of our \ac{GPU} memory. We use the maximum batch size to train faster.\\
+The \textit{batch size} is limited to the capacity of our \ac{GPU} memory. We use the maximum batch size to train faster and therefore use 72 after which we hit the memory roof of our GPU.\\
 The \textit{hidden size} refers to the number of neurons in the hidden layers of the \ac{MLP} model. 
-We have experimented with 2 hidden sizes 64 and 128 and donot go beyond.
-Reason being we are constrained with the fact that the number of neurons must be between the range of input features and output features which was discussed in Section \ref{sec:MLP Model}.
+We have experimented with 2 hidden sizes only as we are constrained with the fact that the number of neurons must be between the range of input features and output features which was discussed in Section \ref{sec:MLP Model}.
 In addition to it being of the multiples of 8 as \ac{GPU}s are most optimized for the same.
-Dropout rate during training is controled by the parameter \textit{py1} for shared layers and \textit{py1} for layers specific to ETA \ac{KPI}. This is discussed in Section \ref{sec:MLP Model}. \\
+Dropout rate during training is controled by the parameter \textit{$p_{y1}$} for shared layers and \textit{$p_{y2}$} for layers specific to ETA \ac{KPI}. This is discussed in Section \ref{sec:MLP Model}. \\
 We donot concern much about the data being dropped in larger extent than anticipated for the Mgrenz \ac{KPI} because it is relatively simpler to learn and the value range is comparitively larger leading its loss to dominate the total loss.\\
-\textit{Lambda1 y1}, \textit{lambda2 y1} and \textit{lambda y2} parameters control the regularization weight for the regularization terms for the Mgrenz \ac{KPI} and ETA \ac{KPI} respectively detailed in Equation \ref{eq:Total Loss}.\\
-The thresholds \textit{t1}, \textit{t2}, \textit{t3} and \textit{t4} are used to control the number of rows and/or columns to be considered for the regularization terms for the ETA \ac{KPI} as detailed in Section \ref{sec:Loss for 3D KPI}.\\
+\textit{$\lambda_{1y1}$}, \textit{$\lambda_{2y1}$} and \textit{$\lambda_{y2}$} parameters control the regularization weight for the regularization terms for the Mgrenz \ac{KPI} and ETA \ac{KPI} respectively detailed in Equation \ref{eq:Total Loss}.\\
+The thresholds \textit{$t_{1}$}, \textit{$t_{2}$} and \textit{$t_{3}$} are used to control the number of rows and/or columns to be considered for the regularization terms for the ETA \ac{KPI} as detailed in Section \ref{sec:Loss for 3D KPI}.\\
 The weightage parameter to control the direction of loss is denoted by \textit{wt} and is also discussed in Equation \ref{eq:Total Loss}.\\
 
+We also observe that the simple architecture of the model is not a significant downside for that limited data set. \\
+
 We chose \texttt{Wandb}\footnote{Weights \& Biases} to log metrics from the training run and to monitor model performance across the 5 folds. \\
-Our \ac{MLP} model only uses the loss regularization parameters \textit{lambda2 y1} and \textit{lambda y2} ie, it does not conider the Smoothening curve Regularization fot the Mgrenz \ac{KPI}s.
+Our \ac{MLP} model only uses the loss regularization parameters \textit{$\lambda_{2y1}$} and \textit{$\lambda_{y2}$} ie, it does not consider the Smoothening curve Regularization fot the Mgrenz \ac{KPI}s.
 \begin{figure}[H]
     \centering
     \begin{minipage}[b]{0.325\textwidth}
@@ -1366,12 +1408,12 @@ The Validations plots tells us the same tale although the ETA \ac{KPI} stops to 
 \end{figure}
 
 We have also enabled saving the best performant fold locally so it can be loaded on demand by the client when in need to only run inference.\\
-We have narrowed down scoring to follow the criteria as depicted in Table \ref{tab:Scoring Criteria}.
+We have narrowed down scoring to follow the criteria as recorded in Table \ref{tab:Scoring Criteria}.
 
 \begin{table}[H]
     \centering
     \begin{tabularx}{1\linewidth}{|X|X|X|X|X|X|X|X|X|X|}
-    \hline {\bf Percentage Difference} & {\bf 0-5\%} & {\bf 5-10\%} & {\bf 10-15\%} & {\bf 15-20\%} & {\bf 20-25\%} & {\bf 25-30\%} & {\bf 30-35\%} & {\bf 35-40\%} & {\bf 40-100\%}\\
+    \hline {\bf \% Difference} & {\bf 0-5\%} & {\bf 5-10\%} & {\bf 10-15\%} & {\bf 15-20\%} & {\bf 20-25\%} & {\bf 25-30\%} & {\bf 30-35\%} & {\bf 35-40\%} & {\bf 40-100\%}\\
     \hline 
     Y1 Score& 0-11& 11-22 & 22-33 & 33-44 & 44-55& 55-66 & 66-77 & 77-88 & \textgreater 88\\
     Y2 Score& 0-5 & 5-10 & 10-15 & 15-20 & 20-25& 25-30 & 30-35 & 35-40 &\textgreater 40\\
@@ -1404,7 +1446,7 @@ Figure \ref{fig:MLP Training Results for 2D KPI(Mgrenz)} depicts the difference 
 Whereas the \ac{RMSE} equivalent to the Y1 score tells us that for 50\% of the plots shown, the predictions are off by about 5\% from the target values as per Table \ref{tab:Scoring Criteria}.\\
 Figure \ref{fig:MLP RMSE Evaluation for 2D KPI(Mgrenz)} shows us the Average \ac{RMSE} and element wise \ac{RMSE} for the test dataset performance with the \ac{MLP}. \\
 Our inferences are overall the predictions closely resemble the trajectory of the target values allthough they fluctuate.
-Experimenting with the hyperparameters \textit{lambda1\_y1} and \textit{lambda2\_y1} has potential to improve this anomaly. 
+Experimenting with the hyperparameters \textit{$\lambda_{1y1}$} and \textit{$\lambda_{2y1}$} has potential to improve this anomaly. 
 In addition granting a higher weight \textit{wt} can also help in this direction.\\
 \begin{figure}[H]
     \centering
@@ -1481,9 +1523,9 @@ Therefore, to visualize the Efficiency prediction deviation with its respective 
 The speeds are chosen at equal intervals of 2000 rpm.\\
 We can observe that the most deviation occurs towards the higher torque values for each corresponding speed. In layman terms, this would be towards the ETA envelope tapering off.\\
 This anomaly can be explained by the Mgrenz \ac{KPI} predictions not being up to mark as it is responsible for trimming the edges of the envelope.\\
-However it is not only the border of the envelope a question of concern here but also for neigbouring values of the envelope specifically from 1/4 the speed onwards.
-The reason why it deteroirates from 1/4 the speed onwards is because the ETA \ac{KPI}'s envelope starts to converge from around 6000 rpm as we can see in Figure \ref{fig:Efficiency Grid}\\
-We remedied it to a impressive extent by increasing the parameter \textit{t2}.
+However it is not only the border of the envelope a question of concern here but also for neigbouring values of the envelope specifically from 1/4 the speed onwards. 
+We donot have any way to teach the model this part of the grid as loss regularization because we cannot estimate the ennvelope dimensionality having already padded the targets to be of the maximum shape referred in \ref{sec:Deep Dive into 3D KPI}.
+The reason why it deteroirates from 1/4 the speed onwards is because the ETA \ac{KPI}'s envelope starts to converge from around 6000 rpm as we can see in Figure \ref{fig:Efficiency Grid}.\\
 Nevertheless, we see on average among the speeds, the \ac{RMSE} is close to 5 which is 5\% deviation from the target values as per Table \ref{tab:Scoring Criteria}.\\
 
 Observations from the predictions helped to correct few discrepancies in our development for instance in the ETA grid we replaced 0 with \ac{NaN} values which we later understood were both represented different in the grid.\\
@@ -1564,8 +1606,8 @@ The Y2 Baseline score for the ETA \ac{KPI} is formulated in Equation \ref{eq:Y2 
         \centering
         \textit{where
                 \begin{itemize}
-                    \item w : Rows of 2D vector
-                    \item h : Columns of 2D vector
+                    \item w : Rows of \ac{2D} vector
+                    \item h : Columns of \ac{2D} vector
                     \item Y2 Baseline \ac{RMSE} : \ac{RMSE} for each test sample
                 \end{itemize}
                 }
@@ -1591,7 +1633,8 @@ Thus, the efficiency values are almost the same for more than 3/4th of the grid 
 \subsection{Mgrenz \ac{KPI} Results with Smoothening Loss Regularization}\label{subsec:2D Mgrenz Results with Smoothening Loss Regularization}
 
 Figure \ref{fig:Smoothening Mgrenz RMSE Evaluation for 2D KPI(Mgrenz)} shows the Average \ac{RMSE} and element wise \ac{RMSE} for the test dataset performance with the MLP Model with Smoothening Curve regularization discussed in Equation \ref{eq:Y1 Smoothening Loss Regularization}.\\
-
+We can see that the deviations are at its peak towards the beginning of the curve. 
+We also observe that there are fluctuations in the curve but relatively less when compared to Figure \ref{fig:MLP RMSE Evaluation for 2D KPI(Mgrenz)}\\
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/RMSE_MLP_Smoothening_y1.png} 
@@ -1599,32 +1642,17 @@ Figure \ref{fig:Smoothening Mgrenz RMSE Evaluation for 2D KPI(Mgrenz)} shows the
     \label{fig:Smoothening Mgrenz RMSE Evaluation for 2D KPI(Mgrenz)}
 \end{figure}
 
-We can see that the deviations are at its peak towards the beginning of the curve. 
-We also observe that there are are fluctuations in the curve but relatively less when compared to Figure \ref{fig:MLP RMSE Evaluation for 2D KPI(Mgrenz)}\\
-
-% \subsection{ETA \ac{KPI} Results with Smoothening Loss Regularization}\label{subsec:3D ETA Results with Smoothening Loss Regularization}
-
-% Figure \ref{fig:Eval Baseline ETA RMSE KPI} gives a neat visualization of the Efficiency \ac{RMSE} with its respective targets for specific speeds across the entire torque range.
-% The speeds are chosen at equal intervals of 2000 rpm.\\
-% This figure is very much similar to the ones predicted with the \ac{MLP} model ea
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=1\textwidth]{./ReportImages/rmse_eta_Smoothening_MLP.png} 
-%     \caption{Eval Smoothening Mgrenz \ac{RMSE} \ac{KPI}} 
-%     \label{fig:Eval Smoothening Mgrenz RMSE KPI}
-% \end{figure}
-
 \section{Results with No Loss Regularization}\label{sec:Results with No Loss Regularization}
 
 \subsection{Mgrenz \ac{KPI} Results with No Loss Regularization}\label{subsec:2D Mgrenz Results with No Loss Regularization}
 
-Figure \ref{fig:0 Loss Regularization RMSE Evaluation for 2D KPI(Mgrenz)} shows the Average \ac{RMSE} and element wise \ac{RMSE} for the test dataset performance with the MLP Model without any regularizations.\\
+Figure \ref{fig:No Loss Regularization RMSE Evaluation for 2D KPI(Mgrenz)} shows the Average \ac{RMSE} and element wise \ac{RMSE} for the test dataset performance with the MLP Model without any regularizations.\\
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/RMSE_MLP_no_lossreg_y1.png} 
-    \caption{0 Loss Regularization \ac{RMSE} Evaluation for 2D KPI(Mgrenz)} 
-    \label{fig:0 Loss Regularization RMSE Evaluation for 2D KPI(Mgrenz)}
+    \caption{No Loss Regularization \ac{RMSE} Evaluation for 2D KPI(Mgrenz)} 
+    \label{fig:No Loss Regularization RMSE Evaluation for 2D KPI(Mgrenz)}
 \end{figure}
 
 We can see that the deviations are at its peak towards the beginning of the curve however the \ac{RMSE} for most samples is close to negligible.
@@ -1633,31 +1661,31 @@ This conclusion prompts us to omit the loss regularization for the Mgrenz \ac{KP
 
 \subsection{ETA \ac{KPI} Results with No Loss Regularization}\label{subsec:3D ETA Results with No Loss Regularization}
 
-Figure \ref{fig:Eval 0 Loss Regularization ETA RMSE KPI} gives a neat visualization of the Baseline Efficiency \ac{RMSE} with its respective targets for specific speeds across the entire torque range.
+Figure \ref{fig:Eval No Loss Regularization ETA RMSE KPI} gives a neat visualization of the Baseline Efficiency \ac{RMSE} with its respective targets for specific speeds across the entire torque range.
 The speeds are chosen at equal intervals of 2000 rpm.\\
-We infer from the plots that they are very similar to the ones generated with loss regularization in place
+We observe similar patterns to the ones generated with loss regularization in place.
 This fuels us to also omit the loss regularizations for the ETA \ac{KPI}'s.\\
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/rmse_eta_no_lossreg_MLP.png} 
-    \caption{Eval 0 Loss Regularization ETA \ac{RMSE} \ac{KPI}} 
-    \label{fig:Eval 0 Loss Regularization ETA RMSE KPI}
+    \caption{Eval No Loss Regularization ETA \ac{RMSE} \ac{KPI}} 
+    \label{fig:Eval No Loss Regularization ETA RMSE KPI}
 \end{figure}
 
 \section{Ablation Studies}\label{sec:Ablation Studies}
 
-As part of ablation studies, we have compared our evaluations of both  \ac{MLP} with different Regularizaions and the Baseline model on both targets respectively.
+We conduct comprehensive ablation studies on the \ac{MLP} model with different loss regularizations and the Baseline model for both our targets.
 
 \begin{minipage}[t]{\textwidth}
     \begin{table}[H]
         \centering
-        \begin{tabular}{|l|l|l|}
+        \begin{tabular}{|p{0.275\textwidth}|p{0.275\textwidth}|p{0.275\textwidth}|}
         \hline {\bf Model} & {\bf Y1 Score} & {\bf Y2 Score}\\
         \hline 
         Baseline & 4.8201 & 15.3708 \\
-        MLP\footnote{\centering MLP With Decreasing Y1 Loss Regularization} & 6.0652 & 13.0469 \\
-        MLP\footnote{\centering MLP With Smoothening Y1 Loss Regularization} & 5.5052 & 15.0257 \\
-        MLP\footnote{\centering MLP without both Y1 and Y2 Loss Regularization} & 4.9887 & 12.6612  \\
+        MLP\footnote{MLP With Decreasing Y1 Loss Regularization} & 6.0652 & 13.0469 \\
+        MLP\footnote{MLP With Smoothening Y1 Loss Regularization} & 5.5052 & 15.0257 \\
+        MLP\footnote{MLP without both Y1 and Y2 Loss Regularization} & 4.9887 & 12.6612  \\
         \hline
         \end{tabular}
         \caption{Ablation Studies}
@@ -1667,14 +1695,22 @@ As part of ablation studies, we have compared our evaluations of both  \ac{MLP} 
 
 \vspace{1em} % Adjust the space here, e.g., 1em or 2em
 
-We draw the inferences that our \ac{MLP} model without loss regularization has performed in par with the Baseline on the Mgrenz \ac{KPI} and has outperformed the Baseline on the ETA \ac{KPI}.\\
+Results in Table \ref{tab:Ablation Studies} indicate that our \ac{MLP} model without loss regularization's performance is in par with the Baseline model on the Mgrenz \ac{KPI} and has outperformed it on the ETA \ac{KPI}.\\
 This could be because the regularizations are restrictive and discourage the model to learn better.\\
+the enriched ablation studies we undertook demonstrate the robustness of our method across varying hyperparameter setings.\\
 The inferences shown are strictly speaking from the Double V Magnet Topology which assumed the bulk of the data we had received.
+
+Considering the limitations in dataset, conducting thorough examinations of a substantial volume is typically unfeasible. Therefore, the primary purpose of the thesis is to study the possibility of modelling the \ac{KPI}'s predictions and our learnings from it.\\
 
 We have used Python 3.10.14 for our development and the Pytorch library compatible with Cuda.\\
 The model was trained on a NVIDIA Tesla V100 \ac{GPU} with 32 GB Memory.\\
 Source code is available at the \href{https://github.com/Lilly-25/Masters-Thesis}{GitHub Repository}.
 
+
+% The experiments were carried out using python 3.7.0, with PyTorch 1.12.1 and PyG 2.2.0. The computer
+% used to run the experiments had 8 CPUs of the type High-frequency Intel Xeon E5-2686 v4 (Broadwell)
+% processors, with 61GB shared memory, and one GPU of type NVIDIA Tesla V100 with 16GB memory.
+% This GPU has 5,120 CUDA Cores and 640 Tensor Cores.
 \newpage 
 
 \chapter{Conclusion}
@@ -1685,7 +1721,7 @@ It would be very beneficial to \ac{EM} manufacturers to understand the operating
 This work enables \ac{EM} designers to generate \ac{KPI}'s at almost both negligible costs and minimal time.
 Thus offering an escape from the cons of using \ac{FEM} simulations.\\
 It also lays the foundation for future work on being able to generate electric motor design parameters conditioned on the 2 KPIs we predicted.
-
+We envision that our study will provide new perspectives to researchers engaging in the field of electric motor design and hope our contribution will aid in the same.\\
 \section{Future Improvements}\label{sec:Future Improvements}
 
 I would suggest the following improvements to our study : 
@@ -1703,158 +1739,158 @@ I would suggest the following improvements to our study :
 
 \newpage 
 
-\chapter*{Appendix}
-\textbf{Node types}
+% \chapter*{Appendix}
+% \textbf{Node types}
 
-\begin{enumerate}
-    \item \textbf{General}
+% \begin{enumerate}
+%     \item \textbf{General}
     
-    \begin{itemize}
-        \item General parameters:
-        \[
-            r = \{r_{i}\} \quad \forall i \in \{a, r, o\} 
-        \]
+%     \begin{itemize}
+%         \item General parameters:
+%         \[
+%             r = \{r_{i}\} \quad \forall i \in \{a, r, o\} 
+%         \]
         
-        \textit{where:
-        \begin{itemize}
-            \item $r_{a}$: Outer Radius of the Stator
-            \item $r_{r}$: Outer Radius of the Rotor
-            \item $r_{o}$: Center of the \ac{EM}
-        \end{itemize}}
-    \end{itemize}
+%         \textit{where:
+%         \begin{itemize}
+%             \item $r_{a}$: Outer Radius of the Stator
+%             \item $r_{r}$: Outer Radius of the Rotor
+%             \item $r_{o}$: Center of the \ac{EM}
+%         \end{itemize}}
+%     \end{itemize}
     
-    \item \textbf{Stator}
+%     \item \textbf{Stator}
     
-    \begin{itemize}
-        \item Slot windings:
-        \[
-            sw = \{s_{i}w_{j}\} \quad \forall i \in \{1, \dots, QSim\}, \quad \forall j \in \{1, \dots, N\} 
-        \]
+%     \begin{itemize}
+%         \item Slot windings:
+%         \[
+%             sw = \{s_{i}w_{j}\} \quad \forall i \in \{1, \dots, QSim\}, \quad \forall j \in \{1, \dots, N\} 
+%         \]
         
-        \item Slots:
-        \[
-            s = \{s_{i}\} \quad \forall i \in \{1, \dots, QSim\}
-        \]
+%         \item Slots:
+%         \[
+%             s = \{s_{i}\} \quad \forall i \in \{1, \dots, QSim\}
+%         \]
 
-        \textit{where
-        \begin{itemize}
-            \item Qsim : Count of slots in the Stator
-            \item N : Count of copper windings per slot
-        \end{itemize}}
-    \end{itemize}
+%         \textit{where
+%         \begin{itemize}
+%             \item Qsim : Count of slots in the Stator
+%             \item N : Count of copper windings per slot
+%         \end{itemize}}
+%     \end{itemize}
     
-    \item \textbf{Rotor}
+%     \item \textbf{Rotor}
     
-    \begin{itemize}
-        \item Magnet Flux Barriers:
-        \[
-            v = \{v_{ij}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
-        \]
+%     \begin{itemize}
+%         \item Magnet Flux Barriers:
+%         \[
+%             v = \{v_{ij}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
+%         \]
         
-        \item Magnets:
-        \[
-            vm = \{v_{i}m_{j}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
-        \]
-        \textit{where
-        \begin{itemize}
-            \item T : Topology type of the \ac{EM}
-            \item V : Type of Magnet
-        \end{itemize}
-        As Valeo only manufactures Double V magnets we consider it to be 2}
-    \end{itemize}    
+%         \item Magnets:
+%         \[
+%             vm = \{v_{i}m_{j}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
+%         \]
+%         \textit{where
+%         \begin{itemize}
+%             \item T : Topology type of the \ac{EM}
+%             \item V : Type of Magnet
+%         \end{itemize}
+%         As Valeo only manufactures Double V magnets we consider it to be 2}
+%     \end{itemize}    
     
-\end{enumerate}
+% \end{enumerate}
 
-\textbf{Edge types}
+% \textbf{Edge types}
 
-\begin{enumerate}
-    \item \textbf{Angle} \\
-    \textbf{Relevant Paths}
-    \[
-    vm--vm = \{ v_{i_{1}}m_{j_{1}} - v_{i_{2}}m_{j_{2}} \}
-    \forall i_1, i_2 \in \{1, \dots, T\}, \quad \forall j_1, j_2 \in \{1, \dots, V\} \mid
-    i_1 = i_2, \quad j_1 \neq j_2
-    \]
+% \begin{enumerate}
+%     \item \textbf{Angle} \\
+%     \textbf{Relevant Paths}
+%     \[
+%     vm--vm = \{ v_{i_{1}}m_{j_{1}} - v_{i_{2}}m_{j_{2}} \}
+%     \forall i_1, i_2 \in \{1, \dots, T\}, \quad \forall j_1, j_2 \in \{1, \dots, V\} \mid
+%     i_1 = i_2, \quad j_1 \neq j_2
+%     \]
 
-    \textbf{angle}=vm-vm
+%     \textbf{angle}=vm-vm
 
-    \item \textbf{Distance} \\
-    \textbf{Relevant Paths}
-    % \[
-    %     v-v = \{ (v_{i_1 j_1} - v_{i_2 j_2}), \forall i_1, i_2, j_1, j_2 \in \{1, \dots, T\} \mid i_1i_2 \neq j_1j_2 \ \land (i_1 == i_2 \lor j_1 == j_2) \}
-    % \]
-    \[
-        vi--vi = \{v_{i j_1} - v_{i j_2}\}, \forall i \in \{1, \dots, T\}, \forall j_1, j_2 \in \{1, \dots, V\} \mid  j_1 \neq j_2
-    \]
-    \[
-        vi--vj = \{v_{i_1 j} - v_{i_2 j}\}, \forall i_1, i_2 \in \{1, \dots, T\}, \forall j \in \{1, \dots, V\} \mid  i_1 \neq i_2
-    \]
-    \[
-        v--vm = \{v_{i j} - v_{i}m_{j}\} \forall i  \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
-    \]
-    \[
-        v--rr = \{v_{i j} - r_{r}\}, \forall i, j  \in \{1, \dots, T\}
-    \]
-    \[
-        o--r = \{ (o - r_{r}), (o - r_{a})\}
-    \]
-    \[
-        rr--s = \{r_{r} - s_{i}\}, \forall i  \in \{1, \dots, QSim\}
-    \]
-    \[
-        s--sw = \{s_{i} - s_{i}w_{j}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\}
-    \]
-    \[
-        s--ra = \{s_{i} - r_{a}\}, \forall i  \in \{1, \dots, QSim\}
-    \]
-    \[
-        sw--sw = \{s_{i}w_{j_1} - s_{i}w_{j_2}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\} \mid (j_1 == j_2-1)
-    \]
+%     \item \textbf{Distance} \\
+%     \textbf{Relevant Paths}
+%     % \[
+%     %     v-v = \{ (v_{i_1 j_1} - v_{i_2 j_2}), \forall i_1, i_2, j_1, j_2 \in \{1, \dots, T\} \mid i_1i_2 \neq j_1j_2 \ \land (i_1 == i_2 \lor j_1 == j_2) \}
+%     % \]
+%     \[
+%         vi--vi = \{v_{i j_1} - v_{i j_2}\}, \forall i \in \{1, \dots, T\}, \forall j_1, j_2 \in \{1, \dots, V\} \mid  j_1 \neq j_2
+%     \]
+%     \[
+%         vi--vj = \{v_{i_1 j} - v_{i_2 j}\}, \forall i_1, i_2 \in \{1, \dots, T\}, \forall j \in \{1, \dots, V\} \mid  i_1 \neq i_2
+%     \]
+%     \[
+%         v--vm = \{v_{i j} - v_{i}m_{j}\} \forall i  \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
+%     \]
+%     \[
+%         v--rr = \{v_{i j} - r_{r}\}, \forall i, j  \in \{1, \dots, T\}
+%     \]
+%     \[
+%         o--r = \{ (o - r_{r}), (o - r_{a})\}
+%     \]
+%     \[
+%         rr--s = \{r_{r} - s_{i}\}, \forall i  \in \{1, \dots, QSim\}
+%     \]
+%     \[
+%         s--sw = \{s_{i} - s_{i}w_{j}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\}
+%     \]
+%     \[
+%         s--ra = \{s_{i} - r_{a}\}, \forall i  \in \{1, \dots, QSim\}
+%     \]
+%     \[
+%         sw--sw = \{s_{i}w_{j_1} - s_{i}w_{j_2}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\} \mid (j_1 == j_2-1)
+%     \]
 
-    \textbf{distance} = vi--vi + vi--vj + v--vm + v--rr + o--r + rr--s + s--sw + s--ra + sw--sw
+%     \textbf{distance} = vi--vi + vi--vj + v--vm + v--rr + o--r + rr--s + s--sw + s--ra + sw--sw
 
-\end{enumerate}
+% \end{enumerate}
 
-\textbf{Node Features}
+% \textbf{Node Features}
 
-\begin{enumerate}
+% \begin{enumerate}
 
-    \item \textbf{v} = \{lmsov, lth1v, lth2v, r1v, r11v, r2v, r3v, r4v, rmt1v, rmt4v, rlt1v, rlt4v, hav\}
+%     \item \textbf{v} = \{lmsov, lth1v, lth2v, r1v, r11v, r2v, r3v, r4v, rmt1v, rmt4v, rlt1v, rlt4v, hav\}
 
-    \item \textbf{vm} = \{mbv, mhv, rmagv\}
+%     \item \textbf{vm} = \{mbv, mhv, rmagv\}
 
-    \item \textbf{r} = \{r\}
+%     \item \textbf{r} = \{r\}
 
-    \item \textbf{s} = \{b\_nng, b\_nzk, b\_s, h\_n, h\_s, r\_sn, r\_zk, r\_ng, h\_zk\}
+%     \item \textbf{s} = \{b\_nng, b\_nzk, b\_s, h\_n, h\_s, r\_sn, r\_zk, r\_ng, h\_zk\}
 
-    \item \textbf{sw} = \{bhp, hhp, rhp\}
-\end{enumerate}
+%     \item \textbf{sw} = \{bhp, hhp, rhp\}
+% \end{enumerate}
 
-\textbf{Path Features}
+% \textbf{Path Features}
 
-\begin{enumerate}
+% \begin{enumerate}
 
-    \item \textbf{vm--vm} = \{deg\_phi\}
+%     \item \textbf{vm--vm} = \{deg\_phi\}
 
-    \item \textbf{vi--vi} = \{dsm, dsmu\}
+%     \item \textbf{vi--vi} = \{dsm, dsmu\}
 
-    \item \textbf{vi--vj} = \{amtrvj-amtrvi\}
+%     \item \textbf{vi--vj} = \{amtrvj-amtrvi\}
 
-    \item \textbf{v--vm} = \{lmav, lmiv, lmov, lmuv\}
+%     \item \textbf{v--vm} = \{lmav, lmiv, lmov, lmuv\}
 
-    \item \textbf{v--r} = \{amtrv, dsrv\}
+%     \item \textbf{v--r} = \{amtrv, dsrv\}
     
-    \item \textbf{o--r} = \{r\}
+%     \item \textbf{o--r} = \{r\}
 
-    \item \textbf{rr--s} = \{airgap\}
+%     \item \textbf{rr--s} = \{airgap\}
 
-    \item \textbf{s--sw} = \{dhphp\}
+%     \item \textbf{s--sw} = \{dhphp\}
     
-    \item \textbf{sw--sw} = \{dhpng\}
+%     \item \textbf{sw--sw} = \{dhpng\}
     
-    \item \textbf{s--ra} = \{r\_a-(r\_i + h\_n + h\_zk)\}
+%     \item \textbf{s--ra} = \{r\_a-(r\_i + h\_n + h\_zk)\}
     
-\end{enumerate}
+% \end{enumerate}
 
 
 \listoffigures
@@ -1868,6 +1904,7 @@ I would suggest the following improvements to our study :
 \newpage 
 
 \newpage 
+
 
 \begin{thebibliography}{00}
 
@@ -1955,6 +1992,58 @@ I would suggest the following improvements to our study :
     \newblock Diederik P. Kingma, Jimmy Ba
     \newblock {\em Adam: A Method for Stochastic Optimization}.
     \newblock 30 Jan 2017.
+
+    \bibitem[18]{GNN-2019}
+    \newblock Zonghan Wu, Shirui Pan, Fengwen Chen, Guodong Long, Chengqi Zhang, Philip S. Yu
+    \newblock {\em A Comprehensive Survey on Graph Neural Networks}.
+    \newblock 04 Dec 2019.
+
+    \bibitem[19]{GNNs-2018}
+    \newblock Peter W. Battaglia, Jessica B. Hamrick, Victor Bapst, Alvaro Sanchez-Gonzalez, Vinicius Zambaldi, Mateusz Malinowski, Andrea Tacchetti, David Raposo, 
+    Adam Santoro, Ryan Faulkner, Caglar Gulcehre, Francis Song, Andrew Ballard, Justin Gilmer, George Dahl, Ashish Vaswani, Kelsey Allen, Charles Nash,
+    Victoria Langston, Chris Dyer, Nicolas Heess, Daan Wierstra, Pushmeet Kohli, Matt Botvinick, Oriol Vinyals, Yujia Li, Razvan Pascanu
+    \newblock {\em Relational inductive biases, deep learning, and graph networks}.
+    \newblock 17 Oct 2018.
+
+    \bibitem[20]{RSHGNN-2019}
+    \newblock Shichao Zhu, Chuan Zhou, Shirui Pan, Xingquan Zhu, Bin Wang
+    \newblock {\em Relation Structure-Aware Heterogeneous Graph Neural Network}.
+    \newblock 2019.
+
+    \bibitem[21]{PR-HGNN-2024}
+    \newblock Xingtong Yu, Yuan Fang, Zemin Liu, Xinming Zhang
+    \newblock {\em HGPROMPT: Bridging Homogeneous and Heterogeneous Graphs for Few-shot Prompt Learning}.
+    \newblock 5 Jan 2024.
+
+    \bibitem[22]{GCN-2018}
+    \newblock Qimai Li, Zhichao Han, Xiao-Ming Wu
+    \newblock {\em Deeper Insights into Graph Convolutional Networks for Semi-Supervised Learning}.
+    \newblock 22 Jan 2018.
+
+    \bibitem[23]{HGT-2022}
+    \newblock Ziniu Hu, Yuxiao Dong, Kuansan Wang, Yizhou Sun
+    \newblock {\em Heterogeneous Graph Transformer}.
+    \newblock 3 Mar 2022.
+
+    \bibitem[24]{HNNC-2023}
+    \newblock Yiling Zou, Jian Shu
+    \newblock {\em Heterogeneous Network Node Classification Based on Graph Neural Networks}.
+    \newblock IEEE, 2023.
+
+    \bibitem[25]{MHGNN-2023}
+    \newblock Joshua Melton, Siddharth Krishnan
+    \newblock {\em muxGNN: Multiplex Graph Neural Network for Heterogeneous Graphs}.
+    \newblock IEEE, 9 Sept 2023.
+
+    \bibitem[26]{HGNN-2020}
+    \newblock Carl Yang, Yuxin Xiao, Yu Zhang, Yizhou Sun, Jiawei Han
+    \newblock {\em Heterogeneous Network Representation Learning: A Unified Framework with Survey and Benchmark}.
+    \newblock cs SI, 17 Dec 2020.
+
+    \bibitem[27]{QC-MP-2017}
+    \newblock Justin Gilmer 1 Samuel S. Schoenholz 1 Patrick F. Riley 2 Oriol Vinyals 3 George E. Dahl
+    \newblock {\em Neural Message Passing for Quantum Chemistry}.
+    \newblock cs SI, 12 June 2017.
 
     \end{thebibliography}
 \newpage 
