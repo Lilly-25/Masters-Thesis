@@ -170,7 +170,7 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
     rows = (num_plots + cols - 1) // cols  # ceiling division to get the number of rows needed
 
     fig, axs = plt.subplots(rows, cols, figsize=(cols * col_width, rows * row_height))  # Adjust fig size based on rows and columns
-    fig.suptitle(f'Plots of {start} to {end} Examples from the Test Dataset', fontsize=10)
+    # fig.suptitle(f'Plots of {start} to {end} Examples from the Test Dataset', fontsize=10)
 
     for j in range(rows * cols):
         row = j // cols
@@ -191,11 +191,11 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
             axs[row, col].plot(nn_kpi_2d, target_values, label='Target', color='blue')
             axs[row, col].plot(nn_kpi_2d, prediction_values, label='Predictions', color='red')
             axs[row, col].fill_between(nn_kpi_2d, np.array(target_values) - rmse, np.array(target_values) + rmse, 
-                                        alpha=0.2, color='red', label='Prediction Std Dev')
+                                        alpha=0.2, color='red', label='Prediction RMSE')
             axs[row, col].set_xlabel('NN')
             axs[row, col].set_ylabel('Mgrenz')
       
-            axs[row, col].set_title(f'Mgrenz(Torque Curve) KPI', fontsize=10)
+            # axs[row, col].set_title(f'Mgrenz(Torque Curve) KPI', fontsize=10)
             axs[row, col].legend()
             axs[row, col].spines['top'].set_visible(False)
             
@@ -226,7 +226,7 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
 
 def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(24, 10))
-    fig.suptitle(f'Motor Efficiency', fontsize=16)
+    # fig.suptitle(f'Motor Efficiency', fontsize=16)
 
     Z_global_min = 0.00
     Z_global_max = 100.00
@@ -263,7 +263,6 @@ def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
 
     plt.tight_layout()
     plt.subplots_adjust(top=0.90)
-    plt.show()
    
     
 def clean_eta(eta_kpi3d):
@@ -283,7 +282,7 @@ def eta_difference(eta_kpi3d, eta_predicted):
 
 def eval_plot_kpi3d(nn, mm1, eta1, mm2,  eta2, mm_diff, eta_diff, filename):
     fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(36, 10))
-    fig.suptitle(f'Motor Efficiency', fontsize=16)
+    # fig.suptitle(f'Motor Efficiency', fontsize=16)
 
     Z_global_min = 0.00
     Z_global_max = 100.00
@@ -322,7 +321,6 @@ def eval_plot_kpi3d(nn, mm1, eta1, mm2,  eta2, mm_diff, eta_diff, filename):
 
     plt.tight_layout()
     plt.subplots_adjust(top=0.90)
-    plt.show()
 
 def y2_score(eta_diff):
     
@@ -364,6 +362,10 @@ def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
         for i in range(len(element_wise_rmse)):
             ax2.plot(nn_kpi_2d, element_wise_rmse.iloc[i], 
                     linestyle='--', alpha=0.7)
+        if plot == 'RMSE':
+            ax2.set_ylabel(f'Y1 {model} {plot}', color='red', fontsize=12)
+        else:
+            ax2.set_ylabel(f'Y1 {plot}', color='red', fontsize=12)
         
     else:
         df_predictions_y1_avg = df_y1_pred.mean()
@@ -378,6 +380,7 @@ def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
         for i in range(len(element_wise_rmse)):
             ax2.plot(nn_kpi_2d, element_wise_rmse[i], 
                     linestyle='--', alpha=0.7) 
+        ax2.set_ylabel(f'Y1 {plot}', color='red', fontsize=12)
         
         
     # Calculate mean RMSE to identify overlap wih target
@@ -385,25 +388,24 @@ def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
 
 
     # Plot average on the first y-axis
-    ax1.plot(nn_kpi_2d, df_y1_pred_avg.iloc[0], label=f'{model} Model', color='blue', linewidth=2)
+    ax1.plot(nn_kpi_2d, df_y1_pred_avg.iloc[0], label=f'{model} Target Mean', color='blue', linewidth=2)
 
     # Plot standard deviation as shaded area
     ax1.fill_between(nn_kpi_2d, 
                     df_y1_pred_avg.iloc[0] - mean_rmse, 
                     df_y1_pred_avg.iloc[0] + mean_rmse,
                     
-                    alpha=0.2, color='blue', label=f'± Average {plot}')
+                    alpha=0.2, color='red', label=f'± Mean {plot}')
     ax1.legend(loc='upper right')
     ax1.set_xlabel('Speed (rpm)', fontsize=12)
-    ax1.set_ylabel('Torque (N/m)', fontsize=12)
+    ax1.set_ylabel('Torque (Nm)', fontsize=12)
     ax1.spines['top'].set_visible(False)
     
-    ax2.set_ylabel(f'{plot}', color='red', fontsize=12)
     ax2.tick_params(axis='y', labelcolor='red')
     ax2.spines['right'].set_color('red')  # Color the right spine red
     ax2.spines['top'].set_visible(False)  # Hide the top spine for the twin axis
 
-    plt.title(f'Average {plot} and Element-wise {plot} of Test Dataset with {model} Model', fontsize=14)
+    #plt.title(f'Average {plot} and Element-wise {plot} of Test Dataset with {model} Model', fontsize=14)
     plt.grid(True, alpha=0.3)
 
     plt.tight_layout()
@@ -424,8 +426,8 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
 
     im = plt.imshow(rmse, cmap='Reds', extent=[x_min, x_max, y_min, y_max], aspect='auto', origin='lower')
 
-    plt.colorbar(im, label='RMSE')
-    plt.title(f'{plot} of Random Samples from {model}')
+    plt.colorbar(im, label='Standard Deviation')
+    # plt.title(f'{plot} of Random Samples from {model}')
     plt.xlabel('Speed (rpm) * 100')
     plt.ylabel('Torque (Nm)')
 
@@ -444,8 +446,12 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
 def plot_scores(scores, target, model):
     plt.figure(figsize=(10, 6))
     sns.histplot(scores, kde=True, bins=20*3)
-    plt.title(f'{target} Score Distribution for {model} Model')
-    plt.xlabel(f'{target} Scores')
+    # plt.title(f'{target} RMSE Distribution for {model} Model')
+    if model == 'Baseline':
+        plt.xlabel(f'{target} {model} RMSE')
+    else:
+        plt.xlabel(f'{target} RMSE')
+    
     plt.ylabel('Count')
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
@@ -461,7 +467,7 @@ def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta, title):
     plt.errorbar(speed_ranges, mean_eta, yerr=std_eta, fmt='o', capsize=5, label="Mean ± Std Dev", ecolor='red', linestyle='--', marker='s')
     plt.xlabel("Speed*100(rpm) ")
     plt.ylabel("Efficiency(%)")
-    plt.title(f"Standard Deviation of {title} ETA values ranging NN speed")
+    # plt.title(f"Standard Deviation of {title} ETA values ranging NN speed")
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -494,6 +500,7 @@ def plot_eta(predicted_etas, target_etas, ax1, n, model):
         for i in range(len(element_wise_rmse)):
             ax2.plot(mm, element_wise_rmse[i], 
                     linestyle='--', alpha=0.7) 
+        ax2.set_ylabel(f'Y2 {model} RMSE', color='red', fontsize=12)
         
     else:
         element_wise_rmse=[]
@@ -506,7 +513,7 @@ def plot_eta(predicted_etas, target_etas, ax1, n, model):
         for i in range(len(element_wise_rmse)):
             ax2.plot(mm, element_wise_rmse[i], 
                     linestyle='--', alpha=0.7) 
-
+        ax2.set_ylabel('Y2 RMSE', color='red', fontsize=12)
         
     # Calculate mean RMSE to identify overlap wih target
     mean_rmse= ((mean_eta - target_etas)**2).mean(axis=0)**0.5
@@ -521,13 +528,14 @@ def plot_eta(predicted_etas, target_etas, ax1, n, model):
                     
                     alpha=0.2, color='red', label=f'± Average RMSE')
     
+    ax1.set_ylim(0, 100)
+    ax2.set_ylim(0, 10)  # Scale of the freaky y axis
     ax1.legend(loc='upper right')
-    ax1.set_xlabel('Torque (N/m)', fontsize=12)
+    ax1.set_xlabel('Torque (Nm)', fontsize=12)
     ax1.set_ylabel('Efficiency(%)', fontsize=12)
     ax1.set_title(f'Efficiency at Speed {n} rpm')
     ax1.spines['top'].set_visible(False)
     
-    ax2.set_ylabel('RMSE', color='red', fontsize=12)
     ax2.tick_params(axis='y', labelcolor='red')
     ax2.spines['right'].set_color('red')  # Color the right spine red
     ax2.spines['top'].set_visible(False)  # Hide the top spine for the twin axis
@@ -540,7 +548,7 @@ def plot_eta_statistics(eta, target_eta, speed_ranges, input):
     num_rows = (num_plots - 1) // num_cols + 1
 
     fig, axs = plt.subplots(num_rows, num_cols, figsize=(6*num_cols, 5*num_rows))
-    fig.suptitle(f'RMSE of {input} Positive Efficiency across NN ranges', fontsize=16)
+    # fig.suptitle(f'RMSE of {input} Positive Efficiency across NN ranges', fontsize=16)
 
     if num_plots > 1:
         axs = axs.flatten()
