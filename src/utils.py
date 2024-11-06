@@ -53,16 +53,16 @@ def plot_kpi2d(nn_values, mgrenz_values):
     plt.plot(nn_values, mgrenz_values, color='blue')
     # plt.plot(nn_values, mgrenz_values, label='Target', color='blue')
     # plt.plot(nn_values, predicted_mgrenz, label='Predictions', color='red')
-    plt.xlabel('NN Values')
-    plt.ylabel('Mgrenz Values')
-    plt.title(f'NN vs Mgrenz')
-    plt.grid(True)
-    plt.tight_layout()
+    plt.xlabel('Torque [Nm]')
+    plt.ylabel('Angular Velocity [rpm]')
+    plt.title(f'Torque Curve')
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     # plt.legend()
-    plt.show()
+    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/TorqueCurve.png')  # Adjust the path as needed
+    plt.savefig(save_path, bbox_inches='tight')
+
 
 def plot_kpi3d(nn, mm, eta):
     
@@ -79,7 +79,7 @@ def plot_kpi3d(nn, mm, eta):
 
     ax.set_xlabel('Angular Velocity [rpm]', fontsize=12)
     ax.set_ylabel('Torque [Nm]', fontsize=12)
-    ax.set_title('Motor Efficiency', fontsize=14)
+    ax.set_title('Efficiency Grid', fontsize=14)
     
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -90,7 +90,8 @@ def plot_kpi3d(nn, mm, eta):
     ax.xaxis.set_major_locator(plt.MaxNLocator(10))
     plt.xticks(rotation=45, ha='right')
     plt.subplots_adjust(bottom=0.15)
-    plt.show()
+    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/EfficiencyGrid.png')  # Adjust the path as needed
+    plt.savefig(save_path, bbox_inches='tight')
     
     
 def remove_faulty_files(directory):
@@ -166,7 +167,7 @@ def plot_wandb_logs(df, filename, metric):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
-    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/Train-Val Pics', f'{filename}.png')  # Adjust the path as needed
+    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics', f'{filename}.png')  # Adjust the path as needed
     plt.savefig(save_path, bbox_inches='tight')
     plt.close(fig)
     
