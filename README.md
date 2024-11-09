@@ -87,7 +87,8 @@ pip install -r requirements.txt
 
 ## Secrets
 
-In .env.local file, 
+In .env.local file store
+ 
 WANDB_API_KEY=API KEY
 
 ## Data Preprocessing
