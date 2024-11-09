@@ -52,7 +52,7 @@ def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_
         mid_id = em.shape[0] // 2 # Find the middle row index of each ETa grid
         #print(predictions_y2[em_id,mid_id, 0:3])..Not exactly 0 but close to 0
         mask = (em == 0) # Create a mask for zeros
-        mask[mid_id, :] = False  # Exclude the rows in the ETA grid where speed is 0
+        mask[mid_id, :] = False  # Exclude the rows in the ETA grid where Angular Velocity is 0
         em[mask] = np.nan # Replace zeros with np.nan everywhere except the middle row
         y2[em_id] = em
 
@@ -219,8 +219,7 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
             axs[row, col].axis('off')
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
-    save_path = '/home/k64889/Masters-Thesis/temp/ReportPics/kpi2d_predictions.png'
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig('./temp/ReportPics/kpi2d_predictions.png', bbox_inches='tight')
     plt.show()
     
 
@@ -247,7 +246,7 @@ def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
         ax.set_ylabel('Torque [Nm]', fontsize=12)
         ax.set_title(f'{title} Efficiency', fontsize=14)
         cbar = fig.colorbar(im, ax=ax)
-        cbar.set_label('Efficiency', fontsize=12)
+        cbar.set_label('Efficiency (%)', fontsize=12)
         # Set x-axis limits
         ax.set_xlim(0, max(nn))
 
@@ -305,7 +304,7 @@ def eval_plot_kpi3d(nn, mm1, eta1, mm2,  eta2, mm_diff, eta_diff, filename):
         ax.set_ylabel('Torque [Nm]', fontsize=12)
         ax.set_title(f'{title} Efficiency', fontsize=14)
         cbar = fig.colorbar(im, ax=ax)
-        cbar.set_label('Efficiency', fontsize=12)
+        cbar.set_label('Efficiency (%)', fontsize=12)
         # Set x-axis limits
         ax.set_xlim(0, max(nn))
 
@@ -397,7 +396,7 @@ def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
                     
                     alpha=0.2, color='red', label=f'± Mean {plot}')
     ax1.legend(loc='upper right')
-    ax1.set_xlabel('Speed (rpm)', fontsize=12)
+    ax1.set_xlabel('Angular Velocity (rpm)', fontsize=12)
     ax1.set_ylabel('Torque (Nm)', fontsize=12)
     ax1.spines['top'].set_visible(False)
     
@@ -409,9 +408,8 @@ def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
     plt.grid(True, alpha=0.3)
 
     plt.tight_layout()
-    
-    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/', f'{plot}_{model}_y1.png')  # Adjust the path as needed
-    plt.savefig(save_path, bbox_inches='tight')
+
+    plt.savefig(f'./temp/ReportPics/{plot}_{model}_y1.png', bbox_inches='tight')
     plt.show()
     
 def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
@@ -428,18 +426,16 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
 
     plt.colorbar(im, label='Standard Deviation')
     # plt.title(f'{plot} of Random Samples from {model}')
-    plt.xlabel('Speed (rpm) * 100')
+    plt.xlabel('Angular Velocity (rpm) * 100')
     plt.ylabel('Torque (Nm)')
 
-    x_ticks = np.arange(x_min, x_max, 20)  # x ticks are incorrect here and follows the actual speed /100
+    x_ticks = np.arange(x_min, x_max, 20)  # x ticks are incorrect here and follows the actual Angular Velocity /100
     plt.xticks(x_ticks)
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     
-    
-    save_path = '/home/k64889/Masters-Thesis/temp/ReportPics/pos_stddev_y2.png'
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig('./temp/ReportPics/pos_stddev_y2.png', bbox_inches='tight')
     
     plt.show()
     
@@ -456,24 +452,22 @@ def plot_scores(scores, target, model):
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    
-    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/', f'score_{model}_{target}.png')  # Adjust the path as needed
-    plt.savefig(save_path, bbox_inches='tight')
+   
+    plt.savefig(f'./temp/ReportPics/score_{model}_{target}.png', bbox_inches='tight')
     
     
 def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta, title):
     
     plt.figure(figsize=(10, 6))
     plt.errorbar(speed_ranges, mean_eta, yerr=std_eta, fmt='o', capsize=5, label="Mean ± Std Dev", ecolor='red', linestyle='--', marker='s')
-    plt.xlabel("Speed*100(rpm) ")
+    plt.xlabel("Angular Velocity*100(rpm) ")
     plt.ylabel("Efficiency(%)")
-    # plt.title(f"Standard Deviation of {title} ETA values ranging NN speed")
+    # plt.title(f"Standard Deviation of {title} ETA values ranging NN Angular Velocity")
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     plt.legend(loc='upper right')
-    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/', f'stddev_y2_nn_{title}.png')  # Adjust the path as needed
-    plt.savefig(save_path, bbox_inches='tight')
+    plt.savefig(f'./temp/ReportPics/stddev_y2_nn_{title}.png', bbox_inches='tight')
     plt.show()
     
 
@@ -533,7 +527,7 @@ def plot_eta(predicted_etas, target_etas, ax1, n, model):
     ax1.legend(loc='upper right')
     ax1.set_xlabel('Torque (Nm)', fontsize=12)
     ax1.set_ylabel('Efficiency(%)', fontsize=12)
-    ax1.set_title(f'Efficiency at Speed {n} rpm')
+    ax1.set_title(f'Efficiency at Angular Velocity {n} rpm')
     ax1.spines['top'].set_visible(False)
     
     ax2.tick_params(axis='y', labelcolor='red')
@@ -569,7 +563,6 @@ def plot_eta_statistics(eta, target_eta, speed_ranges, input):
 
     plt.tight_layout()
     plt.subplots_adjust(top=0.95)
-    
-    save_path = os.path.join('/home/k64889/Masters-Thesis/temp/ReportPics/', f'rmse_eta_{input}.png')  # Adjust the path as needed
-    plt.savefig(save_path, bbox_inches='tight')
+  
+    plt.savefig(f'./temp/ReportPics/rmse_eta_{input}.png', bbox_inches='tight')
     plt.show()

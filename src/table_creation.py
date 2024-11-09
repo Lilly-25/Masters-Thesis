@@ -21,7 +21,7 @@ def create_tabular_data(file_path, purpose):
                     params_dict[param] = value
                     
         # Save parameters to a JSON file
-        params_file = '/home/k64889/Masters-Thesis/Intermediate/EMTabular.json'
+        params_file = './Intermediate/EMTabular.json'
 
 
         # Load parameters from the JSON file
