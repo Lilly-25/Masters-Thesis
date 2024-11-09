@@ -5,8 +5,8 @@ from src.utils import remove_faulty_files
 import os
 from tqdm import tqdm
 
-directory = '/home/k64889/Masters-Thesis/data/raw'
-# directory = '/home/k64889/Masters-Thesis/data/Tests'
+directory = os.path.join(os.getcwd(), 'data/Testing/raw')
+#directory = os.path.join(os.getcwd(), 'data/raw')
 
 remove_faulty_files(directory)
 
@@ -27,11 +27,10 @@ for filename in tqdm(os.listdir(directory)):
 df_inputs.to_csv('./data/TabularDataInputs.csv', index=True)
 df_targets.to_csv('./data/TabularDataY1Targets.csv', index=True)
 
+print(f"Total input rows: {df_inputs.shape[0]}")
+print(f"Total target rows: {df_targets.shape[0]}")
 
-# print(f"Total input rows: {df_inputs.shape[0]}")
-# print(f"Total target rows: {df_targets.shape[0]}")
+data_prep_eta_grid()
 
-# data_prep_eta_grid()
-
-# print("Data preprocessing complete")
+print("Data preprocessing complete")
 

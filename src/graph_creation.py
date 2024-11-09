@@ -243,7 +243,7 @@ def visualize_heterograph(G):
                  'sw': '#6BCB77'}
     node_colors = [color_map[G.nodes[node]['type']] for node in G.nodes()]
     
-    edge_color_map = {'a': '#FF92A5', 'd1': '#D3D3D3', 'd2' : '#D3D3D3', 'd4' : '#D3D3D3'}
+    edge_color_map = {'a': '#FF92A5', 'd1': '#D3D3D3', 'd2': '#FF5733', 'd4': '#C70039'}
     
     pos = hierarchical_layout(G)
     
@@ -287,4 +287,5 @@ def visualize_heterograph(G):
     plt.title("Visualisation of an Electric Motor as a Heterogeneous Graph", fontsize=16, fontweight='bold')
     plt.axis('off')
     plt.tight_layout()
+    plt.savefig('./temp/ReportPics/DoubleVGraph.png')
     plt.show()

@@ -40,12 +40,12 @@ def read_file_2d(file_path, sheet_name):
         row_data = [cell.value if cell.value is not None else np.nan for cell in row]
         y2_pos.append(row_data)
     
-    y2 = []
-    y2_neg = y2_pos[-1:0:-1] # Mirroring negative grid of ETA to be same as the predicted positive grid excl mid row
-    y2 = y2_neg + y2_pos
-    while len(y2) < sheet.max_row:
-        y2.append([np.nan] * len(y2[0]))
-    return np.array(y2, dtype=float)
+    # y2 = []
+    # y2_neg = y2_pos[-1:0:-1] # Mirroring negative grid of ETA to be same as the predicted positive grid excl mid row
+    # y2 = y2_neg + y2_pos
+    # while len(y2) < sheet.max_row:
+    #     y2.append([np.nan] * len(y2[0]))
+    return np.array(y2_pos, dtype=float)
         
         
 def plot_kpi2d(nn_values, mgrenz_values):
@@ -53,20 +53,19 @@ def plot_kpi2d(nn_values, mgrenz_values):
     plt.plot(nn_values, mgrenz_values, color='blue')
     # plt.plot(nn_values, mgrenz_values, label='Target', color='blue')
     # plt.plot(nn_values, predicted_mgrenz, label='Predictions', color='red')
-    plt.xlabel('NN Values')
-    plt.ylabel('Mgrenz Values')
-    plt.title(f'NN vs Mgrenz')
-    plt.grid(True)
-    plt.tight_layout()
+    plt.xlabel('Torque [Nm]')
+    plt.ylabel('Angular Velocity [rpm]')
+    plt.title(f'Torque Curve')
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     # plt.legend()
-    plt.show()
+    plt.savefig('./temp/ReportPics/TorqueCurve.png', bbox_inches='tight')
+
 
 def plot_kpi3d(nn, mm, eta):
     
-    fig, ax = plt.subplots(figsize=(16, 10))
+    fig, ax = plt.subplots(figsize=(10, 6))
 
     Z_global_min = 0.00
     Z_global_max = 100.00
@@ -79,18 +78,18 @@ def plot_kpi3d(nn, mm, eta):
 
     ax.set_xlabel('Angular Velocity [rpm]', fontsize=12)
     ax.set_ylabel('Torque [Nm]', fontsize=12)
-    ax.set_title('Motor Efficiency', fontsize=14)
+    ax.set_title('Efficiency Grid', fontsize=14)
     
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
     cbar = fig.colorbar(im, ax=ax)
-    cbar.set_label('Efficiency', fontsize=12)
+    cbar.set_label('Efficiency (%)', fontsize=12)
 
     ax.xaxis.set_major_locator(plt.MaxNLocator(10))
     plt.xticks(rotation=45, ha='right')
     plt.subplots_adjust(bottom=0.15)
-    plt.show()
+    plt.savefig('./temp/ReportPics/EfficiencyGrid.png', bbox_inches='tight')
     
     
 def remove_faulty_files(directory):
@@ -144,3 +143,59 @@ def cumulative_counts(arr):
             result.append(count)
     
     return result
+
+def plot_wandb_logs(df, filename, metric):
+    """
+    Plot training metrics from a DataFrame and save the plot as an image file.
+
+    Parameters:
+    df (DataFrame): DataFrame containing the training metrics.
+    filename (str): Name of the file (used in the title of the plot and filename).
+    metric (str): Metric name for the y-axis label.
+    """
+    fig, ax = plt.subplots(figsize=(8, 6)) 
+    # Plot training loss for each fold
+    for fold in range(1, 6):
+        fold_loss = df[f'Fold {fold} - {filename}']
+        ax.plot(df['epoch'], fold_loss, label=f'Fold {fold}', linewidth=2)
+
+    ax.set_xlabel('Epoch')
+    ax.set_ylabel(f'{metric}')
+    ax.legend()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    plt.savefig(f'./temp/ReportPics/{filename}.png', bbox_inches='tight')
+    plt.close(fig)
+    
+def scoring_from_pdiff(percentage_difference, min_value, max_value):
+    """
+    Calculate the score based on a percentage difference relative to a specified range.
+    
+    Parameters:
+    percentage_difference (float): The percentage difference to evaluate.
+    min_value (float): The minimum value of the range.
+    max_value (float): The maximum value of the range.
+    
+    Returns:
+    float: The calculated score.
+    """
+
+    range_value = max_value - min_value
+    score = (percentage_difference / 100 * range_value)
+    return score
+
+def pdiff_from_scoring(score, range):
+    """
+    Calculate the percentage difference of a score relative to a maximum value.
+    
+    Parameters:
+    score (float): The score to evaluate.
+    max_value (float): The maximum value of the range.
+    
+    Returns:
+    float: The percentage difference.
+    """
+    
+    percentage_difference = (score / range) * 100
+    return percentage_difference

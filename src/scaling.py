@@ -22,44 +22,71 @@ class MinMaxScaler: # Not used anymore
     def inverse_transform(self, z, min_values, range_values):
         return z * range_values + min_values
 
-# class StdScaler:
-#     def fit(self, x):
-#         # Calculate mean and stddev ignoring NANs
-#         mean = np.nanmean(x, axis=0)
-#         std_dev = np.nanstd(x, axis=0)
-#         std_dev[std_dev == 0] = 1
-         
-#         return mean, std_dev
-
-#     def transform(self, x, mean, std_dev):
-#         # Apply the std scaling scaling, preserving NaNs
-#         return np.where(np.isnan(x), np.nan, (x - mean) / std_dev)
-
-#     def inverse_transform(self, z, mean, std_dev):
-#         return z * std_dev + mean
-    
 class StdScaler:
     def fit(self, x):
+        # Calculate mean and stddev ignoring NANs
         x = np.array(x)
         if x.ndim == 1:
             # If 1D array, handle scalars
             mean = np.nanmean(x)
             std_dev = np.nanstd(x)
-            # For scalar, just do direct comparison
             std_dev = 1 if std_dev == 0 else std_dev
         else:
-            # For 2D arrays, keep original axis=0 behavior
             mean = np.nanmean(x, axis=0)
             std_dev = np.nanstd(x, axis=0)
             std_dev[std_dev == 0] = 1
          
         return mean, std_dev
-        
+
     def transform(self, x, mean, std_dev):
+        # Apply the std scaling scaling, preserving NaNs
         return np.where(np.isnan(x), np.nan, (x - mean) / std_dev)
-        
+
     def inverse_transform(self, z, mean, std_dev):
         return z * std_dev + mean
+    
+
+
+# class StdScaler:
+#     def __init__(self):
+#         self.mean = None
+#         self.std_dev = None
+
+#     def fit(self, x, input):
+#         x = np.array(x)
+#         if x.ndim == 1:
+#             # If 1D array, handle scalars
+#             self.mean = np.nanmean(x)
+#             self.std_dev = np.nanstd(x)
+#             self.std_dev = 1 if self.std_dev == 0 else self.std_dev
+#         elif input == 'x':
+#             # For 2D arrays, calculate mean and std across columns
+#             self.mean = np.nanmean(x, axis=0)
+#             self.std_dev = np.nanstd(x, axis=0)
+#             self.std_dev[self.std_dev == 0] = 1
+#         elif input == 'y1':
+#             # For 2D arrays, calculate mean and std across rows independently
+#             self.mean = np.nanmean(x, axis=1, keepdims=True)
+#             self.std_dev = np.nanstd(x, axis=1, keepdims=True)
+#             self.std_dev[self.std_dev == 0] = 1
+#         elif input == 'y2' and x.ndim == 3:
+#             # For 3D arrays, calculate mean and std across the last two dimensions for each sample
+#             self.mean = np.nanmean(x, axis=(1, 2), keepdims=True)
+#             self.std_dev = np.nanstd(x, axis=(1, 2), keepdims=True)
+#             self.std_dev[self.std_dev == 0] = 1
+
+#     def transform(self, x):
+#         x = np.array(x)
+#         if self.mean is None or self.std_dev is None:
+#             raise RuntimeError("The scaler has not been fitted yet.")
+#         return np.where(np.isnan(x), np.nan, (x - self.mean) / self.std_dev)
+        
+#     def inverse_transform(self, z):
+#         if self.mean is None or self.std_dev is None:
+#             raise RuntimeError("The scaler has not been fitted yet.")
+#         return z * self.std_dev + self.mean
+
+
 
 # def graph_scaling_params(features_by_type):
 #     """
