@@ -57,7 +57,7 @@ pip install -r requirements.txt
 ├── data
 │   ├── raw
 │   ├── Testing
-│   │   ├── Testing
+│   │   ├── raw
 ├── Intermediate
 │   ├── cross_val_splits.npy
 │   ├── DoubleVGraph.json
@@ -93,7 +93,7 @@ WANDB_API_KEY=API KEY
 
 ## Data Preprocessing
 
-Create a folder data and store the files for training within subfolder raw
+Store the files for training within folder data -> raw
 
 Run the python program main_tabular.py separately for generating preprocessed data
 
@@ -103,4 +103,4 @@ Run the jupyter notebook main_tabular.ipynb
 
 ## Testing(New Files)
 
-Within folder data, create subfolder Tests and store the new files for generating model predictions of it.
+Within folder data -> Testing -> raw and store the new files for generating model predictions of it.
