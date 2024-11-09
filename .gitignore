@@ -1,4 +1,6 @@
-temp/
+temp/ReportPics/*.png
+temp/*.py
+temp/*.ipynb
 data/
 .env
 *.env

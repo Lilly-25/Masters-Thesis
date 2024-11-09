@@ -80,10 +80,16 @@ pip install -r requirements.txt
 ├── LICENSE
 ├── README.md
 ├── requirements.txt
-└── main_tabular.py
-└── main_tabular.ipynb
+├── main_tabular.py
+├── main_tabular.ipynb
 └── .env.local
 ```
+
+## Secrets
+
+In .env.local file store
+ 
+WANDB_API_KEY=API KEY
 
 ## Data Preprocessing
 
