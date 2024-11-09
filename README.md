@@ -1,6 +1,6 @@
-# Electric Motor Modelling with Graph Neural Networks
+# Master Thesis
 
-<center><h2>Master Thesis: Electric Motor Modelling with Graph Neural Networks</h2></center>
+<center><h2>Electric Motor Modelling with Graph Neural Networks</h2></center>
 
 <div>
 The aim of the Master Thesis is to train a neural network to learn the parameters of Electric Motors and thus be able to predict its KPIs(key performance indicators). 
