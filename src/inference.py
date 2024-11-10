@@ -7,11 +7,9 @@ from src.scaling import StdScaler
 from src.utils import cumulative_counts as cumulative_col_count
 import matplotlib.ticker as ticker
 from matplotlib.colors import Normalize
-import os
 
-def generate_predictions(model_path, df_inputs_test, df_targets_test, x_mean, x_stddev, device):
+def generate_predictions(model, df_inputs_test, df_targets_test, x_mean, x_stddev, device):
     
-    model = torch.load(model_path) # Load the trained model saved locally
     model=model.to(device)
     model.eval()  # Set the model to evaluation mode
     
