@@ -19,14 +19,14 @@ Create conda environment with the dependencies from .yml file as below:
 
 ```bash
 conda env create -f environment.yml
-conda activate newenv
+conda activate thesis
 ```
 
 When executing the program with python virtual environment
 
 ```bash
-python -m newenv venv
-source ./newenv/bin/activate
+python -m thesis venv
+source ./thesis/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -80,8 +80,9 @@ pip install -r requirements.txt
 ├── LICENSE
 ├── README.md
 ├── requirements.txt
-├── main_tabular.py
-├── main_tabular.ipynb
+├── data_preprocessing.py
+├── main.ipynb
+├── main_train.py
 └── .env.local
 ```
 
@@ -95,11 +96,11 @@ WANDB_API_KEY=API KEY
 
 Store the files for training within folder data -> raw
 
-Run the python program main_tabular.py separately for generating preprocessed data
+Run the python program data_preprocessing.py separately for generating preprocessed data
 
 ## MLP Results
 
-Run the jupyter notebook main_tabular.ipynb
+Run the jupyter notebook main.ipynb for data explorations, training and inference
 
 ## Testing(New Files)
 
