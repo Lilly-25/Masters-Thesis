@@ -38,6 +38,7 @@ pip install -r requirements.txt
 .
 ├── src
 │   ├── __init__.py
+│   ├── README.md   
 │   ├── data_preprocessing_tabular.py
 │   ├── inference.py
 │   ├── model.py
@@ -48,26 +49,30 @@ pip install -r requirements.txt
 ├── GraphModelling
 │   ├── src
 │   │   ├── __init__.py
+│   │   ├── README.md 
 │   │   ├── data_preprocessing_graph.py
 │   │   ├── dataset_creation.py
 │   │   ├── model.py
 │   │   ├── scaling.py
 │   │   ├── graph_creation.py
-│   │   └──  training.py
+│   │   └── training.py
 │   └── main_graph.ipynb  
 │   └── main_graph.py
 ├── data
+│   ├── README.md   
 │   ├── raw
-│   ├── Testing
-│   │   └──  raw
-├── Intermediate
-│   ├── cross_val_splits.npy
 │   ├── DoubleVGraph.json
 │   ├── EMTabular.json
+│   ├── Testing
+│       └── raw
+├── Intermediate
+│   ├── README.md
+│   ├── cross_val_splits.npy
 │   ├── max_mgrenz.pkl
 │   ├── x_mean.pkl
-│   └──  x_stddev.pkl
+│   └── x_stddev.pkl
 ├── Manuscript
+│   ├── README.md
 │   ├── ReportImages
 │   ├── wandb
 │   │   ├── loss
@@ -75,6 +80,7 @@ pip install -r requirements.txt
 │   ├── Report.pdf
 │   └── Report.tex
 ├── Presentations
+│    └── README.md
 ├── .gitignore
 ├── environment.yaml
 ├── LICENSE

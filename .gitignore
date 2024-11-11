@@ -1,5 +1,12 @@
 temp/
-data/
+data/TabularDataETAgrid/
+data/processed/
+data/raw/*.xlsx
+data/*.npy
+data/Testing/raw/*.xlsx
+data/Testing/processed/
+data/*.pkl
+data/*.csv
 .env
 *.env
 *.env.*
@@ -17,7 +24,6 @@ src/__pycache__/
 *.log
 *.pth
 wandb/
-=======
 *.aux
 *.fdb_latexmk
 *.fls
