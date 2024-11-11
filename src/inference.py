@@ -217,7 +217,7 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
             axs[row, col].axis('off')
 
     plt.tight_layout(rect=[0, 0, 1, 0.96])
-    plt.savefig('./temp/ReportPics/kpi2d_predictions.png', bbox_inches='tight')
+    plt.savefig('./Manuscript/ReportImages/kpi2d_predictions.png', bbox_inches='tight')
     plt.show()
     
 
@@ -347,7 +347,7 @@ def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
     nn_kpi_2d = list(range(0, 19100, 100))
     
     # Create the plot
-    fig, ax1 = plt.subplots(figsize=(15, 8))
+    fig, ax1 = plt.subplots(figsize=(10, 6))
     # Create a twin axis for RMSE
     ax2 = ax1.twinx()
     
@@ -407,7 +407,7 @@ def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
 
     plt.tight_layout()
 
-    plt.savefig(f'./temp/ReportPics/{plot}_{model}_y1.png', bbox_inches='tight')
+    plt.savefig(f'./Manuscript/ReportImages/{plot}_{model}_y1.png', bbox_inches='tight')
     plt.show()
     
 def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
@@ -415,7 +415,7 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
     squared_deviations = (y2_grid_avg - y2_grid)**2
     rmse = (np.nanmean(squared_deviations, axis=0))**0.5
 
-    plt.figure(figsize=(12, 5))
+    plt.figure(figsize=(10, 6))
 
     x_min, x_max = 0, rmse.shape[1]
     y_min, y_max = 0, rmse.shape[0]
@@ -433,7 +433,7 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     
-    plt.savefig('./temp/ReportPics/pos_stddev_y2.png', bbox_inches='tight')
+    plt.savefig('./Manuscript/ReportImages/pos_stddev_y2.png', bbox_inches='tight')
     
     plt.show()
     
@@ -451,7 +451,7 @@ def plot_scores(scores, target, model):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
    
-    plt.savefig(f'./temp/ReportPics/score_{model}_{target}.png', bbox_inches='tight')
+    plt.savefig(f'./Manuscript/ReportImages/score_{model}_{target}.png', bbox_inches='tight')
     
     
 def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta, title):
@@ -465,7 +465,7 @@ def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta, title):
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     plt.legend(loc='upper right')
-    plt.savefig(f'./temp/ReportPics/stddev_y2_nn_{title}.png', bbox_inches='tight')
+    plt.savefig(f'./Manuscript/ReportImages/stddev_y2_nn_{title}.png', bbox_inches='tight')
     plt.show()
     
 
@@ -562,5 +562,5 @@ def plot_eta_statistics(eta, target_eta, speed_ranges, input):
     plt.tight_layout()
     plt.subplots_adjust(top=0.95)
   
-    plt.savefig(f'./temp/ReportPics/rmse_eta_{input}.png', bbox_inches='tight')
+    plt.savefig(f'./Manuscript/ReportImages/rmse_eta_{input}.png', bbox_inches='tight')
     plt.show()
