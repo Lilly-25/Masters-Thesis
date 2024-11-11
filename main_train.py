@@ -12,6 +12,8 @@ import torch.optim.lr_scheduler as lr_scheduler
 from src.utils import artifact_deletion
 import os
 from dotenv import load_dotenv
+import random
+
 
 ##Data Preprocessing
 
@@ -30,6 +32,7 @@ df_test_y1_targets.to_pickle('./data/df_test_y1_targets.pkl')
 load_dotenv()
 wandb_api_key = os.getenv('WANDB_API_KEY')
 wandb.login(key=wandb_api_key)
+group_no=random.randint(100, 999)
 
 #hyperparameters
 p_y1=0.35  # dropout rate shared and y1
@@ -92,7 +95,7 @@ for fold, (train_index, val_index) in enumerate(splits_indices, 1):
         "Dropout Rate Shared": p_y1,
         "Dropout Rate Y2": p_y2,
         "Notes": "Removed curve thresholld for y1 envelope stupidity",
-        }, group="149", name=f"Fold {fold}")
+        }, group=str(group_no), name=f"Fold {fold}")
     
     
     # Train-Validation data as per cross val splits
@@ -142,6 +145,7 @@ for fold, (train_index, val_index) in enumerate(splits_indices, 1):
         best_model = model
         best_fold = fold
 
+    wandb.finish()
     
 if best_model is not None:
     model.save('./Intermediate/model.pth')
@@ -159,7 +163,7 @@ else:
 
 # wandb.log_artifact(model_artifact)
 
-wandb.finish()
+# wandb.finish()
 
 
 # Print the best fold's performance

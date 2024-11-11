@@ -2,16 +2,18 @@
 
 <center><h2>Electric Motor Modelling with Graph Neural Networks</h2></center>
 
-<div>
+## 📋 Overview
+
 The aim of the Master Thesis is to train a neural network to learn the parameters of Electric Motors and thus be able to predict its KPIs(key performance indicators). 
 
 We have developed and trained a MLP neural network on the tabular representation of data to predict 2 KPIs. 
 
 The KPIs are 2D and 3D plots on Torque(Mgrenz) curve and Efficiency(ETA) grid.
 
-</div>
 
-## How to install dependecies with Linux OS?
+## ⚙️ How to install dependecies with Linux OS?
+
+[![Python Version](https://img.shields.io/badge/python-3.10.14-blue.svg)]()
 
 When executing the program with miniconda,
 
@@ -30,7 +32,7 @@ source ./thesis/bin/activate
 pip install -r requirements.txt
 ```
 
-## Repo Structure
+## 📁 Repo Structure
 
 ```python
 .
@@ -51,29 +53,27 @@ pip install -r requirements.txt
 │   │   ├── model.py
 │   │   ├── scaling.py
 │   │   ├── graph_creation.py
-│   │   ├── training.py
+│   │   └──  training.py
 │   └── main_graph.ipynb  
 │   └── main_graph.py
 ├── data
 │   ├── raw
 │   ├── Testing
-│   │   ├── raw
+│   │   └──  raw
 ├── Intermediate
 │   ├── cross_val_splits.npy
 │   ├── DoubleVGraph.json
 │   ├── EMTabular.json
 │   ├── max_mgrenz.pkl
 │   ├── x_mean.pkl
-│   ├── x_stddev.pkl
-├── temp
-│   ├── ReportPics
-│   ├── wandb
-│   │   ├── loss
-│   │   ├── score
+│   └──  x_stddev.pkl
 ├── Manuscript
 │   ├── ReportImages
+│   ├── wandb
+│   │   ├── loss
+│   │   └── score
 │   ├── Report.pdf
-│   ├── Report.tex
+│   └── Report.tex
 ├── Presentations
 ├── .gitignore
 ├── environment.yaml
@@ -86,22 +86,24 @@ pip install -r requirements.txt
 └── .env.local
 ```
 
-## Secrets
+## 📖 Usage
+
+### Secrets
 
 In .env.local file store
  
 WANDB_API_KEY=API KEY
 
-## Data Preprocessing
+### Data Preprocessing
 
 Store the files for training within folder data -> raw
 
 Run the python program data_preprocessing.py separately for generating preprocessed data
 
-## MLP Results
+### MLP Results
 
 Run the jupyter notebook main.ipynb for data explorations, training and inference
 
-## Testing(New Files)
+### Testing(New Files)
 
 Within folder data -> Testing -> raw and store the new files for generating model predictions of it.
