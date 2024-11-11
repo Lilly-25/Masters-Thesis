@@ -2,8 +2,8 @@
 
 This folder hosts all files associated with the data
 
-- **DoubleVGraph.json -** Contains the folds used for cross validation
+- **DoubleVGraph.json -** Contains parameters associated with each node and edge as well their respective types
   
-- **EMTabular.json -** Contains the Maximum Torque value of all the data shared, can be overridden and can change with new data
+- **EMTabular.json -** Contains the parameters associated with each part of the motor
 - **raw -** Stores the .xslx files for training
 
