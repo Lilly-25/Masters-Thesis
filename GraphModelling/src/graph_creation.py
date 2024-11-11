@@ -26,7 +26,7 @@ def create_heterograph(file_path):
         G = nx.MultiDiGraph()  # Use MultiDiGraph for heterogeneous graph
 
         # Load edge dictionaries from the JSON file
-        with open('/home/k64889/Masters-Thesis/Intermediate/DoubleVGraph.json', 'r') as f:
+        with open('/home/k64889/Masters-Thesis/data/DoubleVGraph.json', 'r') as f:
             graph_dict = json.load(f)
 
         node_types = graph_dict['node_types']
