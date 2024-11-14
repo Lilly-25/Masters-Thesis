@@ -30,9 +30,10 @@ class Y1LossRegularisation(nn.Module):
         return mse_loss + self.lambda1_y1 * regularized_factor_smoothened_curve + self.lambda2_y1 * regularized_factor_decreasing_curve
     
 class Y2LossRegularisation(nn.Module):
-    def __init__(self, lambda_y2, border_threshold, low_nn_threshold, low_mm_threshold):
+    def __init__(self, lambda_y21,lambda_y22, border_threshold, low_nn_threshold, low_mm_threshold):
         super(Y2LossRegularisation, self).__init__()
-        self.lambda_y2 = lambda_y2
+        self.lambda_y21 = lambda_y21
+        self.lambda_y22 = lambda_y22
         self.border_threshold = border_threshold
         self.low_nn_threshold = low_nn_threshold
         self.low_mm_threshold = low_mm_threshold
@@ -46,16 +47,18 @@ class Y2LossRegularisation(nn.Module):
         violations_nn_max_mgrenz = (y_pred[:, -self.border_threshold, :] - y_target[:, -self.border_threshold, :]) ** 2
         violations_low_nn = (y_pred[:, :, :self.low_nn_threshold] - y_target[:, :, :self.low_nn_threshold]) ** 2
         violations_low_mm = (y_pred[:, :self.low_mm_threshold, :] - y_pred[:, :self.low_mm_threshold, :]) ** 2
+        violations_max_eta =torch.pow(torch.relu(y_pred[:, :] - 100), 2)
         
         # Compute regularized factors as averages of squared violations
         regularized_factor_nn_maxmgrenz = violations_nn_max_mgrenz.sum() / violations_nn_max_mgrenz.numel()
         regularized_factor_low_nn = violations_low_nn.sum() / violations_low_nn.numel()
         regularized_factor_low_mm = violations_low_mm.sum() / violations_low_mm.numel()
+        regularized_factor_max_eta = violations_max_eta.sum() / violations_max_eta.numel()
 
         # Combine MSE loss with L2 regularization
-        return mse_loss + self.lambda_y2 * (regularized_factor_nn_maxmgrenz + 
-                                               regularized_factor_low_nn + 
-                                               regularized_factor_low_mm)
+        return mse_loss + self.lambda_y21 * regularized_factor_max_eta + self.lambda_y22 * (regularized_factor_nn_maxmgrenz + 
+                                                                                        regularized_factor_low_nn + 
+                                                                                        regularized_factor_low_mm)
 
 class MSELoss(nn.Module):
     def __init__(self):
