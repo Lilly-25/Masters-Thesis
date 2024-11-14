@@ -8,6 +8,9 @@ import json
 
 def create_tabular_data(file_path, purpose):
     try:
+        if os.path.basename(file_path) == '.gitkeep':
+            print("Skipping .gitkeep file.")
+            return None
         df = pd.read_excel(file_path, sheet_name='input_data', header=None)
         df = df.dropna(how='all').dropna(axis=1, how='all')
         file_name = os.path.splitext(os.path.basename(file_path))[0]
