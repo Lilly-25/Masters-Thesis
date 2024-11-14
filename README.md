@@ -19,15 +19,15 @@ The KPIs are 2D and 3D plots on Torque(Mgrenz) curve and Efficiency(ETA) grid.
 
 
 
-### ⚙️ Dependencies
+## ⚙️ Dependencies
 
 [![Python Version](https://img.shields.io/badge/python-3.10.14-blue.svg)]()
 
-#### 🖥️ Operating System
+### 🖥️ Operating System
 
 Linux
 
-#### 🐍 Environment
+### 🐍 Environment
 
 Create conda environment with the dependencies from .yml file as below:
 
@@ -44,7 +44,56 @@ source ./thesis/bin/activate
 pip install -r requirements.txt
 ```
 
-### 📁 Repo Structure
+## 📖 Usage
+
+### 🔑 Secrets (.env.local)
+  
+WANDB_API_KEY=API KEY
+
+### 🗃️ Data Preprocessing
+
+Store the files for training within folder data -> raw
+
+Run the below command for generating preprocessed tabular data
+
+```bash
+python data_preprocessing.py
+```
+
+The jupyter notebook main.ipynb hosts the code for the remaining  sections
+
+### 📊 Data Exploration
+
+Data explorations based on tabular summary statistics and Standard Deviation
+
+### 🏋️ Training
+
+To run training separately for already processed files
+
+```bash
+python main_train.py
+```
+
+To run training for new files and if you want to supply the maximum and minimum torque instead of script finding from whole dataset.
+Example values maximum and minimum torque 283 and 55 then run
+
+```bash
+python main_train.py --max_torque 283 --min_torque 55
+```
+
+### 🔍 Inference
+
+There are options to either :
+
+1. Generate model predictions of new files, store them in folder data -> Testing -> raw and run the cell highlighted in the main.ipynb notebook
+
+2. Generate model predictions of test dataset separated before training, in that case simply skip the cell mentioned in Step 1.
+
+### 📈 Evaluation
+
+Evaluation of Predictions are based on RMSE, Deviation of Folds, Difference Overlaps, Percentage Differences
+
+## 📁 Repo Structure
 
 ```python
 .
@@ -104,52 +153,3 @@ pip install -r requirements.txt
 ├── main_train.py
 └── .env.local
 ```
-
-## 📖 Usage
-
-### 🔑 Secrets (.env.local)
-  
-WANDB_API_KEY=API KEY
-
-### 🗃️ Data Preprocessing
-
-Store the files for training within folder data -> raw
-
-Run the below command for generating preprocessed tabular data
-
-```bash
-python data_preprocessing.py
-```
-
-The jupyter notebook main.ipynb hosts the code for the remaining  sections
-
-### 📊 Data Exploration
-
-Data explorations based on tabular summary statistics and Standard Deviation
-
-### 🏋️ Training
-
-To run training separately for already processed files
-
-```bash
-python main_train.py
-```
-
-To run training for new files and if you want to supply the maximum and minimum torque instead of script finding from whole dataset.
-Example values maximum and minimum torque 283 and 55 then run
-
-```bash
-python main_train.py --max_torque 283 --min_torque 55
-```
-
-### 🔍 Inference
-
-There are options to either :
-
-1. Generate model predictions of new files, store them in folder data -> Testing -> raw and run the cell highlighted in the main.ipynb notebook
-
-2. Generate model predictions of test dataset separated before training, in that case simply skip the cell mentioned in Step 1.
-
-### 📈 Evaluation
-
-Evaluation of Predictions are based on RMSE, Deviation of Folds, Difference Overlaps, Percentage Differences
