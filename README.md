@@ -17,12 +17,12 @@ The KPIs are 2D and 3D plots on Torque(Mgrenz) curve and Efficiency(ETA) grid.
 
   <div style="text-align: center;">
     <p><b>Torque Curve</b></p>
-    <img src="Manuscript/ReportImages/TorqueCurve.png" alt="Torque Curve" width="300"/>
+    <img src="Manuscript/ReportImages/TorqueCurve.png" alt="Torque Curve" width="250"/>
   </div>
 
   <div style="text-align: center;">
     <p><b>Efficiency Grid</b></p>
-    <img src="Manuscript/ReportImages/EfficiencyGrid.png" alt="Efficiency Grid" width="365"/>
+    <img src="Manuscript/ReportImages/EfficiencyGrid.png" alt="Efficiency Grid" width="307"/>
   </div>
 
 </div>
