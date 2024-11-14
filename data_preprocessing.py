@@ -1,6 +1,6 @@
 import pandas as pd
 from src.table_creation import create_tabular_data
-from src.data_preprocessing_tabular import data_prep_eta_grid
+from src.data_preprocessing_tabular import prep_eta_grid
 from src.utils import remove_faulty_files
 import os
 from tqdm import tqdm
@@ -30,7 +30,7 @@ df_targets.to_csv('./data/TabularDataY1Targets.csv', index=True)
 print(f"Total input rows: {df_inputs.shape[0]}")
 print(f"Total target rows: {df_targets.shape[0]}")
 
-data_prep_eta_grid()
+prep_eta_grid()
 
 print("Data preprocessing complete")
 
