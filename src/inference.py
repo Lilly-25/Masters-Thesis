@@ -27,14 +27,8 @@ def generate_predictions(model, df_inputs_test, df_targets_test, x_mean, x_stdde
     y1 = predictions[0].to('cpu').numpy() # convert to numpy array
     print(f"Predictions y1 shape: {y1.shape}")
     
-    y2_half = predictions[1].to('cpu').numpy() # convert to numpy array
-    print(f"Predictions y2 shape: {y2_half.shape}")
-
-    y2 = np.zeros((y2_half.shape[0], 2* y2_half.shape[1]-1, y2_half.shape[2]))  #Mirroring negative grid of ETA to be same as the predicted positive grid
-
-    for i in range(y2_half.shape[0]):
-        y2[i, :y2_half.shape[1]-1, :] = y2_half[i, -1:0:-1, :]
-        y2[i, y2_half.shape[1]-1:, :] = y2_half[i]
+    y2 = predictions[1].to('cpu').numpy() # convert to numpy array
+    print(f"Predictions y2 shape: {y2.shape}")
 
     target_columns = df_targets_test.columns
 
@@ -42,23 +36,11 @@ def generate_predictions(model, df_inputs_test, df_targets_test, x_mean, x_stdde
     ##Client to take the call
     
     df_y1 = pd.DataFrame(y1, columns=target_columns, index=index)
-    
-    ##y2 unmasking the nan values from the eta grid
-
-    for em_id in range(y2.shape[0]):
-        
-        em = y2[em_id]
-        mid_id = em.shape[0] // 2 # Find the middle row index of each ETa grid
-        #print(predictions_y2[em_id,mid_id, 0:3])..Not exactly 0 but close to 0
-        mask = (em == 0) # Create a mask for zeros
-        mask[mid_id, :] = False  # Exclude the rows in the ETA grid where Angular Velocity is 0
-        em[mask] = np.nan # Replace zeros with np.nan everywhere except the middle row
-        y2[em_id] = em
 
     mm_matrix= []
     eta_matrix=[]
     
-    for i in range(y2.shape[0]): # loop through each sasmple
+    for i in range(y2.shape[0]): # loop through each sample
         
         max_mgrenz = df_y1.iloc[i].values.max()
         max_mgrenz_rounded = np.round(max_mgrenz).astype(int)
@@ -71,35 +53,12 @@ def generate_predictions(model, df_inputs_test, df_targets_test, x_mean, x_stdde
             eta_predicted=y2[i]
             
         else:
-            mid_eta= y2[i].shape[0] // 2
-            y2_sliced = y2[i, mid_eta-max_mgrenz_rounded:mid_eta+max_mgrenz_rounded+1 , :]
+            y2_sliced = y2[i, 0:max_mgrenz_rounded+1 , :]
             cumulative_counts = cumulative_col_count(mgrenz_values)
-            # print('Cumulative counts', cumulative_counts)
-            # negative_eta=[]
-            # j = 0
-            # k=0
-            # # while i < y2_sliced.shape[0]//2:
-            # for i in range(y2_sliced.shape[0]//2): 
-            #     if j < len(cumulative_counts):
-            #         negative_columns = cumulative_counts[j]
-            #     else:
-            #         negative_columns = cumulative_counts[-1]
-                
-            #     padded_eta = np.full(191, np.nan)
-            #     padded_eta[:negative_columns] = y2_sliced[i, :negative_columns]
-            #     negative_eta.append(padded_eta)
-
-            #     # Update j based on mgrenz_values
-            #     if negative_columns < len(mgrenz_values) and k == 0:
-            #         k = abs(mgrenz_values[negative_columns-1] - mgrenz_values[negative_columns])
-            #     if k == 1:
-            #         j+=1
-            #     k -= 1
-            # eta_predicted.extend(negative_eta)
             positive_eta=[]
             j=0
             k=0
-            for i in range(y2_sliced.shape[0] - 1, y2_sliced.shape[0]//2 - 1, -1): # Loop through each row in the sample
+            for i in range(y2_sliced.shape[0] - 1, 0, -1): # Loop through each row in the sample
                 if j < len(cumulative_counts):
                     positive_columns = cumulative_counts[j]
                 else:
@@ -115,8 +74,7 @@ def generate_predictions(model, df_inputs_test, df_targets_test, x_mean, x_stdde
                 k -= 1
             eta_predicted.extend(reversed(positive_eta))
 
-        # mm_matrix.append(list(range(-max_mgrenz_rounded, max_mgrenz_rounded + 1)))
-        mm_matrix.append(list(range(0, max_mgrenz_rounded + 1)))
+        mm_matrix.append(list(range(0, max_mgrenz_rounded)))
         eta_matrix.append(np.array(eta_predicted))
     return df_y1, mm_matrix, eta_matrix
 
@@ -235,8 +193,8 @@ def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
         if mm.shape[0] != eta.shape[0]:
             i = 1 if eta.shape[0] % 2 != 0 else 0
             min_rows = min(mm.shape[0], eta.shape[0])
-            mm = mm[mm.shape[0]//2 - min_rows//2 : mm.shape[0]//2 + min_rows//2 + i]
-            eta = eta[eta.shape[0]//2 - min_rows//2 : eta.shape[0]//2 + min_rows//2 + i, :]
+            mm = mm[0 : min_rows + i]
+            eta = eta[0 : min_rows + i, :]
 
         X, Y = np.meshgrid(nn, mm)
         Z = eta
@@ -291,8 +249,8 @@ def eval_plot_kpi3d(nn, mm1, eta1, mm2,  eta2, mm_diff, eta_diff, filename):
         if mm.shape[0] != eta.shape[0]:
             i = 1 if eta.shape[0] % 2 != 0 else 0
             min_rows = min(mm.shape[0], eta.shape[0])
-            mm = mm[mm.shape[0]//2 - min_rows//2 : mm.shape[0]//2 + min_rows//2 + i]
-            eta = eta[eta.shape[0]//2 - min_rows//2 : eta.shape[0]//2 + min_rows//2 + i, :]
+            mm = mm[0 : min_rows + i]
+            eta = eta[0 : min_rows + i, :]
 
         X, Y = np.meshgrid(nn, mm)
         Z = eta
@@ -328,6 +286,7 @@ def y2_score(eta_diff):
     return score
 
 def y1_score(df_predictions_y1, df_test_y1_targets, title):
+    
     index=df_test_y1_targets.index
     score=0
     scores=[]
