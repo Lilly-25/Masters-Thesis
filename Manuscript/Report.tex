@@ -59,7 +59,7 @@
     \huge \textbf{Master Thesis}\\
     \vspace{1.5cm}
     
-    \Huge \textbf{Electrical Engine Efficiency Prediction  Bypassing PDE Simulator}\\
+    \Huge \textbf{Electrical Engine Efficiency Prediction Bypassing Finite Element Analysis}\\
     \vspace{2cm}
     
     \large \textbf{Submitted to the Technical University of Applied Sciences Würzburg-Schweinfurt in the Faculty of Computer Science and Business Information Systems to
@@ -101,7 +101,7 @@ simulations from its parameteric description.
 The KPIs to be predicted are vectors of numerical values which can be displayed as the Torque curve(2D) and the Efficiency grid(3D) respectively.
 We note the relationship between the Torque curve and the Efficiency grid and incorporate our learnings of both the KPI's nature into our solutions's modelling. \\
 We aim to first parameterize the Electric Motor design such that it is feasible to convert into a tabular representation. \\
-Next, we would create a table with relevant attributes and design a Multi Linear Perceptron(MLP) with the table as input and the KPIs as its targets.\\
+Next, we would create a table with relevant attributes and design a Multi Linear Perceptron(MLP) to train it in a supervised manner.\\
 Subsequently we will regularize the loss functions in a way that would smoothen out the plot curves for both the KPIs. \\
 Then we will evaluate the predictions with the test target values by experimenting with various hyperparameter tuning settings 
 and as a baseline with the average of the parameters.\\
@@ -141,7 +141,7 @@ Finally, I humble myself before God Almighty for all his blessings and for givin
     \acro{MLP}{Multi Linear Perceptron}
     \acro{KPI}{Key Performance Indicator}
     \acro{EM}{Electric Motor}
-    \acro{FEM}{Finite Element Method}
+    \acro{FEA}{Finite Element Analysis}
     \acro{CNN}{Convolution Neural Network}
     \acro{D}{Dimension}
     \acro{MSE}{Mean Squared Error}
@@ -151,6 +151,7 @@ Finally, I humble myself before God Almighty for all his blessings and for givin
     \acro{GPU}{Graphics Processing Unit}
     \acro{MP}{Message Passing}
     \acro{PDE}{Partial Differential Equation}
+    \acro{IPSM}{Interior Permanent Synchronous Motor}
 
 \end{acronym}
 
@@ -160,8 +161,8 @@ Finally, I humble myself before God Almighty for all his blessings and for givin
 
 \chapter{Introduction} 
 In the design of \acl{EM} (\ac{EM})s, vast amounts of data are generated to determine which design of an \ac{EM} fits best to \acl{KPI} (\ac{KPI})s. \\
-\ac{KPI}s of an Electric Motor are essential to judge the performance of the motor before it is manufactured. \\
-Traditionally these \ac{KPI}s are inferred from a description of an \ac{EM} design via a \ac{FEM} approximating the solutions of the Maxwell’s equations. \\
+\ac{KPI}s of an Electric Motor are its representative characteristics and is essential to judge the performance of the motor before it is manufactured. \\
+Traditionally these \ac{KPI}s are inferred from a description of an \ac{EM} design via a \ac{FEA} approximating the solutions of the Maxwell’s equations. \\
 This process, though well established in the \ac{EM} design, is very time consuming and does not allow for high-throughput engine design optimization. \\
 The actual engine data of Valeo is used here as the dataset comprising of multiple variant designs of the Double-V topology.\\
 
@@ -199,14 +200,14 @@ The 3 motor topologies manufactured by Valeo are displayed in Figure \ref{fig:EM
 Figure \ref{fig:Torque Curve} and Figure \ref{fig:Efficiency Grid} give a glimpse of the \ac{EM} \ac{KPI}s to be predicted. \\
 \begin{figure}[H]
     \centering
-    \begin{minipage}[b]{0.475\textwidth}
+    \begin{minipage}[b]{0.44\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/TorqueCurve.png}
         \caption{Torque Curve} % Center the caption here
         \label{fig:Torque Curve}
     \end{minipage}
     \hfill
-    \begin{minipage}[b]{0.475\textwidth}
+    \begin{minipage}[b]{0.54\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/EfficiencyGrid.png}
         \caption{Efficiency Grid}
@@ -214,132 +215,28 @@ Figure \ref{fig:Torque Curve} and Figure \ref{fig:Efficiency Grid} give a glimps
     \end{minipage}
 \end{figure}
 
-\ac{FEM} simulations are multi objective optimization methods wherein repeated numerical \ac{PDE} based simulations
- are required to effectively evaluate the characteristics of the input data by tuning simulation settings. 
- It requires domain knowledge in motor physics and complicated setup to run simulations typically in Matlab.
+\ac{FEA} simulations are multi objective optimization methods wherein repeated numerical \ac{PDE} based simulations 
+are required to effectively evaluate the characteristics of the input data by tuning simulation settings. 
+It requires domain knowledge in motor physics and complicated setup to run simulations typically in Matlab.
+\ac{FEA} simulations are time expensive because it is applied at each operating point.
 
 In the field of computational electromagnetics, deep learning has been viewed as a promising substitute to physics based simulations as they can
 provide relatively equivalent accurate results in almost negligible time. 
-This is because the \ac{FEM} simulations may take hours to days as it needs to generate for all operating points in the Efficiency map.
-Despite the compuational burden it comes with, the authors from \cite{FEA-ETA-2017} defends that Finite Element Analysis is most appropriate to 
-generate \ac{EM} efficiency maps  in terms of accuracy based on experimenting overall error rates across operating ranges for different \ac{EM} losses.
+This is because the \ac{FEA} simulations may take hours to days as it needs to generate for all operating points in the Efficiency map.
+Despite the computational burden it comes with, the authors from \cite{FEA-ETA-2017} defends that \ac{FEA} is most appropriate to 
+generate \ac{EM} efficiency maps in terms of accuracy based on experimenting overall error rates across operating ranges for different \ac{EM} losses.
 
-
-
-% The physics-based mathematical methods used for
-% low-frequency electromagnetic modeling can be classified
-% The associate editor coordinating the review of this manuscript and
-% approving it for publication was Jinquan Xu .
-% into two groups, analytical methods (e.g., electrical equiva-
-% lent circuit model and magnetic equivalent circuit analysis,
-% MEC) and numerical methods (e.g., finite element (FE)
-% method, FEM).
-
-% FEM is perceived to be
-% the most workable in the field of electromagnetic analysis of
-% EMs, and has achieved dominance. The FE-based approach
-% for simulating the operation of an EM has the advantage
-% of being able to accurately predict the characteristics and
-% performance of the machine, even without requiring mea-
-% surements for defining the model parameters.
-
-% e FE-based approach, the computational
-% domain (i.e., the volume of the main components of the
-% machine) is subdivided into smaller domains called finite ele-
-% ments. In the case of dynamic simulation, the simulated time
-% is also discretized into time steps based on the time scale of
-% the phenomena involved.
-
-% One solution for the balance between computational accu-
-% racy and efficiency are approximative models based on
-% the data from high-fidelity physics-based models. These
-% approximative models are often called surrogate, response
-% surface, emulator, or meta-models [1]. Surrogate models
-% can be classified into three main categories: data-driven,
-% projection-based and hierarchical models [2]–[5]. Hierarchi-
-% cal models are still physics-based models, but with lower
-% fidelity and reduced computational cost compared to an orig-
-% inal high-fidelity physical model. In the EM case, data-driven
-% and projection-based surrogates can be constructed based
-% on pre-computed FE simulation results. FEM behaves
-% as a black-box producing data for data-driven models,
-% whereas projection-based models require the extraction of the
-% FEM matrices.
-
-% the core of data-driven
-% modeling is to identify relationships between input and out-
-% put variables from data without knowledge of the system in
-% question. 
-
-% The approach involves defining model
-% inputs and outputs, finding optimal architecture and learning
-% parameters for the ANN via hyperparameter optimization,
-% and testing the found model with testing data.
-
-% we model a permanent
-% magnet synchronous machine (PMSM) and consider static
-% regression models for the surrogate modeling of PMSM
-% torque behavior.
-
-% The novelty of the work is in providing extensive review
-% on surrogate modeling and its applications in the EM domain,
-% and in demonstrating in detail how machine learning can be
-% employed in surrogate modeling. The main contributions of
-% this article are:
-% 1) To extensively review surrogate modeling and its exist-
-% ing applications in the context of EMs.
-% 2) To thoroughly describe the surrogate modeling work-
-% flow from FEM-based data generation to surrogate
-% model training and testing.
-% 3) To compare ANN and GBDT surrogate model accuracy
-% and run-time performance.
-% 4) To compare selected data sampling approaches and
-% their effect on the accuracy of the ANN surrogate
-% models
-
-% A data-driven surrogate model is a simple and computation-
-% ally inexpensive approximation of a complex model which is
-% created using data produced with the original model. The pro-
-% cess of building a surrogate model consists of the following
-% steps: generation of data which include samples for variables
-% xi and yi, utilizing data-driven methods to build the model,
-% and verification of the acquired model’s accuracy.
-
-% There are plenty of models that can be used to build a sur-
-% rogate, such as polynomial functions, kriging models, radial
-% basis functions, and ANNs [1]. Among all these methods,
-% ANN has become increasingly popular due to its ability to
-% model any complex function given enough training data.
-
-% t. A PMSM is a syn-
-% chronous machine that consists of three (or more) phase
-% windings in a stator and permanent magnets (PMs) in a rotor
-% for the field excitation. 
-
-% Due to the presence of PMs, PMSMs can produce torque
-% at zero speed and have higher efficiency and torque per unit
-% volume compared to induction machines. 
-
-% wind power generation, electrical vehicles, and robotics.
-% Depending on the mounting locations of the PMs, on the
-% surface or inside the rotor, PMSMs are categorized as surface
-% PMSMs (SPMSMs) or interior PMSMs (IPMSMs,
-% see Fig. 3), respectively. Compared to IPMSMs, SPMSMs
-% produces a higher air gap flux density, but the mechan-
-% ical robustness and the ratio between the quadrature and
-% direct-axes inductances are lower. Thus, unlike IPMSMs,
-% SPMSMs are mainly used in low speed applications
-
-% rojecting to the 2-D plane of speed and torque, an efficiency
-% map consists of varying levels in different regions. The peak
-% torque is constrained by the motor’s thermal limit, while the
-% maximum speed depends on the rotor’s structure.
+PMSMs are largely classified as Surface Mounted PM and Interior PM machines
+The Efficiency map is a behavior map that expresses the motor efficiency function in the torque-speed domain of an \ac{EM}.
+One would calculate such kind of behavior maps when there are multiple operating points to consider the motor's drive cycle.
+The paper in \cite{ETA-2021} also cites that the efficiency vs torque and speed map is most representative of he characteristics of the \ac{EM}. 
 
 The current pipeline to predict the \ac{KPI}s of different \ac{EM} design variants is to create a design mesh from the parametric description of the motor with Matlab.
-Multiple \ac{FEM} simulations which are by nature Partial Differential Equations(PDE) is done on this mesh which is then post processed and the intermediary outputs are forwarded to the Motor Builder.
+Multiple \ac{FEA} simulations which are by nature Partial Differential Equations(PDE) is done on this mesh which is then post processed and 
+the intermediary outputs are forwarded to the Motor Builder.
 Several Motor builder settings are then adjusted to get the plots of the desired \ac{KPI}s.\\
 This master thesis explores a way to do light weight surrogate modelling of the current process as is highlighted in Figure \ref{fig:EM Design Flowchart} by 
-exploiting data-driven deep neural networks to approximate the \ac{KPI}s derived from \ac{FEM} simulations.
+exploiting data-driven deep neural networks to approximate the \ac{KPI}s derived from \ac{FEA} simulations.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/EM_design_flowchart_v2.png} 
@@ -349,13 +246,12 @@ exploiting data-driven deep neural networks to approximate the \ac{KPI}s derived
 
 
 \section{Objective}\label{sec:Objective}
-The motivation of our work is to verify whether surrogate modelling to replace the \ac{FEM} simulations could be done. \\
+The motivation of our work is to verify whether surrogate modelling to replace the \ac{FEA} simulations could be done. \\
 Our task is a supervised learning task to predict 2 KPIs namely the Torque curve and the Efficiency grid which are vectors of parameters 
-from the parameteric description of topology invariant \ac{EM} and \ac{FEM} simulated KPIs as ground truth. \\ 
+from the parametric description of topology invariant \ac{EM} and \ac{FEA} simulated KPIs as ground truth. \\ 
 The remaining \ac{KPI} such as Losses can be calculated from these 2 KPIs as they are inversely proportional to the Efficiency values.\\
 The Torque curve is a 2D plot ie, a vector across speed ranges and the Efficiency grid is a 3D plot ie, a matrix of dimensions torque ranges times speed ranges. \\
 Both the outputs are continuous values which makes it a regression problem. 
-
 
 \section{Problem Statement}\label{sec:Problem Statement}
 
@@ -413,12 +309,26 @@ Reproducing images is not known to be the best approach given the infamous known
 However by generating the parameters of the motor we can be rest assured of more precise results. \\
 Hence the need to focus on the inputs as they are with their parametric description.\\
 Evolutionary algorithms such as genetic algorithms are traditionally used as multi objective optimization algorithms to generate the designs by iteratively
-updating the design parameters whereas the \ac{FEM} simulations evaluate the performance of each design.
-This process is incredibly time consuming because fitness evaluation will need to be performed multiple times with \ac{FEM}.
-We do surrogate modelling of the \ac{FEM} simulations which serves as the baseline to eliminate the role of evolutionary algorithms as well for generating designs.
-The latter has is potentially a future work to be carried out.
+updating the design parameters whereas the \ac{FEA} simulations evaluate the performance of each design.
+This process is incredibly time consuming because fitness evaluation will need to be performed multiple times with \ac{FEA}.
+We do surrogate modelling of the \ac{FEA} simulations which serves as the baseline to eliminate the role of evolutionary algorithms as well for generating designs.
+The latter could potentially be a future work to be carried out since the time complexity associated with the Genetic Algorithms 
+may discourage users to wait until convergence and rather persuade them to be satisfied with a suboptimal design.
 
-In \cite{EM SM-2023}, the authors compare and evaluate the performance of surrogate modelling Surface Permanent Magnet's parametric and image based designs .
+The authors of \cite{EM 2DFMP-2022} presents a method to predict 2\ac{D} flux maps of an \ac{IPSM} using classical machine learning ensemble regression models.
+Therefore for each coefficients of the 2\ac{D} flux maps, a separate regression model is trained which are then ensembled to make target predictions. 
+Although there are classical Machine Learning models which handle multi regression, they do not perform very well with higher dimensions as 
+opposed to deep neural networks. The writer also points out that these models fare better than deep neural networks when it comes to data required and training time.
+
+Similar to our usecase for modelling \ac{EM} for cars, in \cite{ETA-V-2020}, experiments to compute the efficiency map of Toyota Prius have 
+been computed. The methodology used is to observe Magnetic field flux density to predict how it evolves over time for different operating points of the map.
+The paper \cite{HMLO-2021} also examines a study of how a machine learning observer can augment the performance of torque estimation of 
+induction motors trained with deep neural networks.
+The motivation behind using the observer is made by domain aware knowledge that the torque estimated depends on the stator's magnetic flux.
+The authors claim to have made this possible by incorporating the information of speed, voltage and current into the network to realise the \ac{EM}'s torque.
+They also indicate that physics modelling of the network enabled them to develop light-weight models with better accuracy.
+
+In \cite{EM SM-2023}, the authors compare and evaluate the performance of surrogate modelling Surface Permanent Magnet's parametric and image based designs.
 Their experiments conclude that \ac{MLP}s trained on the parametric description can better infer targets such as Induced Voltage and harmonic distortion 
 that are linearly dependent to the designs when compared to cogging torque which is not.
 To learn the non linear functions, they also experimented with \ac{CNN}s which could infer all targets just as well as it inherently takes 
@@ -429,7 +339,7 @@ Existing literature also covers works on modelling this work as tabular data usi
 
 We review the concept of surrogate modelling and its applications in \ac{EM} domain.
 \cite{SM EMT-2020} talks about the use of domain knowledge to improve the accuracy of surrogate modelling \ac{EM} by creating a hybrid of both physics and data driven based models.
-In addition, it presents a workflow for surrogate modelling the air gap torque from \ac{FEM} simulated data and compares and contrasts the computationally efficiency with regards to both approaches. 
+In addition, it presents a workflow for surrogate modelling the air gap torque from \ac{FEA} simulated data and compares and contrasts the computationally efficiency with regards to both approaches. 
 FE-based ANN models have been utilized for predicting stress distribution in a 3D printing process [30], bend angles in laser-guided bending [31], 
 and performance of a thermoelectric generator [32], for example.
 
@@ -441,14 +351,46 @@ In addition to a topology change, this paper also explore transfer learning for 
 This eventually assist the model to generalize better and conserve the time it would have spend training from scratch by knowledge reusing. 
 Finetuning is a also a boon when the dataset for the new topologies are limited in existence.
 
-Arbbaaz et al. in {DL-ETA-2019} also tries to generate the efficiency map by first generating its flux linkage maps and the torque curve 
+Furthermore, research by \cite{EM CNN-2024} also presents their approach on handling surrogate modelling of topology invariant Interior 
+Permanent Magnets motors to predict its Torque characteristics.
+Generally the topology differs based on the count of the magnets, this is evident from the Figures in \ref{fig:EM Magnet Topologies}.
+The writers claim to have used the cross-sectional images of motor designs in addition to the magnetic flux distribution of the Stator as input to the
+inputs to train the \ac{CNN}. The auxillary input is supplemented by \ac{FEA} simulations which is enriched with the nature and placement of 
+the magnets in the Rotor. Although, the \ac{FEA} is used yet the product here is generated quicker and thus does not add on largely to its overhead on time complexity. 
+They also claim to have improved the generalization performance of \ac{CNN}s with this strategy. In addition they suggest such domain knowledge modelling decisions 
+can also be beneficial for both parameter and topology optimization of \ac{EM} as well as for prediction of its other \ac{KPI}s.
+
+Arbaaz et al. in \cite{DL-ETA-2019} also tries to generate the efficiency map by first generating its flux linkage maps and the torque curve 
 thus accounting for geometric and operating point variations. Two interesting points are made in this paper.
 First, as the number of excitation points vary across designs, thus a model suitable for handling variable input sequence length is needed.
 Meaning the values only within the torque curve i., excitation points are predicted. This results ni conserving training time when predicting a fixed sized grid
 They also use confusion matrix for efficiency threshold so designer can filter out efficiencies in the operating range one is most eager to find out.
 Secondly, for efficiencies being predicted outside the excitation points, the authors propose to provide an uncertaininty measure to quantify confidence level using Monte Carlo dropout.
 Reason being the error rate in the efficiency grid is maximum at the envelope of the curve. This factor gives the end user 
-the flexibility to choose to generate the \ac{KPI}s with the \ac{FEM} simulations or the surrogate model.
+the flexibility to choose to generate the \ac{KPI}s with the \ac{FEA} simulations or the surrogate model.
+
+Studies in \cite{EM-PM-2020} presents an interesting take on evaluating the performance of \ac{EM} with electrical engineering inspired benchmarks.
+They highlight the inadequacy of evaluations generated by classical Machine Learning approaches such as \ac{MSE}, R2 Score and Symmetric Mean Absolute Percentage Error.
+The argument is that these metrics favor the static area in the \ac{KPI}s which are relatively easier to predict.
+Meanwhile the dynamic areas in the \ac{KPI}s is not projected as much having less dominance with respect to coverage area.
+They experimented this finding with Induction Motors to generate its Torque Vs Speed Predictions. The dynamic parts they considered 
+were typically the regions in the curve before saturation is achieved. 
+In such cases the Machine Learning metrics could give an over optimistic score when compared to Electrical Engineering designed metrics.
+
+Researchers in \cite{DL-MF-2019} also discusses approaches to judge the accuracy with a physics aware metric for estimating 
+magnetic field of low frequency electromagnetic devices. The do so by quantifying the uncertainity of the predictions by adding 
+a probablistic component to the wights of the neurons in the network architecture. This technique they employ is called Monte Carlo dropout 
+with which they generate uncertainity maps. 
+The distribution of the predictions they thus generate more closely approximate that of the same generated by \ac{FEA} simulations as the accuracy improves.
+Interestingly they also discuss the possibility of modelling the usecase with Graph Convolutional Networks instead of \ac{CNN}s.
+They suggest that rather than images, graphs are better suited as they can handle unstructured design mesh which is 
+typically fed into the \ac{FEA} simulator as is shown in the Figure \ref{fig:EM Design Flowchart}.
+
+The writers of \cite{ETA-LA-2020} emphasize the importance of having a very low error rate for the Efficiency Maps by \ac{FEA} simulations 
+as the drive range of a vehicle's efficiency is determined with this \ac{KPI}. 
+The Efficiency \ac{KPI}s generated by the \ac{FEA} simulations are obtained from torque, copper loss iron loss and mechanical loss.
+They study methods to further improve the accuracy of \ac{FEA} simulations of Interior Permanent Magnets by modelling the effect 
+of losses such as minor hysteresis loss, stray loss, AC loss and manufacturing degradations at different operating points into these simulations.
 
 Although this is fairly good forseeing the impact of generating the inverse process yet \ac{MLP}s cannot necessarily learn all the intricacies within motor components. \\
 Hence the need to better represent the data typically in the form of graphs and model \ac{GNN}s to achieve the desired results. \\
@@ -470,7 +412,7 @@ Figure \ref{fig:Full Motor} shows the geometry of a whole Double V motor which c
     \label{fig:Full Motor}
 \end{figure}
 
-Figure \ref{fig:1/8 Motor Crossection} shows our understanding of how the geometry of 1/8 cross-section of the same motor looks like.
+Figure \ref{fig:1/8 Motor Crossection} is a handdrawn sketch showing our understanding of how the geometry of 1/8 cross-section of the same motor looks like.
 This comes in handy when creating the graph representation of the motor.\\
 
 \begin{figure}[H]
@@ -482,7 +424,8 @@ This comes in handy when creating the graph representation of the motor.\\
 
 
 
-Valeo has shared 1481 Excel Workbook files for each motor variant. Each of the excel files contain multiple sheets.
+Valeo has shared 1481 Excel Workbook files for each motor variant of three-phase \ac{IPSM} motors with 8 poles and 48 slots. 
+Each of the excel files contain multiple sheets.
 Table \ref{tab:Excel File Structure} summarizes the sheets of interest to us:
 \begin{table}[H]
     \centering
@@ -554,7 +497,7 @@ This step ensures that we grant the model the correct dimensions of the Efficien
 Efficiency values for negative torque values correspond to when motor is in generating mode and those of positive torque values when motor is in monitoring mode.\\
 In both modes, the efficiency is almost similar albeit from Figure \ref{fig:Standard Deviation of 3D KPI(Efficiency)}, we note it is not the case for our data. 
 This is evident from low speed-high torque distribution area where we can see \ac{NaN} values.\\
-Since these are \ac{FEM} simulations, it is probably an effect of a post processing step taken by the Motor builder.
+Since these are \ac{FEA} simulations, it is probably an effect of a post processing step taken by the Motor builder.
 This observation made us decide on dropping the negative Efficiency \ac{KPI} and only predict the positive Efficiency \ac{KPI}.\\
 The latter can be mirrored in order to obtain the negative Efficiency \ac{KPI} values if necessary.
 It can be mirrored to replicate the efficiency when it is in generating mode.\\
@@ -622,7 +565,11 @@ We decided against scaling the targets owing to below 2 reasons :
     \item They do not enter the network architecture but are only used during loss calculation.
     \item If we scale the target we will have to scale each example from the train dataset and then average the calculated scaling parameters.
     % This in turn would mean 1 scaling parameter i.e, mean and standard deviation each for the entire dataset.
-    It is not a good practice to do so as we will have lost a lot of originality in each example and is now introducing noise to new examples especially when they have a different data distribution.\\
+    It is not a good practice to do so as we will have lost a lot of originality in each example and is now introducing noise to new examples especially when they have a different data distribution.
+    \item For the Efficiency \ac{KPI} we have loss regularization Equation \ref{eq:Y2 Maximum Efficiency Regularization} that has a constraint 
+    check on the maximum range of efficiency values that can be predicted. If we had scaled the target, the constraint check would not be feasible to 
+    implement as the maximum value that the constraint takes would also have to be scaled with the same scaler for comparision.
+    
 \end{enumerate}
 
 During our experimentations where we initially scaled the targets, we observed that then the network required substantially less effort to learn and consequently lower learning rate and fewer epochs.
@@ -631,10 +578,12 @@ Since this comes at a tradeoff of losing precision, we continued with the origin
 \section{Dataset splitting}\label{sec:Dataset splitting}
 
 We convert the data to float tensors for better precision and collate them into a Tensor Dataset.
-We have also partitioned the dataset to have about 50 samples for test and the remaining is used for 5 fold cross validation with 80:20 split for training and validation. \\
-The reason we have a separate test dataset from the validation is to ensure that there is no data leakage as we do not want to overfit the test dataset with the hyperparameters we choose during training. \\
-
-Within 5 folds, we expect to cover most grounds on training and have good monitoring on the model's performance for each fold.
+We have also partitioned the dataset to have about 50 samples for test and the remaining is used for 5 fold cross validation with 80:20 split for training and validation. 
+The reason we have a separate test dataset from the validation is to ensure that there is no data leakage as we do not want to 
+overfit the test dataset with the hyperparameters we choose during training. \\
+Across the 5 fold training runs, 4 sets would comprise of the training set and 1 of the test set which would be different for each fold run.
+Therefore we expect to cover most grounds on training and have good monitoring on the model's performance for each fold.
+Cross Validation also enables us to be able to monitor the network's overall stability and thus validate the model's generalisation performance.
 We have also used Data loaders to split the dataset into batches that fits into our \ac{GPU} memory.
 
 \chapter{Modelling \& Evaluation}
@@ -780,6 +729,32 @@ As ANN cannot be trained to predict \ac{NaN} values we have a binary mask constr
 Mathematically, this process can be expressed as is in Equation \ref{eq:Mask matrix} and thus ensure that the \ac{NaN} values are ignored in the loss calculation. \\ 
 The mask is then multiplied with both the target and its respective prediction. 
 
+We have also modelled 2 Loss Regularization techniques to encourage the model to learn the nature of the Efficiency \ac{KPI} curve.\\
+
+\begin{enumerate}
+
+\item \textbf{Maximum Efficiency Loss Regularization} \\
+
+To ensure that the efficiency values do not exceed 100, we modify the objective functions mathematically as in Equation \ref{eq:Y2 Maximum Efficiency Regularization}.
+
+\begin{equation}
+\text{Y2 Maximum Efficiency Regularization} = \frac{1}{n} \sum_{i=1}^{n}\frac{1}{h-1} \sum_{j=1}^{h-1} \left(\text{\ac{ReLU}}(|\hat{y}_{i{j+1}} - \hat{y}_{ij}| - 1)\right)^2 
+\label{eq:Y2 Maximum Efficiency Regularization}
+\end{equation} 
+
+\vspace{0.2cm} % Adjusts vertical space between equation and text
+This nature is factored in by penalising the squared loss by the magnitude if the values in the prediction exceed 100.
+\ac{ReLU} again assists to clips the difference if it is negative which is the scenario when a violation is not warranted. \\
+
+Needless to say the efficiency values are percentage values and can only take up values in the range of 0-100\%.
+We refrain from instructing the model to not have values less than 0 since we mask \ac{NaN} values as 0 and the model will for sure attempt to predict values close to 0.
+However, these predictions are not relevant for us as after generating all predictions we finally slice off the Efficiency grid to be of the dshape of the Torque curve which 
+implies that the values predicted in place of \ac{NaN} are irrelevant.\\
+Therefore, we do not see the need to needlessly punish the model for making mistakes for values we eventually donot use as pessimistic decisions could discourage the model 
+and affect its focus on predicting the other values in the grid correctly.\\  
+
+\item \textbf{Efficiency Grid Loss Regularization} \\
+
 Additionally, to encourage the model to learn the nature of the Efficiency \ac{KPI} from our observations gathered in Section \ref{sec:Deep Dive into 3D KPI}, we have tried to incorporate all of the below learnings via the loss function as Y2 Regularization.\\
 
 \begin{enumerate}
@@ -796,7 +771,7 @@ We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_MM_
     \label{eq:Y2_Loss_Regularization_MM_Max_Torque}
 \end{equation}
 
-where, \(t_{1}\) is the threshold for inital Efficiency \ac{KPI} Envelope boundary.
+where, \(t_{1}\) is the threshold for initial Efficiency \ac{KPI} Envelope boundary.
 
 The number of last rows is determined by a threshold $t_{1}$
 
@@ -831,23 +806,24 @@ We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Low
 where, \(t_{3}\) is the Threshold for Low Torque.
 The number of first rows is determined by a threshold $t_{3}$.
 
-\end{enumerate}
-
 The above Y2 Regularizations are indeed purely \ac{MSE} but with higher weights for specific regions of the Efficiency \ac{KPI}.
 Consequently being L2 Regularizations it goes hand in hand with \ac{MSE} Loss calculated in Equation \ref{eq:Y2 Loss}.\\
 
-We aggregate all the above regularizations to form the Y2 Loss Regularization as in Equation \ref{eq:Y2 Loss Regularization}
+We aggregate all the above regularizations to form the Y2 Loss Regularization as in Equation \ref{eq:Y2 Efficiency Grid Loss Regularization}
 
 \begin{equation}
     \begin{split}
-\text{Y2 Loss Regularization} = \text{Y2 Loss Regularization MM Max Torque} \\
+\text{Y2 Efficiency Grid Loss Regularization} = \text{Y2 Loss Regularization MM Max Torque} \\
     + \text{Y2 Loss Regularization Low Speed} + \text{Y2 Loss Regularization Low Torque}
     \end{split}
-    \label{eq:Y2 Loss Regularization}
+    \label{eq:Y2 Efficiency Grid Loss Regularization}
 \end{equation}
 
+\end{enumerate}
 
 \vspace{0.2cm} % Adjusts vertical space between equation and text
+
+\end{enumerate}
 
 The Total Loss is calculated in Equation \ref{eq:Total Loss}
 
@@ -856,21 +832,25 @@ The Total Loss is calculated in Equation \ref{eq:Total Loss}
 \begin{equation}
     \begin{split}
 \text{Total Loss} = \text{wt} \times (\text{Y1 Loss} + (\lambda_{\text{1y1}} \times \text{Y1 Smoothening Loss Regularization}) +  (\lambda_{\text{2y1}} \times \\
-\text{Y1 Declining Loss Regularization })) + \text{(1-wt)} \times (\text{Y2 Loss} + (\lambda_{\text{y2}} \times \text{Y2 Loss Regularization}))
+\text{Y1 Declining Loss Regularization })) + \text{(1-wt)} \times ((\text{Y2 Loss} + (\lambda_{\text{y21}} \times \\ 
+\text{Y2 Maximum Efficiency Loss Regularization}) + (\lambda_{\text{y22}} \times \\
+\text{Y2 Efficiency Grid Loss Regularization})))
     \end{split}
     \label{eq:Total Loss}
 \end{equation}
 
 where, \(\lambda_{\text{1y1}}\) is Y1 Smoothening Loss Regularization Parameter, \(\lambda_{\text{2y1}}\) is Y1 Declining Loss Regularization Parameter,
-        \(\lambda_{\text{y2}}\) is Y2 Loss Regularization Parameter, \(wt\) is Y1 Loss Weightage, \(1-wt\) is Y2 Loss Weightage.
+        \(\lambda_{\text{y21}}\) is Y2 Maximum Efficiency Loss Regularization Parameter, \(\lambda_{\text{y21}}\) is Y2 Efficiency Grid Loss Regularization Parameter, 
+        \(wt\) is Y1 Loss Weightage, \(1-wt\) is Y2 Loss Weightage. \\
 
 We have added a Weightage parameter that controls the contribution of the Y1 Loss and Y2 Loss to the Total Loss. There are 2 reasons why this is useful for us :\\
 
 \begin{enumerate}
     \item  When the targets are not of the same scale. \\
     Without scaling, the losses for both targets being of different ranges are drastically different.\\
-    We circumvent this by weighing up the loss of the target not performing better on validation dataset and weighing down the loss of the targets by the factor of how much its value range varies. \\
-    \item When the prediction accuracy of one \ac{KPI} is substantially more vital than the other. \\
+    We circumvent this by weighing up the loss of the target not performing better on validation dataset and weighing down the loss of the 
+    targets by the factor of how much its value range varies.
+    \item When the prediction accuracy of one \ac{KPI} is substantially more vital than the other. 
     Our task demands the same as the Efficiency \ac{KPI} is post processed to be within the shape of the Torque \ac{KPI}. \\
     Therefore, in theory have higher weightage for the Torque \ac{KPI} as its loss in performing well is costlier but as its value range is relatively higher we make decisions from monitoring the perdiction performances.\\
     We reflect on these decisions based on whether the envelope of the Efficiency \ac{KPI} grid is more valuable that the efficiency values within it.\\
@@ -951,8 +931,9 @@ We use different splits for each round of training and tune the hyperparameters 
     Dropout Probability for Shared Layers ($p_{y1}$)& 0.35 & 0.4-0.2\\
     Dropout Probability for Efficiency Layers ($p_{y2}$) & 0.2 & 0.2-0.1\\
     Y1 Smoothening Curve Loss Regularizer ($\lambda_{1y1}$) & 0.5 & 0-0.75\\
-    Y1 Decreasing Curve Loss Regularizer ($\lambda_{2y1}$ )& 0.5 & 0-0.75\\
-    Y2 Loss Regularizer ($\lambda_{y2}$) & 3.75 & 0-5\\
+    Y1 Decreasing Curve Loss Regularizer ($\lambda_{2y1}$)& 0.5 & 0-0.75\\
+    Y2 Maximum Efficiency Value Regularizer ($\lambda_{y21}$) & 5 & 0-5\\
+    Y2 Efficiency Grid Loss Regularizer ($\lambda_{y22}$) & 3.75 & 0-5\\
     Y2 Initial Envelope Boundary Threshold ($t_{1})$& 5 & 0-5\\
     Y2 Low Speed Threshold ($t_{2}$)& 20 & 0-30\\
     Y2 Low Torque Threshold ($t_{3}$)& 20 & 0-30\\
@@ -972,13 +953,13 @@ We have experimented with 2 hidden sizes only as we are constrained with the fac
 In addition to it being of the multiples of 8 as \ac{GPU}s are most optimized for the same.
 Dropout rate during training is controled by the parameter \textit{$p_{y1}$} for shared layers and \textit{$p_{y2}$} for layers specific to Efficiency \ac{KPI}. This is discussed in Section \ref{sec:MLP Model}. \\
 We donot concern much about the data being dropped in larger extent than anticipated for the Torque \ac{KPI} because it is relatively simpler to learn and the value range is comparitively larger leading its loss to dominate the total loss.\\
-\textit{$\lambda_{1y1}$}, \textit{$\lambda_{2y1}$} and \textit{$\lambda_{y2}$} parameters control the regularization weight for the regularization terms for the Torque \ac{KPI} and Efficiency \ac{KPI} respectively detailed in Equation \ref{eq:Total Loss}.\\
+\textit{$\lambda_{1y1}$}, \textit{$\lambda_{2y1}$}, \textit{$\lambda_{y21}$} and \textit{$\lambda_{y22}$} parameters control the regularization weight for the regularization terms for the Torque \ac{KPI} and Efficiency \ac{KPI} respectively detailed in Equation \ref{eq:Total Loss}.\\
 The thresholds \textit{$t_{1}$}, \textit{$t_{2}$} and \textit{$t_{3}$} are used to control the number of rows and/or columns to be considered for the regularization terms for the Efficiency \ac{KPI} as detailed in Section \ref{sec:Loss for 3D KPI}.\\
 The weightage parameter to control the direction of loss is denoted by \textit{wt} and is also discussed in Equation \ref{eq:Total Loss}.\\
 
 We also observe that the simple architecture of the model is not a significant downside for that limited data set. \\
 
-We chose \texttt{Wandb}\footnote{Weights \& Biases} to log metrics from the training run and to monitor model performance across the 5 folds. \\
+We chose a 3rd party application \texttt{Wandb}\footnote{Weights \& Biases} to log metrics from the training run and to monitor model performance across the 5 folds. \\
 Our \ac{MLP} model only uses the loss regularization parameters \textit{$\lambda_{2y1}$} and \textit{$\lambda_{y2}$} ie, it does not consider the Smoothening curve Regularization for the Torque \ac{KPI}s.
 
 \begin{figure}[H]
@@ -1085,13 +1066,22 @@ We have narrowed down scoring to follow the criteria as recorded in Table \ref{t
     \label{tab:Scoring Criteria}
 \end{table}
 
-This is deduced from the Equation \ref{eq:Percentage Difference}
+This is deduced from the Equations \ref{eq:Y1 Percentage Difference} and \ref{eq:Y2 Percentage Difference}.
 \begin{equation}
-    \text{Percentage Difference} = (\text{Score} / {(Max - Min)})  \times 100
-    \label{eq:Percentage Difference}
+    \text{Y1 Percentage Difference} = (\text{Y1 Score} / {(Y1 Max - Y1 Min)})  \times 100
+    \label{eq:Y1 Percentage Difference}
+\end{equation}
+
+\begin{equation}
+    \text{Y2 Percentage Difference} = (\text{Y2 Score} / {(Y2 Max - Y2 Min)})  \times 100
+    \label{eq:Y2 Percentage Difference}
 \end{equation}
 
 From our observations the target values for Torque \ac{KPI} range between 50-280 and those of the Efficiency \ac{KPI} range between 0-100.
+
+The scoring of the Y2 at inference is slightly difference from that of training in the sense that for inference, we have the Torque \ac{KPI} to 
+accurately slice of the envelope from the Efficiency \ac{KPI}. Also need to ensure how the difference works for NAN especially at inference coz 
+for Training there are no NANs and in targets it would be 0. But for training, we cant slice the envelope as we dont have the Torque curve yet.
 
 \section{Results with \ac{MLP}}\label{sec:Results with MLP}
 
@@ -1118,16 +1108,40 @@ In addition granting a higher weight \textit{wt} can also help in this direction
 \end{figure}
 
 
-Figure \ref{fig:MLP Score statistics for 2D KPI(Torque)} shows the score statistics of the model performance of Torque \ac{KPI} over the entire test dataset.
-The Y1 \ac{RMSE} from Equation \ref{eq:Y1 Score} is calculated for each sample and shown as a histogram.\\
+Figure {fig:Y1 Evaluation Statistics MLP} shows the score statistics of the model performance of Torque \ac{KPI} over the entire test dataset.
+The Y1 \ac{RMSE} from Equation \ref{eq:Y1 Score} is calculated for each sample and shown as a histogram in Figure \ref{fig:Y1 RMSE}.
+The Y1 Percentage Difference from Equation \ref{eq:Y1 Percentage Difference} is calculated for each sample and shown as a histogram in Figure \ref{fig:Y1 Percentage Difference}.\\
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{./ReportImages/score_MLP_y1.png } 
-    \caption{MLP Score statistics for Torque \ac{KPI}} 
-    \label{fig:MLP Score statistics for 2D KPI(Torque)}
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./ReportImages/score_MLP_y1.png}
+        \caption{Y1 \ac{RMSE}}
+        \label{fig:Y1 RMSE}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./ReportImages/percentage_diff_MLP_y1.png}
+        \caption{Y1 Percentage Difference}
+        \label{fig:Y1 Percentage Difference}
+    \end{subfigure}
+    \caption{Y1 Evaluation Statistics of \ac{MLP}}
+    \label{fig:Y1 Evaluation Statistics MLP}
 \end{figure}
+
 It also tells us that the \ac{RMSE}s are almost evenly distributed between 0.5-12.5 thus encompassing a range of 0-6\% difference with the target values.\\
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{./ReportImages/folds_dev_y1.png} 
+    \caption{MLP Training Deviation across Folds for Torque \ac{KPI}} 
+    \label{fig:MLP Training Deviation across Folds for Torque KPI}
+\end{figure}
+
+Figure \ref{fig:MLP Training Deviation across Folds for Torque KPI} illustrates how each fold's perdiction deviates and from our observation it is as close as can be to the mean of all the Folds predictions.
+This figure is a good indicator of the model's generalization performance and we have used only 1 engine for inference from the test dataset.
+
 
 \subsection{Efficiency \ac{KPI} Results with \ac{MLP}}\label{sec:3D Efficiency Grid Results with MLP}
 
@@ -1210,10 +1224,22 @@ On an average the \ac{RMSE} is close to 13, which is 13\% deviation from the tar
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\textwidth]{./ReportImages/score_MLP_y2.png } 
+    \includegraphics[width=0.75\textwidth]{./ReportImages/score_MLP_y2.png } 
     \caption{MLP Score statistics for Efficiency \ac{KPI}} 
     \label{fig:MLP Score statistics for 3D KPI(Efficiency)}
 \end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{./ReportImages/folds_dev_y2.png} 
+    \caption{MLP Training Deviation across Folds for Efficiency \ac{KPI}} 
+    \label{fig:MLP Training Deviation across Folds for Efficiency KPI}
+\end{figure}
+
+Figure \ref{fig:MLP Training Deviation across Folds for Efficiency KPI} illustrates how each fold's perdiction deviates and from our observation it is 
+as close as can be to the mean of all the Folds predictions.
+This figure is a good indicator of the model's generalization performance and we have used only 1 engine for inference from the test dataset.
+
 
 \section{Results with Baseline}\label{sec:Results with Baseline}
 
@@ -1350,7 +1376,7 @@ ANN surrogate models varied between 50.3 to 68 ms/case,
 which makes the surrogates 2,911 to 2,154 times faster than
 the FE reference simulation, respectively.
 
-As opposed to \ac{FEM} simulations, the time required to generate predictions for several motor designs is memory bound 
+As opposed to \ac{FEA} simulations, the time required to generate predictions for several motor designs is memory bound 
 and computaion is not a bottleneck for as paralleization across GPUs can be done.
 
 We have used Python 3.10.14 for our development and the Pytorch library compatible with Cuda.\\
@@ -1759,7 +1785,7 @@ This thesis offers a fresh outlook to the possibility of modelling the performan
 We have developed a topology invariant \ac{MLP} model to predict 2 \ac{KPI}'s of an \ac{EM} from its parameteric requirements. 
 It would be very beneficial to \ac{EM} manufacturers to understand the operating range of the vehicle using the motor and make calculated assumptions of whether to manufacture it.\\
 This work enables \ac{EM} designers to generate \ac{KPI}'s at almost both negligible costs and minimal time.
-Thus offering an escape from the cons of using \ac{FEM} simulations. It also exhibits almost close accuracy to \ac{FEM} simulations with significantly better run time efficiency PROVE\\
+Thus offering an escape from the cons of using \ac{FEA} simulations. It also exhibits almost close accuracy to \ac{FEA} simulations with significantly better run time efficiency PROVE\\
 It also lays the foundation for future work on being able to generate electric motor design parameters conditioned on the 2 KPIs we predicted.
 We envision that our study will provide new perspectives to researchers engaging in the field of electric motor design and hope our contribution will aid in the same.\\
 \section{Future Improvements}\label{sec:Future Improvements}
@@ -1805,38 +1831,38 @@ Table \ref{tab:Input Parameters} shows the summary statistics of the input param
     \endlastfoot
     \multicolumn{8}{|l|}{\textbf{General Parameters}} \\
     \hline
-    N & \# & 4.0 & 0.0 & 4.0--4.0 & \checkmark  & \checkmark & \checkmark  \\
-    simQ & \# & 6.0 & 0.0 & 6.0--6.0 & \checkmark  & \checkmark  & \checkmark \\
-    r\_a & mm & 9.000000e-02 & 2.554375e-15 & 9.000000e-02--9.000000e-02 & \checkmark  & \checkmark  & \checkmark  \\
-    r\_i & mm & 0.064433 & 0.000902 & 0.064000--0.067000 & \checkmark  & \checkmark  & \checkmark  \\
+    N & \# & 4 & 0 & 4 --4  & \checkmark  & \checkmark & \checkmark  \\
+    simQ & \# & 6 & 0 & 6 -- 6 & \checkmark  & \checkmark  & \checkmark \\
+    r\_a & mm & $9\times 10^{-2}$ & $2.554375\times 10^{-15}$ & $9\times 10^{-2}$ -- $9\times 10^{-2}$ & \checkmark  & \checkmark  & \checkmark  \\
+    r\_i & mm & $6.4433\times 10^{-2}$ & $9.02\times 10^{-4}$ & $6.4 \times 10^{-2}$ -- $6.7\times 10^{-2}$ & \checkmark  & \checkmark  & \checkmark  \\
     \hline
     \multicolumn{8}{|l|}{\textbf{Rotor Parameters}} \\
     \hline
-    rad\_phiv2 & rad & -0.511319 & 0.063678 & -0.645772--0.000000 & $\times$  & \checkmark & $\times$  \\
-    lmsov2 & mm & -0.000289 & 0.000035 &  -0.000300--0.000000 & $\times$  & \checkmark & $\times$  \\
-    lth1v2 & mm & 0.005395 & 0.000359 & 0.000000--0.005450 & $\times$  & \checkmark & $\times$  \\
-    lth2v2 & mm & 0.002789 & 0.000178 & 0.000000--0.002800 & $\times$  & \checkmark & $\times$ \\
-    r1v2 & mm & 0.002097 & 0.000322 & 0.000000--0.002200 & $\times$  & \checkmark & $\times$  \\
-    r11v2 & mm & 0.000326 & 0.000040 & 0.000000--0.000600 & $\times$ &\checkmark & $\times$  \\
-    r2v2 & mm & 0.001873 & 0.000133 & 0.000000--0.001900 & $\times$  & \checkmark & $\times$  \\
-    r3v2 & mm & 0.000697 & 0.000044 & 0.000000--0.000700 & $\times$  & \checkmark & $\times$  \\
-    r4v2 & mm &  0.000747 & 0.000048 & 0.000000--0.000750 & $\times$  & \checkmark & $\times$  \\
-    rmt1v2 & mm & 0.000249 & 0.000016 & 0.000000--0.000250 & $\times$  & \checkmark &$\times$  \\
-    rmt4v2 & mm & 0.000249 & 0.000016 & 0.000000--0.000250 & $\times$  & \checkmark & $\times$  \\
-    rlt1v2 & mm & 0.000185 &  0.000045 & 0.000000--0.000200 & $\times$  & \checkmark & $\times$  \\
-    rlt4v2 & mm & 0.000249 & 0.000016 & 0.000000--0.000250 & $\times$ & \checkmark & $\times$ \\
-    hav2 & mm & 0.004942 & 0.000336 &  0.000000--0.005000 & $\times$  & \checkmark & $\times$  \\
-    mbv2 & mm & 0.017706 & 0.001175 & 0.000000--0.018100 & $\times$  & \checkmark & $\times$  \\
-    mhv2 & mm & 0.003649 & 0.000265 & 0.000000--0.003800 & $\times$ &\checkmark & $\times$  \\
-    rmagv2 & mm & 0.000498 & 0.000032 & 0.000000--0.000500 & $\times$  & \checkmark & $\times$  \\
-    dsmv2 & mm & 0.002925 & 0.000194 & 0.000000--0.003100 & $\times$  & \checkmark & $\times$ \\
-    dsmuv2 & mm & 0.002925 & 0.000194 & 0.000000--0.003100 & $\times$  & \checkmark & $\times$  \\
-    amtrv2 & mm & 0.015888 & 0.001024 & 0.000000--0.016000 & $\times$  & \checkmark & $\times$ \\
-    dsrv2 & mm & 0.000996 & 0.000064 & 0.000000--0.001000 & $\times$  & \checkmark & $\times$ \\
-    lmav2 & mm & 0.00010 & 0.00003 & 0.00000--0.00011 & $\times$  & \checkmark & $\times$  \\
-    lmiv2 & mm & 0.000109 & 0.000008 & 0.000000--0.000110 & $\times$  & \checkmark & $\times$  \\
-    lmov2 & mm & 0.000055 & 0.000015 & 0.000000--0.000100 & $\times$  & \checkmark & $\times$  \\
-    lmuv2 & mm & 0.000145 & 10.000017 & 0.000000--0.000150 & $\times$  & \checkmark & $\times$ \\
+    rad\_phiv2 & rad & -0.511319 & $6.3678\times 10^{-2}$ & -0.645772 -- 0 & $\times$  & \checkmark & $\times$  \\
+    lmsov2 & mm & $-2.89\times 10^{-4}$ & $3.5\times 10^{-5}$ &  $-3\times 10^{-4}$ -- 0 & $\times$  & \checkmark & $\times$  \\
+    lth1v2 & mm & $5.395\times 10^{-3}$ & $3.59\times 10^{-4}$ & 0 -- $5.45\times 10^{-3}$ & $\times$  & \checkmark & $\times$  \\
+    lth2v2 & mm & $2.789\times 10^{-3}$ & $1.78\times 10^{-4}$ & 0 -- $2.8\times 10^{-3}$ & $\times$  & \checkmark & $\times$ \\
+    r1v2 & mm & 0.002097 & 0.000322 & 0 -- 0.002200 & $\times$  & \checkmark & $\times$  \\
+    r11v2 & mm & 0.000326 & 0.000040 & 0 -- 0.000600 & $\times$ &\checkmark & $\times$  \\
+    r2v2 & mm & 0.001873 & 0.000133 & 0 -- 0.001900 & $\times$  & \checkmark & $\times$  \\
+    r3v2 & mm & 0.000697 & 0.000044 & 0 -- 0.000700 & $\times$  & \checkmark & $\times$  \\
+    r4v2 & mm &  0.000747 & 0.000048 & 0 -- 0.000750 & $\times$  & \checkmark & $\times$  \\
+    rmt1v2 & mm & 0.000249 & 0.000016 & 0 -- 0.000250 & $\times$  & \checkmark &$\times$  \\
+    rmt4v2 & mm & 0.000249 & 0.000016 & 0 -- 0.000250 & $\times$  & \checkmark & $\times$  \\
+    rlt1v2 & mm & 0.000185 &  0.000045 & 0 -- 0.000200 & $\times$  & \checkmark & $\times$  \\
+    rlt4v2 & mm & 0.000249 & 0.000016 & 0 -- 0.000250 & $\times$ & \checkmark & $\times$ \\
+    hav2 & mm & 0.004942 & 0.000336 &  0 -- 0.005000 & $\times$  & \checkmark & $\times$  \\
+    mbv2 & mm & 0.017706 & 0.001175 & 0 -- 0.018100 & $\times$  & \checkmark & $\times$  \\
+    mhv2 & mm & 0.003649 & 0.000265 & 0 -- 0.003800 & $\times$ &\checkmark & $\times$  \\
+    rmagv2 & mm & 0.000498 & 0.000032 & 0 -- 0.000500 & $\times$  & \checkmark & $\times$  \\
+    dsmv2 & mm & 0.002925 & 0.000194 & 0 -- 0.003100 & $\times$  & \checkmark & $\times$ \\
+    dsmuv2 & mm & 0.002925 & 0.000194 & 0 -- 0.003100 & $\times$  & \checkmark & $\times$  \\
+    amtrv2 & mm & 0.015888 & 0.001024 & 0 -- 0.016000 & $\times$  & \checkmark & $\times$ \\
+    dsrv2 & mm & 0.000996 & 0.000064 & 0 -- 0.001000 & $\times$  & \checkmark & $\times$ \\
+    lmav2 & mm & 0.00010 & 0.00003 & 0 -- 0.00011 & $\times$  & \checkmark & $\times$  \\
+    lmiv2 & mm & 0.000109 & 0.000008 & 0 -- 0.000110 & $\times$  & \checkmark & $\times$  \\
+    lmov2 & mm & 0.000055 & 0.000015 & 0 -- 0.000100 & $\times$  & \checkmark & $\times$  \\
+    lmuv2 & mm & 0.000145 & 10.000017 & 0 -- 0.000150 & $\times$  & \checkmark & $\times$ \\
     rad\_phiv1 & rad & -0.694266 & 0.054700 & -0.785398---0.453786 &\checkmark & \checkmark & \checkmark\\
     lmsov1 & mm & -0.000501 & 0.000094 & -0.000530--0.000500 &\checkmark & \checkmark & \checkmark\\
     lth1v1 & mm & 0.002889 & 0.000178 & 0.002855--0.005450 &\checkmark & \checkmark & \checkmark\\
@@ -1864,24 +1890,24 @@ Table \ref{tab:Input Parameters} shows the summary statistics of the input param
     lmuv1 & mm & 0.000145 & 0.000015 & 0.000100--0.000150 &\checkmark & \checkmark & \checkmark\\
     rad\_phi3b1 & rad & -0.002522 & 0.056001 & -1.256637--0.000000 & $\times$  & $\times$  & \checkmark  \\
     rad\_phi4b1 & rad & -0.000530 & 0.011775 & -0.261799--0.000000 & $\times$  & $\times$  & \checkmark  \\
-    lmsob1 & mm & 0.000002 & 0.000034 & 0.000000--0.000750 & $\times$  & $\times$  & \checkmark  \\
-    lthb1 & mm & 0.000006 & 0.000128 & 0.000000--0.002900 & $\times$  & $\times$  & \checkmark  \\
-    r2b1 & mm & 0.000002 & 0.000045 & 0.000000--0.001000 & $\times$  & $\times$  & \checkmark  \\
-    r3b1 & mm & 0.000002 & 0.000034 & 0.000000--0.001000 & $\times$  & $\times$  & \checkmark  \\
-    r4b1 & mm & 5.064146e-07 & 1.124422e-05 & 0.000000e+00--2.500000e-04 & $\times$  & $\times$  & \checkmark  \\
-    r5b1 & mm & 5.064146e-07 & 1.124422e-05 & 0.000000e+00--2.500000e-04 & $\times$  & $\times$  & \checkmark  \\
-    lgr3b1 & mm & 0.000001 & 0.000022 & 0.000000--0.000500 & $\times$  & $\times$  & \checkmark  \\
-    lgr4b1 & mm & 6.076975e-07 & 1.349307e-05 & 0.000000e+00--3.000000e-04 & $\times$  & $\times$  & \checkmark  \\
-    mbb1 & mm & 0.000030 & 0.000675 & 0.000000--0.015000 & $\times$ & $\times$  & \checkmark \\
-    mhb1 & mm & 0.000006 & 0.000144 & 0.000000--0.003200 & $\times$  & $\times$ & \checkmark \\
-    mtbb1 & mm & 0.000030 & 0.000675 & 0.000000--0.015000 & $\times$  &$\times$ & \checkmark  \\
-    rmagb1 & mm & 0.000001 & 0.000022 & 0.000000--0.000500 & $\times$  & $\times$ & \checkmark \\
-    amtrb1 & mm & 0.000004 & 0.000098 & 0.000000--0.002500 & $\times$  & $\times$  & \checkmark  \\
-    dsr3b1 & mm & 0.000003 & 0.000066 & 0.000000--0.001850 & $\times$ & $\times$ & \checkmark  \\
-    dsr4b1 & mm & 0.000004 & 0.000083 & 0.000000--0.001850 & $\times$  & $\times$  & \checkmark \\
-    lmob1 & mm & 2.025658e-07 & 4.497689e-06 & 0.000000e+00--1.000000e-04 & $\times$  & $\times$ & \checkmark \\
-    lmub1 & mm & 3.038488e-07 & 6.746534e-06 & 0.000000e+00--1.500000e-04 & $\times$  & $\times$  & \checkmark \\
-    lmsub1 & mm & 0.000004 & 0.000081 & 0.000000--0.001800 &$\times$  & $\times$  & \checkmark \\
+    lmsob1 & mm & 0.000002 & 0.000034 & 0 -- 0.000750 & $\times$  & $\times$  & \checkmark  \\
+    lthb1 & mm & 0.000006 & 0.000128 & 0 -- 0.002900 & $\times$  & $\times$  & \checkmark  \\
+    r2b1 & mm & 0.000002 & 0.000045 & 0 -- 0.001000 & $\times$  & $\times$  & \checkmark  \\
+    r3b1 & mm & 0.000002 & 0.000034 & 0 -- 0.001000 & $\times$  & $\times$  & \checkmark  \\
+    r4b1 & mm & 5.064146e-07 & 1.124422e-05 & 0 -- 2.500000e-04 & $\times$  & $\times$  & \checkmark  \\
+    r5b1 & mm & 5.064146e-07 & 1.124422e-05 & 0 -- 2.500000e-04 & $\times$  & $\times$  & \checkmark  \\
+    lgr3b1 & mm & 0.000001 & 0.000022 & 0 -- 0.000500 & $\times$  & $\times$  & \checkmark  \\
+    lgr4b1 & mm & 6.076975e-07 & 1.349307e-05 & 0 -- 3.000000e-04 & $\times$  & $\times$  & \checkmark  \\
+    mbb1 & mm & 0.000030 & 0.000675 & 0 -- 0.015000 & $\times$ & $\times$  & \checkmark \\
+    mhb1 & mm & 0.000006 & 0.000144 & 0 -- 0.003200 & $\times$  & $\times$ & \checkmark \\
+    mtbb1 & mm & 0.000030 & 0.000675 & 0 -- 0.015000 & $\times$  &$\times$ & \checkmark  \\
+    rmagb1 & mm & 0.000001 & 0.000022 & 0 -- 0.000500 & $\times$  & $\times$ & \checkmark \\
+    amtrb1 & mm & 0.000004 & 0.000098 & 0 -- 0.002500 & $\times$  & $\times$  & \checkmark  \\
+    dsr3b1 & mm & 0.000003 & 0.000066 & 0 -- 0.001850 & $\times$ & $\times$ & \checkmark  \\
+    dsr4b1 & mm & 0.000004 & 0.000083 & 0 -- 0.001850 & $\times$  & $\times$  & \checkmark \\
+    lmob1 & mm & 2.025658e-07 & 4.497689e-06 & 0 -- 1.000000e-04 & $\times$  & $\times$ & \checkmark \\
+    lmub1 & mm & 3.038488e-07 & 6.746534e-06 & 0 -- 1.500000e-04 & $\times$  & $\times$  & \checkmark \\
+    lmsub1 & mm & 0.000004 & 0.000081 & 0 -- 0.001800 &$\times$  & $\times$  & \checkmark \\
     \hline
     \multicolumn{8}{|l|}{\textbf{Stator Parameters}} \\
     \hline
@@ -1909,158 +1935,6 @@ It gives us a clear idea of how the parameters of the Rotor can vary across Topo
 In addition the \textit{N} and \textit{simQ} parameters are count of Stator poles and its windings respectively and may vary across \ac{EM} variants.\\
 1481 examples are of the Double V Magnet Topology apart from which 3 examples each for the other 2 topologies.
 Hence, the imbalanced topologies parameters would have relatively not so reliable statistics.\\ 
-
-% \textbf{Node types}
-
-% \begin{enumerate}
-%     \item \textbf{General}
-    
-%     \begin{itemize}
-%         \item General parameters:
-%         \[
-%             r = \{r_{i}\} \quad \forall i \in \{a, r, o\} 
-%         \]
-        
-%         \textit{where:
-%         \begin{itemize}
-%             \item $r_{a}$: Outer Radius of the Stator
-%             \item $r_{r}$: Outer Radius of the Rotor
-%             \item $r_{o}$: Center of the \ac{EM}
-%         \end{itemize}}
-%     \end{itemize}
-    
-%     \item \textbf{Stator}
-    
-%     \begin{itemize}
-%         \item Slot windings:
-%         \[
-%             sw = \{s_{i}w_{j}\} \quad \forall i \in \{1, \dots, QSim\}, \quad \forall j \in \{1, \dots, N\} 
-%         \]
-        
-%         \item Slots:
-%         \[
-%             s = \{s_{i}\} \quad \forall i \in \{1, \dots, QSim\}
-%         \]
-
-%         \textit{where
-%         \begin{itemize}
-%             \item Qsim : Count of slots in the Stator
-%             \item N : Count of copper windings per slot
-%         \end{itemize}}
-%     \end{itemize}
-    
-%     \item \textbf{Rotor}
-    
-%     \begin{itemize}
-%         \item Magnet Flux Barriers:
-%         \[
-%             v = \{v_{ij}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
-%         \]
-        
-%         \item Magnets:
-%         \[
-%             vm = \{v_{i}m_{j}\} \quad \forall i \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
-%         \]
-%         \textit{where
-%         \begin{itemize}
-%             \item T : Topology type of the \ac{EM}
-%             \item V : Type of Magnet
-%         \end{itemize}
-%         As Valeo only manufactures Double V magnets we consider it to be 2}
-%     \end{itemize}    
-    
-% \end{enumerate}
-
-% \textbf{Edge types}
-
-% \begin{enumerate}
-%     \item \textbf{Angle} \\
-%     \textbf{Relevant Paths}
-%     \[
-%     vm--vm = \{ v_{i_{1}}m_{j_{1}} - v_{i_{2}}m_{j_{2}} \}
-%     \forall i_1, i_2 \in \{1, \dots, T\}, \quad \forall j_1, j_2 \in \{1, \dots, V\} \mid
-%     i_1 = i_2, \quad j_1 \neq j_2
-%     \]
-
-%     \textbf{angle}=vm-vm
-
-%     \item \textbf{Distance} \\
-%     \textbf{Relevant Paths}
-%     % \[
-%     %     v-v = \{ (v_{i_1 j_1} - v_{i_2 j_2}), \forall i_1, i_2, j_1, j_2 \in \{1, \dots, T\} \mid i_1i_2 \neq j_1j_2 \ \land (i_1 == i_2 \lor j_1 == j_2) \}
-%     % \]
-%     \[
-%         vi--vi = \{v_{i j_1} - v_{i j_2}\}, \forall i \in \{1, \dots, T\}, \forall j_1, j_2 \in \{1, \dots, V\} \mid  j_1 \neq j_2
-%     \]
-%     \[
-%         vi--vj = \{v_{i_1 j} - v_{i_2 j}\}, \forall i_1, i_2 \in \{1, \dots, T\}, \forall j \in \{1, \dots, V\} \mid  i_1 \neq i_2
-%     \]
-%     \[
-%         v--vm = \{v_{i j} - v_{i}m_{j}\} \forall i  \in \{1, \dots, T\}, \quad \forall j \in \{1, \dots, V\}
-%     \]
-%     \[
-%         v--rr = \{v_{i j} - r_{r}\}, \forall i, j  \in \{1, \dots, T\}
-%     \]
-%     \[
-%         o--r = \{ (o - r_{r}), (o - r_{a})\}
-%     \]
-%     \[
-%         rr--s = \{r_{r} - s_{i}\}, \forall i  \in \{1, \dots, QSim\}
-%     \]
-%     \[
-%         s--sw = \{s_{i} - s_{i}w_{j}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\}
-%     \]
-%     \[
-%         s--ra = \{s_{i} - r_{a}\}, \forall i  \in \{1, \dots, QSim\}
-%     \]
-%     \[
-%         sw--sw = \{s_{i}w_{j_1} - s_{i}w_{j_2}\}, \forall i  \in \{1, \dots, QSim\}, \forall j  \in \{1, \dots, N\} \mid (j_1 == j_2-1)
-%     \]
-
-%     \textbf{distance} = vi--vi + vi--vj + v--vm + v--rr + o--r + rr--s + s--sw + s--ra + sw--sw
-
-% \end{enumerate}
-
-% \textbf{Node Features}
-
-% \begin{enumerate}
-
-%     \item \textbf{v} = \{lmsov, lth1v, lth2v, r1v, r11v, r2v, r3v, r4v, rmt1v, rmt4v, rlt1v, rlt4v, hav\}
-
-%     \item \textbf{vm} = \{mbv, mhv, rmagv\}
-
-%     \item \textbf{r} = \{r\}
-
-%     \item \textbf{s} = \{b\_nng, b\_nzk, b\_s, h\_n, h\_s, r\_sn, r\_zk, r\_ng, h\_zk\}
-
-%     \item \textbf{sw} = \{bhp, hhp, rhp\}
-% \end{enumerate}
-
-% \textbf{Path Features}
-
-% \begin{enumerate}
-
-%     \item \textbf{vm--vm} = \{deg\_phi\}
-
-%     \item \textbf{vi--vi} = \{dsm, dsmu\}
-
-%     \item \textbf{vi--vj} = \{amtrvj-amtrvi\}
-
-%     \item \textbf{v--vm} = \{lmav, lmiv, lmov, lmuv\}
-
-%     \item \textbf{v--r} = \{amtrv, dsrv\}
-    
-%     \item \textbf{o--r} = \{r\}
-
-%     \item \textbf{rr--s} = \{airgap\}
-
-%     \item \textbf{s--sw} = \{dhphp\}
-    
-%     \item \textbf{sw--sw} = \{dhpng\}
-    
-%     \item \textbf{s--ra} = \{r\_a-(r\_i + h\_n + h\_zk)\}
-    
-% \end{enumerate}
 
 \listoffigures
 
@@ -2147,10 +2021,10 @@ Hence, the imbalanced topologies parameters would have relatively not so reliabl
     \newblock {\em Accurate Torque Estimation for Induction Motors by Utilizing a Hybrid Machine Learning Approach}.
     \newblock PEMC, 2021.
 
-    \bibitem[15]{EM FEM-2020}
-    \newblock Katsuyuki Narita, Hiroyuki Sano, Nicolas Schneider, Kazuki Semba, Koji Tani, Takashi Yamada, Ryosuke Akaki
-    \newblock {\em An Accuracy Study of Finite Element Analysis- based Efficiency Map for Traction Interior Permanent Magnet Machines}:
-    \newblock 2020.
+    \bibitem[15]{EM CNN-2024}
+    \newblock Kazuhisa Iwata, Hidenori Sasaki, Hajime Igarashi, Daisuke Nakagawa, Tomoya Ueda
+    \newblock {\em Generalization Performance in Predicting Torque Characteristics Using Convolutional Neural Network and Stator Magnetic Flux}
+    \newblock 3 March, 2024.
     
     \bibitem[16]{EM TL-2020}
     \newblock Arbaaz Khan, Mohammad Hossain Mohammadi, Vahid Ghorbanian, David Lowther
@@ -2223,6 +2097,36 @@ Hence, the imbalanced topologies parameters would have relatively not so reliabl
     \newblock Arbaaz Khan, Mohammad Hossain Mohammadi, Vahid Ghorbanian, David Lowther
     \newblock {\em Efficiency Map Prediction of Motor Drives using Deep Learning}.
     \newblock IEMS, 12 July 2019.
+
+    \bibitem[30]{EM-PM-2020}
+    \newblock Sagar Verma, Nicolas Henwood, Marc Castella, Al Kassem Jebai, Jean-Christophe Pesquet
+    \newblock {\em Neural Networks based Speed-Torque Estimators for Induction Motors and Performance Metrics}.
+    \newblock 2020.
+
+    \bibitem[31]{ETA-LA-2020}
+    \newblock H. Sano, K. Narita, N. Schneider, K. Semba, K. Tani, T. Yamada, R. Akaki
+    \newblock {\em Loss Analysis of a Permanent Magnet Traction Motor in a Finite Element Analysis based Efficiency Map}.
+    \newblock ICEM, 2020.
+
+    \bibitem[32]{DL-MF-2019}
+    \newblock Arbaaz Khan, Vahid Ghorbanian, David Lowther
+    \newblock {\em Deep Learning for Magnetic Field Estimation}.
+    \newblock 6 March 2019.
+
+    \bibitem[33]{ETA-V-2020}
+    \newblock Carlos Candelo-Zuluaga, Antonio Garcia Espinosa, Jordi-Roger Riba, Pere Tubert Blanch
+    \newblock {\em Computationally Efficient Analysis of Spatial and Temporal Harmonics Content of the Magnetic Flux Distribution in a PMSM for Efficiency Maps Computation}.
+    \newblock IEEE, 2020.
+
+    \bibitem[34]{HMLO-2021}
+    \newblock Marius Stender, Oliver Wallscheid, Joachim Böcker
+    \newblock {\em Accurate Torque Estimation for Induction Motors by Utilizing a Hybrid Machine Learning Approach}.
+    \newblock IEEE, 2021.
+
+    \bibitem[35]{ETA-2021}
+    \newblock Simone Ferrari, Paolo Ragazzo, Gaetano Dilevrano, Gianmario Pellegrino
+    \newblock {\em Flux-Map Based FEA Evaluation of Synchronous Machine Efficiency Maps}.
+    \newblock WEMDCD, 2021.
 
     \end{thebibliography}
 \newpage 
