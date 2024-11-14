@@ -1,6 +1,6 @@
 # Master Thesis
 
-<center><h2>Electric Motor Modelling with Graph Neural Networks</h2></center>
+<center><h2>Electrical Engine Efficiency Prediction Bypassing Finite Element Analysis</h2></center>
 
 ## 📋 Overview
 
@@ -9,7 +9,6 @@ The aim of the Master Thesis is to train a neural network to learn the parameter
 We have developed and trained a MLP neural network on the tabular representation of data to predict 2 KPIs. 
 
 The KPIs are 2D and 3D plots on Torque(Mgrenz) curve and Efficiency(ETA) grid.
-
 
 ## ⚙️ How to install dependecies with Linux OS?
 
@@ -69,6 +68,7 @@ pip install -r requirements.txt
 │   ├── README.md
 │   ├── cross_val_splits.npy
 │   ├── max_mgrenz.pkl
+│   ├── min_mgrenz.pkl
 │   ├── x_mean.pkl
 │   └── x_stddev.pkl
 ├── Manuscript
@@ -110,6 +110,23 @@ Run the python program data_preprocessing.py separately for generating preproces
 
 Run the jupyter notebook main.ipynb for data explorations, training and inference
 
+To run training separately for already processed files
+
+```bash
+python main_train.py
+```
+
+To run training for new files and if you want to supply the maximum and minimum torque instead of script finding from whole dataset.
+Example values maximum and minimum torque 283 and 55 then run
+
+```bash
+python main_train.py --max_torque 283 --min_torque 55
+```
+
 ### Testing(New Files)
 
-Within folder data -> Testing -> raw and store the new files for generating model predictions of it.
+There are options to either :
+
+1. Generate model predictions of new files, store them in folder data -> Testing -> raw and run the cell highlighted in the main.ipynb notebook
+
+2. Generate model predictions of test dataset separated before training, in that case simply skip the cell mentioned in Step 1.
