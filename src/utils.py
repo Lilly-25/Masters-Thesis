@@ -49,13 +49,15 @@ def read_file_2d(file_path, sheet_name):
         
         
 def plot_kpi2d(nn_values, mgrenz_values):
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(8, 6))
     plt.plot(nn_values, mgrenz_values, color='blue')
     # plt.plot(nn_values, mgrenz_values, label='Target', color='blue')
     # plt.plot(nn_values, predicted_mgrenz, label='Predictions', color='red')
-    plt.xlabel('Torque [Nm]')
-    plt.ylabel('Angular Velocity [rpm]')
-    plt.title(f'Torque Curve')
+    plt.xlabel('Torque (Nm)', fontsize=12)
+    plt.ylabel('Angular Velocity (rpm)', fontsize=12)
+    # plt.title(f'Torque Curve')
+    plt.xlim(left=0)  
+    plt.ylim(bottom=0)  
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -76,9 +78,9 @@ def plot_kpi3d(nn, mm, eta):
 
     im = ax.pcolormesh(X, Y, Z, cmap='jet', norm=norm, shading='auto')
 
-    ax.set_xlabel('Angular Velocity [rpm]', fontsize=12)
-    ax.set_ylabel('Torque [Nm]', fontsize=12)
-    ax.set_title('Efficiency Grid', fontsize=14)
+    ax.set_xlabel('Angular Velocity (rpm)', fontsize=12)
+    ax.set_ylabel('Torque (Nm)', fontsize=12)
+    # ax.set_title('Efficiency Grid', fontsize=14)
     
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -87,7 +89,7 @@ def plot_kpi3d(nn, mm, eta):
     cbar.set_label('Efficiency (%)', fontsize=12)
 
     ax.xaxis.set_major_locator(plt.MaxNLocator(10))
-    plt.xticks(rotation=45, ha='right')
+    # plt.xticks(rotation=45, ha='right')
     plt.subplots_adjust(bottom=0.15)
     plt.savefig('./Manuscript/ReportImages/EfficiencyGrid.png', bbox_inches='tight')
     
@@ -145,57 +147,26 @@ def cumulative_counts(arr):
     return result
 
 def plot_wandb_logs(df, filename, metric):
-    """
-    Plot training metrics from a DataFrame and save the plot as an image file.
-
-    Parameters:
-    df (DataFrame): DataFrame containing the training metrics.
-    filename (str): Name of the file (used in the title of the plot and filename).
-    metric (str): Metric name for the y-axis label.
-    """
     fig, ax = plt.subplots(figsize=(8, 6)) 
     # Plot training loss for each fold
     for fold in range(1, 6):
         fold_loss = df[f'Fold {fold} - {filename}']
         ax.plot(df['epoch'], fold_loss, label=f'Fold {fold}', linewidth=2)
 
-    ax.set_xlabel('Epoch')
-    ax.set_ylabel(f'{metric}')
-    ax.legend()
+    ax.set_xlabel('Epoch', fontsize=14)
+    ax.set_ylabel(f'{metric}', fontsize=14)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+    ax.legend(fontsize=14)
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
     plt.savefig(f'./Manuscript/ReportImages/{filename}.png', bbox_inches='tight')
     plt.close(fig)
     
-def scoring_from_pdiff(percentage_difference, min_value, max_value):
-    """
-    Calculate the score based on a percentage difference relative to a specified range.
-    
-    Parameters:
-    percentage_difference (float): The percentage difference to evaluate.
-    min_value (float): The minimum value of the range.
-    max_value (float): The maximum value of the range.
-    
-    Returns:
-    float: The calculated score.
-    """
+def scoring_pdiff(percentage_difference, min, max):
+    scores = [(percentage / 100 * (max- min))  for percentage in percentage_difference]
+    return scores
 
-    range_value = max_value - min_value
-    score = (percentage_difference / 100 * range_value)
-    return score
-
-def pdiff_from_scoring(score, range):
-    """
-    Calculate the percentage difference of a score relative to a maximum value.
-    
-    Parameters:
-    score (float): The score to evaluate.
-    max_value (float): The maximum value of the range.
-    
-    Returns:
-    float: The percentage difference.
-    """
-    
-    percentage_difference = (score / range) * 100
-    return percentage_difference
+def pdiff_scoring(scores, min, max):
+    percentage_differences = [(score / (max-min)) * 100 for score in scores]
+    return percentage_differences
