@@ -19,11 +19,15 @@ The KPIs are 2D and 3D plots on Torque(Mgrenz) curve and Efficiency(ETA) grid.
 
 
 
-## ⚙️ How to install dependecies with Linux OS?
+### ⚙️ Dependencies
 
 [![Python Version](https://img.shields.io/badge/python-3.10.14-blue.svg)]()
 
-When executing the program with miniconda,
+#### 🖥️ Operating System
+
+Linux
+
+#### 🐍 Environment
 
 Create conda environment with the dependencies from .yml file as below:
 
@@ -40,7 +44,7 @@ source ./thesis/bin/activate
 pip install -r requirements.txt
 ```
 
-## 📁 Repo Structure
+### 📁 Repo Structure
 
 ```python
 .
@@ -103,21 +107,27 @@ pip install -r requirements.txt
 
 ## 📖 Usage
 
-### Secrets
-
-In .env.local file store
- 
+### 🔑 Secrets (.env.local)
+  
 WANDB_API_KEY=API KEY
 
-### Data Preprocessing
+### 🗃️ Data Preprocessing
 
 Store the files for training within folder data -> raw
 
-Run the python program data_preprocessing.py separately for generating preprocessed data
+Run the below command for generating preprocessed tabular data
 
-### MLP Results
+```bash
+python data_preprocessing.py
+```
 
-Run the jupyter notebook main.ipynb for data explorations, training and inference
+The jupyter notebook main.ipynb hosts the code for the remaining  sections
+
+### 📊 Data Exploration
+
+Data explorations based on tabular summary statistics and Standard Deviation
+
+### 🏋️ Training
 
 To run training separately for already processed files
 
@@ -132,10 +142,14 @@ Example values maximum and minimum torque 283 and 55 then run
 python main_train.py --max_torque 283 --min_torque 55
 ```
 
-### Testing
+### 🔍 Inference
 
 There are options to either :
 
 1. Generate model predictions of new files, store them in folder data -> Testing -> raw and run the cell highlighted in the main.ipynb notebook
 
 2. Generate model predictions of test dataset separated before training, in that case simply skip the cell mentioned in Step 1.
+
+### 📈 Evaluation
+
+Evaluation of Predictions are based on RMSE, Deviation of Folds, Difference Overlaps, Percentage Differences
