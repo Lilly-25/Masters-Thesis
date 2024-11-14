@@ -630,3 +630,57 @@ def y1_folds_deviations(y1_cross_fold, model_name="MLP Model"):
 
     plt.savefig('./Manuscript/ReportImages/folds_dev_y1.png', bbox_inches='tight')
     plt.show()
+
+def plot_y2_folds_deviations(predicted_etas, ax, n, colors):
+    min_shape = min(eta.shape[0] for eta in predicted_etas)
+    predicted_etas = clean_eta(np.array([clean_eta(eta[:min_shape]) for eta in predicted_etas])) 
+    mean_eta = np.mean(predicted_etas, axis=0)
+
+    mm = np.linspace(0, len(mean_eta), len(mean_eta))
+
+    # Plot each fold without displaying individual legends
+    for i in range(len(predicted_etas)):
+        ax.plot(mm, predicted_etas[i], label=f'Fold {i+1} Prediction', color=colors[i], linestyle='--')
+        
+    # Plot average on the first y-axis
+    ax.plot(mm, mean_eta, label='Mean', color='blue', linewidth=2)
+
+    ax.set_ylim(0, 100)
+    ax.set_xlabel('Torque (Nm)', fontsize=14)
+    ax.set_ylabel('Efficiency (%)', fontsize=14)
+    ax.set_title(f'Efficiency at Angular Velocity {n} rpm', fontsize=16)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+
+# Function to generate the subplots for different speed ranges
+def y2_folds_deviations(eta, speed_ranges):
+    num_plots = len(eta)
+    num_cols = min(3, num_plots)
+    num_rows = (num_plots - 1) // num_cols + 1
+
+    fig, axs = plt.subplots(num_rows, num_cols, figsize=(6 * num_cols, 5 * num_rows))
+    colors = sns.color_palette("husl", len(eta[0]))  # Adjust colors to match the folds
+
+    if num_plots > 1:
+        axs = axs.flatten()
+
+    n = speed_ranges[0] * 100
+    for i in range(len(eta)):
+        ax = axs[i] if num_plots > 1 else axs
+        plot_y2_folds_deviations(eta[i], ax, n, colors)
+        n += 2000
+
+    # Remove any unused subplots
+    if num_plots > 1:
+        for j in range(num_plots, len(axs)):
+            fig.delaxes(axs[j])
+
+    # Add a single legend outside the subplots
+    handles, labels = axs[0].get_legend_handles_labels() if num_plots > 1 else axs.get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', fontsize=14, ncol=len(labels), bbox_to_anchor=(0.5, -0.05))
+
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9)  # Adjust to make room for the legend
+    plt.savefig('./Manuscript/ReportImages/folds_dev_y2.png', bbox_inches='tight')
+    plt.show()
