@@ -13,8 +13,19 @@ The KPIs are 2D and 3D plots on Torque(Mgrenz) curve and Efficiency(ETA) grid.
 
 ## 📷 KPIs
 
-![Torque Curve]('./Manuscript/ReportImages/TorqueCurve.png')
-![Efficiency Grid]('./Manuscript/ReportImages/EfficiencyGrid.png')
+<div style="display: flex; justify-content: space-around;">
+
+  <div style="text-align: center;">
+    <p><b>Torque Curve</b></p>
+    <img src="Manuscript/ReportImages/TorqueCurve.png" alt="Torque Curve" width="300"/>
+  </div>
+
+  <div style="text-align: center;">
+    <p><b>Efficiency Grid</b></p>
+    <img src="Manuscript/ReportImages/EfficiencyGrid.png" alt="Efficiency Grid" width="365"/>
+  </div>
+
+</div>
 
 
 ## ⚙️ How to install dependecies with Linux OS?
