@@ -239,7 +239,7 @@ This master thesis explores a way to do light weight surrogate modelling of the 
 exploiting data-driven deep neural networks to approximate the \ac{KPI}s derived from \ac{FEA} simulations.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{./ReportImages/EM_design_flowchart_v2.png} 
+    \includegraphics[width=1\textwidth]{./ReportImages/EM_design_flowchart.png} 
     \caption{EM Design Flowchart}
     \label{fig:EM Design Flowchart}
 \end{figure}
@@ -843,7 +843,7 @@ where, \(\lambda_{\text{1y1}}\) is Y1 Smoothening Loss Regularization Parameter,
         \(\lambda_{\text{y21}}\) is Y2 Maximum Efficiency Loss Regularization Parameter, \(\lambda_{\text{y21}}\) is Y2 Efficiency Grid Loss Regularization Parameter, 
         \(wt\) is Y1 Loss Weightage, \(1-wt\) is Y2 Loss Weightage. \\
 
-We have added a Weightage parameter that controls the contribution of the Y1 Loss and Y2 Loss to the Total Loss. There are 2 reasons why this is useful for us :\\
+We have added a Weightage parameter that controls the contribution of the Y1 Loss and Y2 Loss to the Total Loss. There are 2 reasons why this is useful for us :
 
 \begin{enumerate}
     \item  When the targets are not of the same scale. \\
@@ -1108,7 +1108,7 @@ In addition granting a higher weight \textit{wt} can also help in this direction
 \end{figure}
 
 
-Figure {fig:Y1 Evaluation Statistics MLP} shows the score statistics of the model performance of Torque \ac{KPI} over the entire test dataset.
+Figure \ref{fig:Y1 Evaluation Statistics MLP} shows the score statistics of the model performance of Torque \ac{KPI} over the entire test dataset.
 The Y1 \ac{RMSE} from Equation \ref{eq:Y1 Score} is calculated for each sample and shown as a histogram in Figure \ref{fig:Y1 RMSE}.
 The Y1 Percentage Difference from Equation \ref{eq:Y1 Percentage Difference} is calculated for each sample and shown as a histogram in Figure \ref{fig:Y1 Percentage Difference}.\\
 
@@ -1216,18 +1216,32 @@ We have also left the output predictions for the Torque curve to remain as float
     \label{fig:Eval MLP Efficiency RMSE KPI}
 \end{figure}
 
-Figure \ref{fig:MLP Score statistics for 3D KPI(Efficiency)} shows the score statistics of the model performance of Efficiency \ac{KPI} over the test dataset.
+Figure \ref{fig:Y2 Evaluation Statistics MLP} shows the score statistics of the model performance of Efficiency \ac{KPI} over the entire test dataset.
+The Y2 \ac{RMSE} from Equation \ref{eq:Y2 Score} is calculated for each sample and shown as a histogram in Figure \ref{fig:Y2 RMSE}.
+The Y2 Percentage Difference from Equation \ref{eq:Y2 Percentage Difference} is calculated for each sample and shown as a histogram in Figure \ref{fig:Y2 Percentage Difference}.\\
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./ReportImages/score_MLP_y2.png}
+        \caption{Y2 \ac{RMSE}}
+        \label{fig:Y2 RMSE}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.5\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./ReportImages/percentage_diff_MLP_y2.png}
+        \caption{Y2 Percentage Difference}
+        \label{fig:Y2 Percentage Difference}
+    \end{subfigure}
+    \caption{Y2 Evaluation Statistics of \ac{MLP}}
+    \label{fig:Y2 Evaluation Statistics MLP}
+\end{figure}
+
 We have improved the scores of y2 because we have had cases where the curve is not contained witin the the grid, ie, when efficiency values beyond the range 0-100\% is encountered.
 Although, we are aware of this constraint, we havent been able to incorporate this check into the loss regularization for Efficiency \ac{KPI}.
 The Y2 \ac{RMSE} from Equation \ref{eq:Y2 Score} is calculated for each sample and shown as a histogram.\\
 On an average the \ac{RMSE} is close to 13, which is 13\% deviation from the target values as per Table \ref{tab:Scoring Criteria}.\\
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.75\textwidth]{./ReportImages/score_MLP_y2.png } 
-    \caption{MLP Score statistics for Efficiency \ac{KPI}} 
-    \label{fig:MLP Score statistics for 3D KPI(Efficiency)}
-\end{figure}
 
 \begin{figure}[H]
     \centering
@@ -1349,7 +1363,7 @@ We conduct comprehensive ablation studies on the \ac{MLP} model with different l
         \hline {\bf Model} & {\bf Y1 Score} & {\bf Y2 Score}\\
         \hline 
         Baseline & 4.8201 & 15.3708 \\
-        MLP\footnote{MLP With Decreasing Y1 Loss Regularization} & 6.0652 & 13.0469 \\
+        MLP\footnote{MLP With Decreasing Y1 Loss Regularization} & 5.1213 & 14.099 \\
         MLP\footnote{MLP With Smoothening Y1 Loss Regularization} & 5.5052 & 15.0257 \\
         MLP\footnote{MLP without both Y1 and Y2 Loss Regularization} & 4.9887 & 12.6612  \\
         \hline
@@ -1362,27 +1376,44 @@ We conduct comprehensive ablation studies on the \ac{MLP} model with different l
 \vspace{1em} % Adjust the space here, e.g., 1em or 2em
 
 Results in Table \ref{tab:Ablation Studies} indicate that our \ac{MLP} model without loss regularization's performance is in par with the 
-Baseline model on the Torque \ac{KPI} and has outperformed it on the Efficiency \ac{KPI}.\\
-This could be because the regularizations are restrictive and discourage the model to learn better.\\
-the enriched ablation studies we undertook demonstrate the robustness of our method across varying hyperparameter setings.\\
+Baseline model on the Torque \ac{KPI} and has outperformed it on the Efficiency \ac{KPI}.
+This could be because the regularizations are restrictive and discourage the model to learn better.
+The enriched ablation studies we undertook demonstrate the robustness of our method across varying hyperparameter setings.
 The inferences shown are strictly speaking from the Double V Magnet Topology which assumed the bulk of the data we had received.
+
+We also show a glimpse of the time conserved with surogate modelling and relate both approaches how we have demonstrated in the flowchart in Figure \ref{fig:EM Design Flowchart}
+
+\begin{minipage}[t]{\textwidth}
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{|p{0.275\textwidth}|p{0.275\textwidth}|p{0.275\textwidth}|}
+        \hline {\bf Approach} & {\bf Time taken(minutes)} & {\bf Hardware}\\
+        \hline 
+        Surrogate Modelling (Proposed Approach) & 1500 CPU Cores\\
+        \ac{FEA} simulations (Current Approach)\footnote{Source : Valeo} & 32 CPU Cores \& 1 GPU\\
+        \hline
+        \end{tabular}
+        \caption{Compute Time Comparision}
+        \label{tab:Compute Time Comparisions}
+    \end{table}
+\end{minipage}
 
 Considering the limitations in dataset, conducting thorough examinations of a substantial volume is typically unfeasible. 
 Therefore, the primary purpose of the thesis is to study the possibility of modelling the \ac{KPI}'s predictions and our learnings from it.\\
 
-
-The computing time of the
-ANN surrogate models varied between 50.3 to 68 ms/case,
-which makes the surrogates 2,911 to 2,154 times faster than
-the FE reference simulation, respectively.
-
+We also bring to attention that the time of taking 5 minutes to generate \ac{KPI}s per design using the Current Approach highlighted in Figure \ref{fig:EM Design Flowchart} is only possible by running the simulator across 
+High Performance Computing machines of nearly 1500 CPU cores in parallel. As the number of cores decrease the simulation would take minutes to hours to converge.
+Additionally, it is the \ac{FEA} simulator in the block that is the culprit of consuming time.
+Another pointer to note is in reality the time needed to generate \ac{KPI}s with Surrogate Modelling is in the range of milliseconds. 
+However most time is utilized during the dataset creation in Data Preprocessing phase as reading the excel files take up a significant chunk of the time.
+The computing time of the ANN surrogate models varied between 50.3 to 68 ms/case, which makes the surrogates 2,911 to 2,154 times faster than the FE reference simulation, respectively.
 As opposed to \ac{FEA} simulations, the time required to generate predictions for several motor designs is memory bound 
-and computaion is not a bottleneck for as paralleization across GPUs can be done.
+and computation is not so much of a bottleneck since we can potentially run both training and inference across multiple GPUs in parallel.
 
 We have used Python 3.10.14 for our development and the Pytorch library compatible with Cuda.\\
-The model was trained on a NVIDIA Tesla V100 \ac{GPU} with 32 GB Memory.\\
-Source code is available at the \href{https://github.com/Lilly-25/Masters-Thesis}{GitHub Repository}.
-
+The model was trained on a NVIDIA Tesla V100 \ac{GPU} with 32 GB Memory and the machine we used had 16 CPUs of the Intel(R) Xeon(R) Silver 4208 CPU @ 2.10GHz with allocated disk space of 50 GB for our experiments.
+Source code is available at \texttt{Github Repository}\footnote{https://github.com/Lilly-25/Masters-Thesis}.
+% the \href{https://github.com/Lilly-25/Masters-Thesis}{GitHub Repository}.
 
 % The experiments were carried out using python 3.7.0, with PyTorch 1.12.1 and PyG 2.2.0. The computer
 % used to run the experiments had 8 CPUs of the type High-frequency Intel Xeon E5-2686 v4 (Broadwell)
