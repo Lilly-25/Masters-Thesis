@@ -10,6 +10,13 @@ We have developed and trained a MLP neural network on the tabular representation
 
 The KPIs are 2D and 3D plots on Torque(Mgrenz) curve and Efficiency(ETA) grid.
 
+
+## 📷 KPIs
+
+![Torque Curve]('./Manuscript/ReportImages/TorqueCurve.png')
+![Efficiency Grid]('./Manuscript/ReportImages/EfficiencyGrid.png')
+
+
 ## ⚙️ How to install dependecies with Linux OS?
 
 [![Python Version](https://img.shields.io/badge/python-3.10.14-blue.svg)]()
