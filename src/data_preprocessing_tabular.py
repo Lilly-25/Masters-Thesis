@@ -2,7 +2,7 @@ import pandas as pd
 from src.scaling import StdScaler
 import numpy as np
 
-def data_prep_eta_grid():##Give the directory path as input so the same function can be used for test
+def prep_eta_grid():##Give the directory path as input so the same function can be used for test
     
     df_inputs=pd.read_csv('./data/TabularDataInputs.csv')
     df_inputs.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
@@ -64,6 +64,7 @@ def data_prep(test_size):
     y1=df_targets_train_val.values
 
     max_mgrenz=y1.max() 
+    min_mgrenz=y1.min() 
 
     y2_complete = np.load('./data/TabularDataETA.npy')
     y2=y2_complete[:-test_size, :, :]###only 1st dimension need to be considered..test
@@ -71,4 +72,4 @@ def data_prep(test_size):
     x_mean, x_stddev=StdScaler().fit(x)
     x_normalized=StdScaler().transform(x, x_mean, x_stddev)
     
-    return x_normalized, y1, y2, x_mean, x_stddev, df_x_test, df_y1_test, max_mgrenz
+    return x_normalized, y1, y2, x_mean, x_stddev, df_x_test, df_y1_test, max_mgrenz, min_mgrenz
