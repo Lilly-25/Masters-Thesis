@@ -4,9 +4,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from src.scaling import StdScaler
-from src.utils import cumulative_counts as cumulative_col_count
+from src.utils import cumulative_counts as cumulative_col_count, pdiff_scoring as pdiff_scores
 import matplotlib.ticker as ticker
 from matplotlib.colors import Normalize
+import joblib
 
 def generate_predictions(model, df_inputs_test, df_targets_test, x_mean, x_stddev, device):
     
@@ -142,9 +143,9 @@ def plot_testdataset_kpi2d(df_targets, df_predictions,start,end, cols):
         if current_index <= end and current_index < len(df_targets):
             axs[row, col].plot(nn_kpi_2d, df_targets.loc[index[current_index]].tolist(), label='Target', color='blue')
             axs[row, col].plot(nn_kpi_2d, df_predictions.loc[index[current_index]].tolist(), label='Predictions', color='red')
-            axs[row, col].set_xlabel('NN')
-            axs[row, col].set_ylabel('Mgrenz')
-            axs[row, col].set_title(f'Mgrenz(Torque Curve) KPI for\n{index[current_index]}', fontsize=7)
+            axs[row, col].set_xlabel('Angular Velocity (rpm)')
+            axs[row, col].set_ylabel('Torque (Nm)')
+            axs[row, col].set_title(f'Torque Curve KPI for\n{index[current_index]}', fontsize=7)
             axs[row, col].legend()
         else:
             axs[row, col].axis('off')  
@@ -190,8 +191,8 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
             axs[row, col].plot(nn_kpi_2d, prediction_values, label='Predictions', color='red')
             axs[row, col].fill_between(nn_kpi_2d, np.array(target_values) - rmse, np.array(target_values) + rmse, 
                                         alpha=0.2, color='red', label='Prediction RMSE')
-            axs[row, col].set_xlabel('NN')
-            axs[row, col].set_ylabel('Mgrenz')
+            axs[row, col].set_xlabel('Angular Velocity (rpm)')
+            axs[row, col].set_ylabel('Torque (Nm)')
       
             # axs[row, col].set_title(f'Mgrenz(Torque Curve) KPI', fontsize=10)
             axs[row, col].legend()
@@ -205,6 +206,7 @@ def eval_plot_kpi2d(df_targets, df_predictions,start,end, cols):
             ax2.set_ylabel('Difference & Percentage Differences', color='red')
             ax2.tick_params(axis='y', colors='red')
             ax2.spines['right'].set_color('red')  # Color the right spine red
+            ax2.spines['right'].set_linestyle('--')  
             ax2.spines['top'].set_visible(False)  # Hide the top spine for the twin axis
 
             # Combine the legends of both y-axes
@@ -240,11 +242,11 @@ def plot_kpi3d_dual(nn, mm1, eta1, mm2, eta2, filename):
         Z = eta
 
         im = ax.pcolormesh(X, Y, Z, cmap='jet', norm=norm, shading='auto')
-        ax.set_xlabel('Angular Velocity [rpm]', fontsize=12)
-        ax.set_ylabel('Torque [Nm]', fontsize=12)
-        ax.set_title(f'{title} Efficiency', fontsize=14)
+        ax.set_xlabel('Angular Velocity [rpm]', fontsize=14)
+        ax.set_ylabel('Torque [Nm]', fontsize=14)
+        ax.set_title(f'{title} Efficiency', fontsize=16)
         cbar = fig.colorbar(im, ax=ax)
-        cbar.set_label('Efficiency (%)', fontsize=12)
+        cbar.set_label('Efficiency (%)', fontsize=14)
         # Set x-axis limits
         ax.set_xlim(0, max(nn))
 
@@ -298,11 +300,11 @@ def eval_plot_kpi3d(nn, mm1, eta1, mm2,  eta2, mm_diff, eta_diff, filename):
         if title == 'Difference':
             cmap='Reds'
         im = ax.pcolormesh(X, Y, Z, cmap=cmap, norm=norm, shading='auto')
-        ax.set_xlabel('Angular Velocity [rpm]', fontsize=12)
-        ax.set_ylabel('Torque [Nm]', fontsize=12)
-        ax.set_title(f'{title} Efficiency', fontsize=14)
+        ax.set_xlabel('Angular Velocity [rpm]', fontsize=16)
+        ax.set_ylabel('Torque [Nm]', fontsize=16)
+        ax.set_title(f'{title} Efficiency', fontsize=18)
         cbar = fig.colorbar(im, ax=ax)
-        cbar.set_label('Efficiency (%)', fontsize=12)
+        cbar.set_label('Efficiency (%)', fontsize=16)
         # Set x-axis limits
         ax.set_xlim(0, max(nn))
 
@@ -342,7 +344,7 @@ def y1_score(df_predictions_y1, df_test_y1_targets, title):
     y1_score=score/len(index)
     return y1_score, scores
 
-def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
+def plot_mgrenz_statistics(df_y1_pred, df_test_y1_targets, plot, model):
     
     nn_kpi_2d = list(range(0, 19100, 100))
     
@@ -394,12 +396,15 @@ def plot_kpi2d_stddev(df_y1_pred, df_test_y1_targets, plot, model):
                     
                     alpha=0.2, color='red', label=f'± Mean {plot}')
     ax1.legend(loc='upper right')
-    ax1.set_xlabel('Angular Velocity (rpm)', fontsize=12)
-    ax1.set_ylabel('Torque (Nm)', fontsize=12)
+    ax1.set_xlabel('Angular Velocity (rpm)', fontsize=14)
+    ax1.set_ylabel('Torque (Nm)', fontsize=14)
+    ax1.tick_params(axis='both', which='major', labelsize=14)
+    ax1.legend(fontsize=14)
     ax1.spines['top'].set_visible(False)
     
     ax2.tick_params(axis='y', labelcolor='red')
     ax2.spines['right'].set_color('red')  # Color the right spine red
+    ax2.spines['right'].set_linestyle('--')  
     ax2.spines['top'].set_visible(False)  # Hide the top spine for the twin axis
 
     #plt.title(f'Average {plot} and Element-wise {plot} of Test Dataset with {model} Model', fontsize=14)
@@ -424,11 +429,11 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
 
     plt.colorbar(im, label='Standard Deviation')
     # plt.title(f'{plot} of Random Samples from {model}')
-    plt.xlabel('Angular Velocity (rpm) * 100')
+    x_ticks = np.arange(x_min, x_max, 20)  # Create x-ticks at 20 interval
+    plt.xticks(x_ticks, [str(int(val * 100)) for val in x_ticks]) 
+    plt.xlabel('Angular Velocity (rpm)')
     plt.ylabel('Torque (Nm)')
 
-    x_ticks = np.arange(x_min, x_max, 20)  # x ticks are incorrect here and follows the actual Angular Velocity /100
-    plt.xticks(x_ticks)
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -438,33 +443,63 @@ def plot_kpi3d_stddev(y2_grid_avg, y2_grid, plot, model):
     plt.show()
     
 def plot_scores(scores, target, model):
-    plt.figure(figsize=(10, 6))
-    sns.histplot(scores, kde=True, bins=20*3)
-    # plt.title(f'{target} RMSE Distribution for {model} Model')
+
     if model == 'Baseline':
-        plt.xlabel(f'{target} {model} RMSE')
+        x_label = f'{target} {model}'
     else:
-        plt.xlabel(f'{target} RMSE')
+        x_label = f'{target}'
     
+    plt.figure(figsize=(10, 6))
+    sns.histplot(scores, kde=True, bins=20*3)  # Plot histogram with KDE for scores
+    plt.xlabel(f'{x_label} RMSE')
     plt.ylabel('Count')
-    ax=plt.gca()
+    # plt.title(f'{model} {target} Score Distribution')
+    
+    # Hide top and right spines for the plot
+    ax = plt.gca()  # Get current axis
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-   
+
     plt.savefig(f'./Manuscript/ReportImages/score_{model}_{target}.png', bbox_inches='tight')
+    plt.show()
+    
+    if target == 'Y1':
+        min_value = joblib.load('./Intermediate/min_mgrenz.pkl')
+        max_value = joblib.load('./Intermediate/max_mgrenz.pkl')
+    elif target == 'Y2':
+        min_value = 0
+        max_value = 100
+    percentage_diff = pdiff_scores(scores, min_value, max_value)  # Efficiency percentage range
+    
+    # Plot for percentage differences
+    plt.figure(figsize=(10, 6))
+    sns.histplot(percentage_diff, kde=True, bins=20*3, color='r')  # Plot histogram with KDE for percentage differences
+    plt.xlabel(f'{x_label} Percentage Difference (%)')
+    plt.ylabel('Count')
+    # plt.title(f'{model} {target} Percentage Difference Distribution')
+    
+    ax2 = plt.gca()  # Get current axis for percentage diff plot
+    ax2.spines['top'].set_visible(False)
+    ax2.spines['right'].set_visible(False)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+
+    plt.savefig(f'./Manuscript/ReportImages/percentage_diff_{model}_{target}.png', bbox_inches='tight')
+    plt.show()
     
     
 def plot_eta_mean_statistics(speed_ranges, mean_eta, std_eta, title):
     
     plt.figure(figsize=(10, 6))
     plt.errorbar(speed_ranges, mean_eta, yerr=std_eta, fmt='o', capsize=5, label="Mean ± Std Dev", ecolor='red', linestyle='--', marker='s')
-    plt.xlabel("Angular Velocity*100(rpm) ")
+    plt.xlabel("Angular Velocity (rpm) ")
     plt.ylabel("Efficiency(%)")
     # plt.title(f"Standard Deviation of {title} ETA values ranging NN Angular Velocity")
+    plt.xticks(speed_ranges, [label * 100 for label in speed_ranges])
     ax=plt.gca()
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    plt.legend(loc='upper right')
+    ax.tick_params(axis='both', which='major', labelsize=14)
+    plt.legend(loc='upper right', fontsize=14, bbox_to_anchor=(1.05, 1.05), borderaxespad=0.)
     plt.savefig(f'./Manuscript/ReportImages/stddev_y2_nn_{title}.png', bbox_inches='tight')
     plt.show()
     
@@ -525,11 +560,14 @@ def plot_eta(predicted_etas, target_etas, ax1, n, model):
     ax1.legend(loc='upper right')
     ax1.set_xlabel('Torque (Nm)', fontsize=12)
     ax1.set_ylabel('Efficiency(%)', fontsize=12)
-    ax1.set_title(f'Efficiency at Angular Velocity {n} rpm')
+    ax1.set_title(f'Efficiency at Angular Velocity {n} rpm', fontsize=14)
     ax1.spines['top'].set_visible(False)
+    ax1.tick_params(axis='both', which='major', labelsize=12)
     
     ax2.tick_params(axis='y', labelcolor='red')
+    ax2.tick_params(axis='both', which='major', labelsize=12)
     ax2.spines['right'].set_color('red')  # Color the right spine red
+    ax2.spines['right'].set_linestyle('--')  
     ax2.spines['top'].set_visible(False)  # Hide the top spine for the twin axis
 
     
@@ -563,4 +601,86 @@ def plot_eta_statistics(eta, target_eta, speed_ranges, input):
     plt.subplots_adjust(top=0.95)
   
     plt.savefig(f'./Manuscript/ReportImages/rmse_eta_{input}.png', bbox_inches='tight')
+    plt.show()
+    
+def y1_folds_deviations(y1_cross_fold, model_name="MLP Model"):
+    nn_kpi_2d = list(range(0, 19100, 100))
+    plt.figure(figsize=(10, 6))
+
+    # Calculate the mean prediction across folds
+    df_y1_pred_avg = y1_cross_fold.mean()
+
+    # Plot the mean curve
+    plt.plot(nn_kpi_2d, df_y1_pred_avg, label='Mean Prediction', color='blue', linewidth=2)
+
+    # Colors for each fold
+    colors = sns.color_palette("husl", len(y1_cross_fold))
+
+    # Plot each fold individually
+    for i in range(len(y1_cross_fold)):
+        plt.plot(nn_kpi_2d, y1_cross_fold.iloc[i], label=f'Fold {i+1} Prediction', color=colors[i], linestyle='--')
+
+    # Plot settings
+    plt.ylabel('Torque (Nm)', fontsize=12)
+    plt.xlabel('Angular Velocity (rpm)', fontsize=12)
+    plt.legend(loc='upper right')
+    ax = plt.gca()
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    plt.savefig('./Manuscript/ReportImages/folds_dev_y1.png', bbox_inches='tight')
+    plt.show()
+
+def plot_y2_folds_deviations(predicted_etas, ax, n, colors):
+    min_shape = min(eta.shape[0] for eta in predicted_etas)
+    predicted_etas = clean_eta(np.array([clean_eta(eta[:min_shape]) for eta in predicted_etas])) 
+    mean_eta = np.mean(predicted_etas, axis=0)
+
+    mm = np.linspace(0, len(mean_eta), len(mean_eta))
+
+    # Plot each fold without displaying individual legends
+    for i in range(len(predicted_etas)):
+        ax.plot(mm, predicted_etas[i], label=f'Fold {i+1} Prediction', color=colors[i], linestyle='--')
+        
+    # Plot average on the first y-axis
+    ax.plot(mm, mean_eta, label='Mean', color='blue', linewidth=2)
+
+    ax.set_ylim(0, 100)
+    ax.set_xlabel('Torque (Nm)', fontsize=14)
+    ax.set_ylabel('Efficiency (%)', fontsize=14)
+    ax.set_title(f'Efficiency at Angular Velocity {n} rpm', fontsize=16)
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.tick_params(axis='both', which='major', labelsize=14)
+
+# Function to generate the subplots for different speed ranges
+def y2_folds_deviations(eta, speed_ranges):
+    num_plots = len(eta)
+    num_cols = min(3, num_plots)
+    num_rows = (num_plots - 1) // num_cols + 1
+
+    fig, axs = plt.subplots(num_rows, num_cols, figsize=(6 * num_cols, 5 * num_rows))
+    colors = sns.color_palette("husl", len(eta[0]))  # Adjust colors to match the folds
+
+    if num_plots > 1:
+        axs = axs.flatten()
+
+    n = speed_ranges[0] * 100
+    for i in range(len(eta)):
+        ax = axs[i] if num_plots > 1 else axs
+        plot_y2_folds_deviations(eta[i], ax, n, colors)
+        n += 2000
+
+    # Remove any unused subplots
+    if num_plots > 1:
+        for j in range(num_plots, len(axs)):
+            fig.delaxes(axs[j])
+
+    # Add a single legend outside the subplots
+    handles, labels = axs[0].get_legend_handles_labels() if num_plots > 1 else axs.get_legend_handles_labels()
+    fig.legend(handles, labels, loc='lower center', fontsize=14, ncol=len(labels), bbox_to_anchor=(0.5, -0.05))
+
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9)  # Adjust to make room for the legend
+    plt.savefig('./Manuscript/ReportImages/folds_dev_y2.png', bbox_inches='tight')
     plt.show()
