@@ -132,7 +132,7 @@ Example values maximum and minimum torque 283 and 55 then run
 python main_train.py --max_torque 283 --min_torque 55
 ```
 
-### Testing(New Files)
+### Testing
 
 There are options to either :
 
