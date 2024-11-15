@@ -1389,8 +1389,8 @@ We also show a glimpse of the time conserved with surogate modelling and relate 
         \begin{tabular}{|p{0.275\textwidth}|p{0.275\textwidth}|p{0.275\textwidth}|}
         \hline {\bf Approach} & {\bf Time taken(minutes)} & {\bf Hardware}\\
         \hline 
-        Surrogate Modelling (Proposed Approach) & 1500 CPU Cores\\
-        \ac{FEA} simulations (Current Approach)\footnote{Source : Valeo} & 32 CPU Cores \& 1 GPU\\
+        Surrogate Modelling (Proposed Approach) & 2 mins & 1500 CPU Cores\\
+        \ac{FEA} simulations (Current Approach)\footnote{Source : Valeo} & 5 minutes & 32 CPU Cores \& 1 GPU\\
         \hline
         \end{tabular}
         \caption{Compute Time Comparision}
@@ -1841,7 +1841,7 @@ I would suggest the following improvements to our study :
 Table \ref{tab:Input Parameters} shows the summary statistics of the input parameters of the motor. 
 
 %Median a column??
-\begin{longtable}{|p{1.75cm}|p{1cm}|p{1.5cm}|p{1.5cm}|p{3.5cm}|p{1cm}|p{1cm}|p{1cm}|}
+\begin{longtable}{|p{1.75cm}|p{1cm}|p{1.75cm}|p{1.75cm}|p{3cm}|p{1cm}|p{1cm}|p{1cm}|}
 
     \hline
     \textbf{Parameter} & \textbf{Unit of Dimension} & \textbf{Mean} & \textbf{Standard Deviation} & \textbf{Value Range} & \textbf{Single V Magnet Topology} & \textbf{Double V Magnet Topology} & \textbf{Nabla Magnet Topology}\\
@@ -1864,99 +1864,99 @@ Table \ref{tab:Input Parameters} shows the summary statistics of the input param
     \hline
     N & \# & 4 & 0 & 4 --4  & \checkmark  & \checkmark & \checkmark  \\
     simQ & \# & 6 & 0 & 6 -- 6 & \checkmark  & \checkmark  & \checkmark \\
-    r\_a & mm & $9\times 10^{-2}$ & $2.554375\times 10^{-15}$ & $9\times 10^{-2}$ -- $9\times 10^{-2}$ & \checkmark  & \checkmark  & \checkmark  \\
+    r\_a & mm & $9\times 10^{-2}$ & $2.5\times 10^{-15}$ & $9\times 10^{-2}$ -- $9\times 10^{-2}$ & \checkmark  & \checkmark  & \checkmark  \\
     r\_i & mm & $6.4433\times 10^{-2}$ & $9.02\times 10^{-4}$ & $6.4 \times 10^{-2}$ -- $6.7\times 10^{-2}$ & \checkmark  & \checkmark  & \checkmark  \\
     \hline
     \multicolumn{8}{|l|}{\textbf{Rotor Parameters}} \\
     \hline
-    rad\_phiv2 & rad & -0.511319 & $6.3678\times 10^{-2}$ & -0.645772 -- 0 & $\times$  & \checkmark & $\times$  \\
-    lmsov2 & mm & $-2.89\times 10^{-4}$ & $3.5\times 10^{-5}$ &  $-3\times 10^{-4}$ -- 0 & $\times$  & \checkmark & $\times$  \\
-    lth1v2 & mm & $5.395\times 10^{-3}$ & $3.59\times 10^{-4}$ & 0 -- $5.45\times 10^{-3}$ & $\times$  & \checkmark & $\times$  \\
-    lth2v2 & mm & $2.789\times 10^{-3}$ & $1.78\times 10^{-4}$ & 0 -- $2.8\times 10^{-3}$ & $\times$  & \checkmark & $\times$ \\
-    r1v2 & mm & 0.002097 & 0.000322 & 0 -- 0.002200 & $\times$  & \checkmark & $\times$  \\
-    r11v2 & mm & 0.000326 & 0.000040 & 0 -- 0.000600 & $\times$ &\checkmark & $\times$  \\
-    r2v2 & mm & 0.001873 & 0.000133 & 0 -- 0.001900 & $\times$  & \checkmark & $\times$  \\
-    r3v2 & mm & 0.000697 & 0.000044 & 0 -- 0.000700 & $\times$  & \checkmark & $\times$  \\
-    r4v2 & mm &  0.000747 & 0.000048 & 0 -- 0.000750 & $\times$  & \checkmark & $\times$  \\
-    rmt1v2 & mm & 0.000249 & 0.000016 & 0 -- 0.000250 & $\times$  & \checkmark &$\times$  \\
-    rmt4v2 & mm & 0.000249 & 0.000016 & 0 -- 0.000250 & $\times$  & \checkmark & $\times$  \\
-    rlt1v2 & mm & 0.000185 &  0.000045 & 0 -- 0.000200 & $\times$  & \checkmark & $\times$  \\
-    rlt4v2 & mm & 0.000249 & 0.000016 & 0 -- 0.000250 & $\times$ & \checkmark & $\times$ \\
-    hav2 & mm & 0.004942 & 0.000336 &  0 -- 0.005000 & $\times$  & \checkmark & $\times$  \\
-    mbv2 & mm & 0.017706 & 0.001175 & 0 -- 0.018100 & $\times$  & \checkmark & $\times$  \\
-    mhv2 & mm & 0.003649 & 0.000265 & 0 -- 0.003800 & $\times$ &\checkmark & $\times$  \\
-    rmagv2 & mm & 0.000498 & 0.000032 & 0 -- 0.000500 & $\times$  & \checkmark & $\times$  \\
-    dsmv2 & mm & 0.002925 & 0.000194 & 0 -- 0.003100 & $\times$  & \checkmark & $\times$ \\
-    dsmuv2 & mm & 0.002925 & 0.000194 & 0 -- 0.003100 & $\times$  & \checkmark & $\times$  \\
-    amtrv2 & mm & 0.015888 & 0.001024 & 0 -- 0.016000 & $\times$  & \checkmark & $\times$ \\
-    dsrv2 & mm & 0.000996 & 0.000064 & 0 -- 0.001000 & $\times$  & \checkmark & $\times$ \\
-    lmav2 & mm & 0.00010 & 0.00003 & 0 -- 0.00011 & $\times$  & \checkmark & $\times$  \\
-    lmiv2 & mm & 0.000109 & 0.000008 & 0 -- 0.000110 & $\times$  & \checkmark & $\times$  \\
-    lmov2 & mm & 0.000055 & 0.000015 & 0 -- 0.000100 & $\times$  & \checkmark & $\times$  \\
-    lmuv2 & mm & 0.000145 & 10.000017 & 0 -- 0.000150 & $\times$  & \checkmark & $\times$ \\
-    rad\_phiv1 & rad & -0.694266 & 0.054700 & -0.785398---0.453786 &\checkmark & \checkmark & \checkmark\\
-    lmsov1 & mm & -0.000501 & 0.000094 & -0.000530--0.000500 &\checkmark & \checkmark & \checkmark\\
-    lth1v1 & mm & 0.002889 & 0.000178 & 0.002855--0.005450 &\checkmark & \checkmark & \checkmark\\
-    lth2v1 & mm & 0.002104 & 0.000059 & 0.002100--0.003200 &\checkmark & \checkmark & \checkmark\\
-    r1v1 & mm & 0.000407 & 0.000108 & 0.000400--0.002200 &\checkmark & \checkmark & \checkmark\\
-    r11v1 & mm & 0.000219 & 0.000045 & 0.000100--0.000600 &\checkmark & \checkmark & \checkmark\\
-    r2v1 & mm & 0.000216 & 0.000100 & 0.000200--0.001900 &\checkmark & \checkmark & \checkmark\\
-    r3v1 & mm & 0.000899 & 0.000013 & 0.000700--0.000900 &\checkmark & \checkmark & \checkmark\\
-    r4v1 & mm & 0.000501 & 0.000016 & 0.000500--0.000750 &\checkmark & \checkmark & \checkmark\\
-    rmt1v1 & mm & 2.500000e-04 & 8.839232e-18 & 2.500000e-04--2.500000e-04 &\checkmark & \checkmark & \checkmark\\
-    rmt4v1 & mm & 2.500000e-04 & 8.839232e-18 & 2.500000e-04--2.500000e-04 &\checkmark & \checkmark & \checkmark\\
-    rlt1v1 & mm & 0.000117 & 0.000056 & 0.000050--0.000250 &\checkmark & \checkmark & \checkmark\\
-    rlt4v1 & mm & 2.500000e-04 & 8.839232e-18 & 2.500000e-04--2.500000e-04 &\checkmark & \checkmark & \checkmark\\
-    hav1 & mm & 0.002918 & 0.000136 & 0.002900--0.005000 &\checkmark & \checkmark & \checkmark\\
-    mbv1 & mm & 0.007643 & 0.000588 & 0.007500--0.018150 &\checkmark & \checkmark & \checkmark\\
-    mhv1 & mm & 0.002808 & 0.000140 & 0.002700--0.005000 &\checkmark & \checkmark & \checkmark\\
-    rmagv1 & mm & 5.000000e-04 & 1.767846e-17 & 5.000000e-04--5.000000e-04 &\checkmark & \checkmark & \checkmark\\
-    dsmv1 & mm & 0.001079 & 0.000141 & 0.000800--0.002800 &\checkmark & \checkmark & \checkmark\\
-    dsmuv1 & mm & 0.001079 & 0.000147 & 0.000800--0.002920 &\checkmark & \checkmark & \checkmark\\
-    amtrv1 & mm & 0.005538 & 0.000634 & 0.005500--0.019000 &\checkmark & \checkmark & \checkmark\\
-    dsrv1 & mm & 0.000752 & 0.000032 & 0.000750--0.001250 &\checkmark & \checkmark & \checkmark\\
-    lmav1 & mm & 0.000092 & 0.000026 & 0.000010--0.000110 &\checkmark & \checkmark & \checkmark\\
-    lmiv1 & mm & 1.000405e-04 & 6.354235e-07 & 1.000000e-04--1.100000e-04 &\checkmark & \checkmark & \checkmark\\
-    lmov1 & mm & 0.000055 & 0.000015 & 0.000050--0.000100 &\checkmark & \checkmark & \checkmark\\
-    lmuv1 & mm & 0.000145 & 0.000015 & 0.000100--0.000150 &\checkmark & \checkmark & \checkmark\\
-    rad\_phi3b1 & rad & -0.002522 & 0.056001 & -1.256637--0.000000 & $\times$  & $\times$  & \checkmark  \\
-    rad\_phi4b1 & rad & -0.000530 & 0.011775 & -0.261799--0.000000 & $\times$  & $\times$  & \checkmark  \\
-    lmsob1 & mm & 0.000002 & 0.000034 & 0 -- 0.000750 & $\times$  & $\times$  & \checkmark  \\
-    lthb1 & mm & 0.000006 & 0.000128 & 0 -- 0.002900 & $\times$  & $\times$  & \checkmark  \\
-    r2b1 & mm & 0.000002 & 0.000045 & 0 -- 0.001000 & $\times$  & $\times$  & \checkmark  \\
-    r3b1 & mm & 0.000002 & 0.000034 & 0 -- 0.001000 & $\times$  & $\times$  & \checkmark  \\
-    r4b1 & mm & 5.064146e-07 & 1.124422e-05 & 0 -- 2.500000e-04 & $\times$  & $\times$  & \checkmark  \\
-    r5b1 & mm & 5.064146e-07 & 1.124422e-05 & 0 -- 2.500000e-04 & $\times$  & $\times$  & \checkmark  \\
-    lgr3b1 & mm & 0.000001 & 0.000022 & 0 -- 0.000500 & $\times$  & $\times$  & \checkmark  \\
-    lgr4b1 & mm & 6.076975e-07 & 1.349307e-05 & 0 -- 3.000000e-04 & $\times$  & $\times$  & \checkmark  \\
-    mbb1 & mm & 0.000030 & 0.000675 & 0 -- 0.015000 & $\times$ & $\times$  & \checkmark \\
-    mhb1 & mm & 0.000006 & 0.000144 & 0 -- 0.003200 & $\times$  & $\times$ & \checkmark \\
-    mtbb1 & mm & 0.000030 & 0.000675 & 0 -- 0.015000 & $\times$  &$\times$ & \checkmark  \\
-    rmagb1 & mm & 0.000001 & 0.000022 & 0 -- 0.000500 & $\times$  & $\times$ & \checkmark \\
-    amtrb1 & mm & 0.000004 & 0.000098 & 0 -- 0.002500 & $\times$  & $\times$  & \checkmark  \\
-    dsr3b1 & mm & 0.000003 & 0.000066 & 0 -- 0.001850 & $\times$ & $\times$ & \checkmark  \\
-    dsr4b1 & mm & 0.000004 & 0.000083 & 0 -- 0.001850 & $\times$  & $\times$  & \checkmark \\
-    lmob1 & mm & 2.025658e-07 & 4.497689e-06 & 0 -- 1.000000e-04 & $\times$  & $\times$ & \checkmark \\
-    lmub1 & mm & 3.038488e-07 & 6.746534e-06 & 0 -- 1.500000e-04 & $\times$  & $\times$  & \checkmark \\
-    lmsub1 & mm & 0.000004 & 0.000081 & 0 -- 0.001800 &$\times$  & $\times$  & \checkmark \\
+    rad\_phiv2 & rad & -0.5 & $6.36\times 10^{-2}$ & -0.6 -- 0 & $\times$  & \checkmark & $\times$  \\
+    lmsov2 & mm & $-2.8\times 10^{-4}$ & $3.5\times 10^{-5}$ &  $-3\times 10^{-4}$ -- 0 & $\times$  & \checkmark & $\times$  \\
+    lth1v2 & mm & $5.39\times 10^{-3}$ & $3.5\times 10^{-4}$ & 0 -- $5.45\times 10^{-3}$ & $\times$  & \checkmark & $\times$  \\
+    lth2v2 & mm & $2.78\times 10^{-3}$ & $1.7\times 10^{-4}$ & 0 -- $2.8\times 10^{-3}$ & $\times$  & \checkmark & $\times$ \\
+    r1v2 & mm & $2.09\times 10^{-3}$ & $3.22\times 10^{-4}$ & 0 -- $2.2\times 10^{-3}$ & $\times$  & \checkmark & $\times$  \\
+    r11v2 & mm & $3.26\times 10^{-4}$ & $4\times 10^{-5}$ & 0 -- $6\times 10^{-4}$ & $\times$ &\checkmark & $\times$  \\
+    r2v2 & mm & $1.8\times 10^{-3}$ & $1.33\times 10^{-4}$ & 0 -- $1.9\times 10^{-3}$ & $\times$  & \checkmark & $\times$  \\
+    r3v2 & mm & $6.97\times 10^{-4}$ & $4.4\times 10^{-5}$ & 0 -- $7\times 10^{-4}$ & $\times$  & \checkmark & $\times$  \\
+    r4v2 & mm &  $7.47\times 10^{-4}$ & $4.8\times 10^{-5}$ & 0 -- $7.5\times 10^{-4}$ & $\times$  & \checkmark & $\times$  \\
+    rmt1v2 & mm & $2.49\times 10^{-4}$ & $1.6\times 10^{-5}$ & 0 -- $2.5\times 10^{-4}$ & $\times$  & \checkmark &$\times$  \\
+    rmt4v2 & mm & $2.49\times 10^{-4}$ & $1.6\times 10^{-5}$ & 0 -- $2.5\times 10^{-4}$ & $\times$  & \checkmark & $\times$  \\
+    rlt1v2 & mm & $1.85\times 10^{-4}$ &  $4.5\times 10^{-5}$ & 0 -- $2\times 10^{-4}$ & $\times$  & \checkmark & $\times$  \\
+    rlt4v2 & mm & $2.49\times 10^{-4}$ & $1.6\times 10^{-5}$ & 0 -- $2.5\times 10^{-4}$ & $\times$ & \checkmark & $\times$ \\
+    hav2 & mm & $4.9\times 10^{-3}$ & $3.36\times 10^{-4}$ &  0 -- $5\times 10^{-3}$ & $\times$  & \checkmark & $\times$  \\
+    mbv2 & mm & $1.7\times 10^{-2}$ & $1.17\times 10^{-3}$ & 0 -- $1.8\times 10^{-2}$ & $\times$  & \checkmark & $\times$  \\
+    mhv2 & mm & $3.6\times 10^{-3}$ & $2.65\times 10^{-4}$ & 0 -- $3.8\times 10^{-3}$ & $\times$ &\checkmark & $\times$  \\
+    rmagv2 & mm & $4.98\times 10^{-4}$ & $3.2\times 10^{-5}$ & 0 -- $5\times 10^{-4}$ & $\times$  & \checkmark & $\times$  \\
+    dsmv2 & mm & $2.9\times 10^{-3}$ & $1.9\times 10^{-4}$ & 0 -- $3.1\times 10^{-3}$ & $\times$  & \checkmark & $\times$ \\
+    dsmuv2 & mm & $2.9\times 10^{-3}$ & $1.9\times 10^{-4}$ & 0 -- $3.1\times 10^{-3}$ & $\times$  & \checkmark & $\times$  \\
+    amtrv2 & mm & $1.58\times 10^{-2}$ & $1.024\times 10^{-3}$ & 0 -- $1.6\times 10^{-2}$ & $\times$  & \checkmark & $\times$ \\
+    dsrv2 & mm & $9.96\times 10^{-4}$ & $6.4\times 10^{-5}$ & 0 -- $1\times 10^{-3}$ & $\times$  & \checkmark & $\times$ \\
+    lmav2 & mm & $1\times 10^{-4}$ & $3\times 10^{-5}$ & 0 -- $1.1\times 10^{-4}$ & $\times$  & \checkmark & $\times$  \\
+    lmiv2 & mm & $1.09\times 10^{-4}$ & $8\times 10^{-6}$ & 0 -- $1.10\times 10^{-4}$ & $\times$  & \checkmark & $\times$  \\
+    lmov2 & mm & $5.5\times 10^{-5}$ & $1.5\times 10^{-5}$ & 0 -- $1\times 10^{-4}$ & $\times$  & \checkmark & $\times$  \\
+    lmuv2 & mm & $1.45\times 10^{-4}$ & 10 & 0 -- $1.5\times 10^{-4}$ & $\times$  & \checkmark & $\times$ \\
+    rad\_phiv1 & rad & -$6.9\times 10^{-1}$ & $5.4\times 10^{-2}$ & -$7.8\times 10^{-1}$ -- -$4.5\times 10^{-1}$ &\checkmark & \checkmark & \checkmark\\
+    lmsov1 & mm & -$5.01\times 10^{-4}$ & $9.4\times 10^{-5}$ & -$5.3\times 10^{-4}$ -- $5\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    lth1v1 & mm & $2.8\times 10^{-3}$ & $1.7\times 10^{-4}$ & $2.8\times 10^{-3}$ -- $5.45\times 10^{-3}$ &\checkmark & \checkmark & \checkmark\\
+    lth2v1 & mm & $2.104\times 10^{-3}$ & $5.9\times 10^{-5}$ & $2.1\times 10^{-3}$ -- $3.2\times 10^{-3}$ &\checkmark & \checkmark & \checkmark\\
+    r1v1 & mm & $4.07\times 10^{-4}$ & $1.08\times 10^{-4}$ & $4\times 10^{-4}$ -- $2.2\times 10^{-3}$ &\checkmark & \checkmark & \checkmark\\
+    r11v1 & mm & $2.19\times 10^{-4}$ & $4.5\times 10^{-5}$ & $1\times 10^{-4}$ -- $6\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    r2v1 & mm & $2.16\times 10^{-4}$ & $1\times 10^{-4}$ & $2\times 10^{-4}$ -- $1.9\times 10^{-3} $&\checkmark & \checkmark & \checkmark\\
+    r3v1 & mm & $8.99\times 10^{-4}$ & $1.3\times 10^{-5}$ & $7\times 10^{-4}$ -- $9\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    r4v1 & mm & $5.01\times 10^{-4}$ & $1.6\times 10^{-5}$ & $5\times 10^{-4}$ -- $7.5\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    rmt1v1 & mm & $2.5\times 10^{-4}$ & $8.8\times 10^{-18}$ & $2.5\times 10^{-4}$ -- $2.5\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    rmt4v1 & mm & $2.5\times 10^{-4}$ & $8.8\times 10^{-18}$ & $2.5\times 10^{-4}$ -- $2.5\times 10^{-4} $&\checkmark & \checkmark & \checkmark\\
+    rlt1v1 & mm & $1.17\times 10^{-4}$ & $5.6\times 10^{-5} $& $5\times 10^{-5}$ -- $2.5\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    rlt4v1 & mm & $2.5\times 10^{-4}$ & $8.8\times 10^{-18}$ & $2.5\times 10^{-4}$ --$ 2.5\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    hav1 & mm & $2.9\times 10^{-3}$ & $1.36\times 10^{-4}$ & $2.9\times 10^{-3} $-- $5\times 10^{-3}$ &\checkmark & \checkmark & \checkmark\\
+    mbv1 & mm & $7.6\times 10^{-3}$ & $5.8\times 10^{-4}$ & $7.5\times 10^{-3}$ -- $1.8\times 10^{-2}$ &\checkmark & \checkmark & \checkmark\\
+    mhv1 & mm & $2.8\times 10^{-3}$ & $1.4\times 10^{-4}$ & $2.7\times 10^{-3}$ -- $5\times 10^{-3}$ &\checkmark & \checkmark & \checkmark\\
+    rmagv1 & mm & $5\times 10^{-4}$ & $1.7\times 10^{-17}$ & $5\times 10^{-4}$ -- $5\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    dsmv1 & mm & $1.07\times 10^{-3}$ & $1.41\times 10^{-4}$ & $8\times 10^{-4}$ -- $2.8\times 10^{-3}$ &\checkmark & \checkmark & \checkmark\\
+    dsmuv1 & mm & $1.07\times 10^{-3}$ & $1.47\times 10^{-4}$ & $8\times 10^{-4}$ -- $2.92\times 10^{-3}$ &\checkmark & \checkmark & \checkmark\\
+    amtrv1 & mm & $5.5\times 10^{-3}$ & $6.34\times 10^{-4}$ & $5.5\times 10^{-3}$ -- $1.9\times 10^{-2}$ &\checkmark & \checkmark & \checkmark\\
+    dsrv1 & mm & $7.5\times 10^{-4}$ & $3.2\times 10^{-5}$ & $7.5\times 10^{-4}$ -- $1.25\times 10^{-3}$ &\checkmark & \checkmark & \checkmark\\
+    lmav1 & mm & $9.2\times 10^{-5}$ & $2.6\times 10^{-5}$ & $1\times 10^{-5}$ -- $1.1\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    lmiv1 & mm & $1\times 10^{-4}$ & $6.35\times 10^{-7}$ & $1\times 10^{-4}$ -- $1.1\times 10^{-4} $&\checkmark & \checkmark & \checkmark\\
+    lmov1 & mm & $5.5\times 10^{-5}$ & $1.5\times 10^{-5}$ & $5\times 10^{-5}$ -- $1\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    lmuv1 & mm & $1.45\times 10^{-4}$ & $1.5\times 10^{-5}$ & $1\times 10^{-4}$ -- $1.5\times 10^{-4}$ &\checkmark & \checkmark & \checkmark\\
+    rad\_phi3b1 & rad & - $2.5\times 10^{-3}$ & $5.6001\times 10^{-2}$ & -1.25 -- 0 & $\times$  & $\times$  & \checkmark  \\
+    rad\_phi4b1 & rad & -$5.3\times 10^{-4}$ & $1.1775\times 10^{-2}$ & -0.26 -- 0  & $\times$  & $\times$  & \checkmark  \\
+    lmsob1 & mm & $2\times 10^{-6}$ & $3.4\times 10^{-5}$ & 0 -- $7.5\times 10^{-4}$ & $\times$  & $\times$  & \checkmark  \\
+    lthb1 & mm & $6\times 10^{-6}$ & $1.28\times 10^{-4}$ & 0 -- $2.9\times 10^{-3}$ & $\times$  & $\times$  & \checkmark  \\
+    r2b1 & mm & $2\times 10^{-6}$ & $4.5\times 10^{-5}$ & 0 -- $1\times 10^{-3}$ & $\times$  & $\times$  & \checkmark  \\
+    r3b1 & mm & $2\times 10^{-6}$ & $3.4\times 10^{-5}$ & 0 -- $1\times 10^{-3}$ & $\times$  & $\times$  & \checkmark  \\
+    r4b1 & mm & $5.06\times 10^{-7}$& $1.1\times 10^{-5}$ & 0 -- $2.5\times 10^{-4}$ & $\times$  & $\times$  & \checkmark  \\
+    r5b1 & mm & $5.06\times 10^{-7}$ & $1.1\times 10^{-5}$ & 0 -- $2.5\times 10^{-4} $& $\times$  & $\times$  & \checkmark  \\
+    lgr3b1 & mm & $1\times 10^{-6}$ & $2.2\times 10^{-5}$ & 0 -- $5\times 10^{-4}$ & $\times$  & $\times$  & \checkmark  \\
+    lgr4b1 & mm & $6.07\times 10^{-7}$ & $1.3\times 10^{-5}$ & 0 -- $3\times 10^{-4}$ & $\times$  & $\times$  & \checkmark  \\
+    mbb1 & mm & $3\times 10^{-5}$ & $6.75\times 10^{-4}$ & 0 -- $1.5\times 10^{-2}$ & $\times$ & $\times$  & \checkmark \\
+    mhb1 & mm & $6\times 10^{-6}$ & $1.4\times 10^{-4}$ & 0 -- $3.2\times 10^{-3}$ & $\times$  & $\times$ & \checkmark \\
+    mtbb1 & mm & $3\times 10^{-5}$ & $6.75\times 10^{-4}$ & 0 -- $1.5\times 10^{-2}$ & $\times$  &$\times$ & \checkmark  \\
+    rmagb1 & mm & $1\times 10^{-6}$ & $2.2\times 10^{-5}$ & 0 -- $5\times 10^{-4}$ & $\times$  & $\times$ & \checkmark \\
+    amtrb1 & mm & $4\times 10^{-6}$ & $9.8\times 10^{-5}$ & 0 -- $2.5\times 10^{-3}$ & $\times$  & $\times$  & \checkmark  \\
+    dsr3b1 & mm & $3\times 10^{-6}$ & $6.6\times 10^{-5}$ & 0 -- $1.85\times 10^{-3}$ & $\times$ & $\times$ & \checkmark  \\
+    dsr4b1 & mm & $4\times 10^{-6}$ & $8.3\times 10^{-5}$ & 0 -- $1.85\times 10^{-3}$ & $\times$  & $\times$  & \checkmark \\
+    lmob1 & mm & $2.02\times 10^{-7}$ & $4.49\times 10^{-6}$ & 0 -- $1\times 10^{-4}$ & $\times$  & $\times$ & \checkmark \\
+    lmub1 & mm & $3.03\times 10^{-7}$ & $6.7\times 10^{-6}$ & 0 -- $1.5\times 10^{-4}$ & $\times$  & $\times$  & \checkmark \\
+    lmsub1 & mm & $4\times 10^{-6}$ & $8.1\times 10^{-5}$ & 0 -- $1.8\times 10^{-3}$ &$\times$  & $\times$  & \checkmark \\
     \hline
     \multicolumn{8}{|l|}{\textbf{Stator Parameters}} \\
     \hline
-    airgap & mm & 1.000000e-03 & 3.535693e-17 & 1.000000e-03--1.000000e-03 &\checkmark  & \checkmark  & \checkmark  \\
-    b\_nng & mm & 0.005049 & 0.000091 & 0.004646--0.005120 & \checkmark  & \checkmark  & \checkmark  \\
-    b\_nzk & mm & 0.004557 & 0.000057 & 0.004450--0.004646 & \checkmark  & \checkmark  & \checkmark  \\
-    b\_s & mm & 0.001002 & 0.000025 & 0.001000--0.001400 & \checkmark  & \checkmark  & \checkmark  \\
-    h\_n & mm & 0.011149 & 0.000806 & 0.009200--0.013939 & \checkmark  & \checkmark  & \checkmark  \\
-    h\_s & mm & 1.000000e-03 & 3.535693e-17 & 1.000000e-03--1.000000e-03 & \checkmark  & \checkmark  & \checkmark  \\
-    r\_sn & mm & 2.500000e-04 & 8.839232e-18 & 2.500000e-04--2.500000e-04 & \checkmark  & \checkmark  & \checkmark  \\
-    r\_zk & mm & 0.000501 & 0.000019 & 0.000500--0.000800 & \checkmark  & \checkmark  & \checkmark  \\
-    r\_ng & mm & 0.000501 & 0.000019 & 0.000500--0.000800 & \checkmark  & \checkmark  & \checkmark  \\
-    h\_zk & mm & 1.000000e-03 & 3.535693e-17 & 1.000000e-03--1.000000e-03 & \checkmark  & \checkmark  & \checkmark  \\
-    bhp & mm & 0.003736 & 0.000081 & 0.003550--0.003800 &\checkmark  & \checkmark  & \checkmark  \\
-    hhp & mm & 0.002386 & 0.000199 & 0.001900--0.002840 &\checkmark  & \checkmark  & \checkmark  \\
-    rhp & mm & 0.000636 & 0.000045 & 0.000500--0.000800 &\checkmark  & \checkmark  & \checkmark  \\
-    dhphp & mm & 0.000264 & 0.000014 & 0.000263--0.000485 &\checkmark  & \checkmark  & \checkmark  \\
-    dhpng & mm & 0.000406 & 0.000003 & 0.000406--0.000453 &\checkmark  & \checkmark  & \checkmark  \\
+    airgap & mm & $1\times 10^{-3}$ & $3.5\times 10^{-17}$ & $1\times 10^{-3}$ -- $1\times 10^{-3}$ &\checkmark  & \checkmark  & \checkmark  \\
+    b\_nng & mm & $5.04\times 10^{-3}$ & $9.1\times 10^{-5}$ & $4.6\times 10^{-3}$ -- $5.1\times 10^{-3}$ & \checkmark  & \checkmark  & \checkmark  \\
+    b\_nzk & mm & $4.5\times 10^{-3}$ & $5.7\times 10^{-5}$ & $4.45\times 10^{-3}$ -- $4.6\times 10^{-3}$ & \checkmark  & \checkmark  & \checkmark  \\
+    b\_s & mm & $1\times 10^{-3}$ & $2.5\times 10^{-5}$ & $1\times 10^{-3}$ -- $1.4\times 10^{-3}$ & \checkmark  & \checkmark  & \checkmark  \\
+    h\_n & mm & $1.1\times 10^{-2}$ & $8.06\times 10^{-4}$ & $9.2\times 10^{-3}$ -- $1.39\times 10^{-2}$ & \checkmark  & \checkmark  & \checkmark  \\
+    h\_s & mm & $1\times 10^{-3}$ & $3.5\times 10^{-17}$& $1\times 10^{-3}$ -- $1\times 10^{-3}$ & \checkmark  & \checkmark  & \checkmark  \\
+    r\_sn & mm & $2.5\times 10^{-4}$ & $8.8\times 10^{-18}$ & $2.5\times 10^{-4}$ -- $2.5\times 10^{-4}$ & \checkmark  & \checkmark  & \checkmark  \\
+    r\_zk & mm & $5.01\times 10^{-4}$ & $1.9\times 10^{-5}$ & $5\times 10^{-4}$ -- $8\times 10^{-4}$ & \checkmark  & \checkmark  & \checkmark  \\
+    r\_ng & mm & $5.01\times 10^{-4}$ & $1.9\times 10^{-5}$ & $5\times 10^{-4}$ -- $8\times 10^{-4}$ & \checkmark  & \checkmark  & \checkmark  \\
+    h\_zk & mm & $1\times 10^{-3}$ & $3.5\times 10^{-17}$ & $1\times 10^{-3}$ -- $1\times 10^{-3}$ & \checkmark  & \checkmark  & \checkmark  \\
+    bhp & mm & $3.7\times 10^{-3}$ & $8.1\times 10^{-5}$ & $3.5\times 10^{-3}$ -- $3.8\times 10^{-3}$ &\checkmark  & \checkmark  & \checkmark  \\
+    hhp & mm & $2.38\times 10^{-3}$ & $1.9\times 10^{-4}$ & $1.9\times 10^{-3}$ -- $2.8\times 10^{-3}$ &\checkmark  & \checkmark  & \checkmark  \\
+    rhp & mm & $6.36\times 10^{-4}$ & $4.5\times 10^{-5}$ & $5\times 10^{-4}$ -- $8\times 10^{-4}$ &\checkmark  & \checkmark  & \checkmark  \\
+    dhphp & mm & $2.6\times 10^{-4}$ & $1.4\times 10^{-5}$ & $2.6\times 10^{-4}$ -- $4.8\times 10^{-4}$ &\checkmark  & \checkmark  & \checkmark  \\
+    dhpng & mm & $4.06\times 10^{-4} $& $3\times 10^{-6}$ & $4.06\times 10^{-4}$ -- $4.5\times 10^{-4} $&\checkmark  & \checkmark  & \checkmark  \\
     \hline
     \caption{\ac{EM} Input Parameters}
     \label{tab:Input Parameters} \\
