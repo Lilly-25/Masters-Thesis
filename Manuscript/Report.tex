@@ -305,6 +305,9 @@ The remaining \ac{KPI} such as Losses can be calculated from these 2 KPIs as the
 The Torque curve is a 2D plot ie, a vector across speed ranges and the Efficiency grid is a 3D plot ie, a matrix of dimensions torque ranges times speed ranges. 
 Both the outputs are continuous values which makes it a regression problem. 
 
+\section{Motivation}\label{sec:Motivation}
+
+
 \section{Problem Statement}\label{sec:Problem Statement}
 
 \begin{enumerate}
@@ -346,7 +349,7 @@ However our approach is progressive in the sense that once the \ac{KPI}s are pre
 Reproducing images is not known to be the best approach given the infamous known fact that AI generated images are faulty. 
 However by generating the parameters of the motor we can be rest assured of more precise results. 
 Hence the need to focus on the inputs as they are with their parametric description.
-Vivek et al in \cite{VAE-MT-2021} also highlights that predicting \ac{KPI}s with tabular data is significantly more efficient than using the images because the latter could result 
+Vivek et al. in \cite{VAE-MT-2021} also highlights that predicting \ac{KPI}s with tabular data is significantly more efficient than using the images because the latter could result 
 in less accurate designs due to the need of high resolution images in addition to its overall computation cost required for training. Their work 
 involves the use of a Variational Autoencoder to predict the \ac{KPI}s with an \ac{MLP} as well as sample the latent space to generate new \ac{EM} designs.\\
 Evolutionary algorithms such as genetic algorithms are traditionally used as multi objective optimization algorithms to generate the designs by iteratively
@@ -356,14 +359,14 @@ In addition a larger number of iterations of these algorithms is necessary to ev
 We do surrogate modelling of the \ac{FEA} simulations which serves as the baseline to eliminate the role of evolutionary algorithms as well for generating designs.
 The latter could potentially be a future work to be carried out since the time complexity associated with the Genetic Algorithms 
 may discourage users to wait until convergence and rather persuade them to be satisfied with a suboptimal design.\\
-Marius et al in \cite{VAE-MT-2021} undertake works on optimizing electric motor design generation by compressing its parametric description 
+Marius et al. in \cite{VAE-MT-2021} undertake works on optimizing electric motor design generation by compressing its parametric description 
 across multiple topologies into a compressed latent space thereafter from which new \ac{EM} designs can be sampled.
 They also disclose the solutions taken to address the problem wherein unique parameters of 1 topology are absent in another topology.
 They mitigate this concern with 2 approaches. Firstly, they default the missing values with an arbitrary fixed constant 0s this inturn 
 pushes the model to learn a nonsensical value for irrelevant features.
 However they also note that this shortcut results in wasting model capacity making the learning unnecessarily more difficult.
 Therefore, they have also used a second approach termed as Masked Learning Process wherein only features relevant for the motor topology are 
-considered for modelling loss reconstruction nf the model. \\
+considered for modelling loss reconstruction of the model. \\
 The authors of \cite{EM 2DFMP-2022} presents a method to predict 2\ac{D} flux maps of an Interior \ac{PMSM} using classical machine learning ensemble regression models.
 Therefore for each coefficients of the 2\ac{D} flux maps, a separate regression model is trained which are then ensembled to make target predictions. 
 Although there are classical Machine Learning models which handle multi regression, they do not perform very well with higher dimensions as 
@@ -387,9 +390,9 @@ We review the concept of surrogate modelling and its applications in \ac{EM} dom
 The researchers of \cite{SM EMT-2020} talks about the use of domain knowledge to improve the accuracy of surrogate modelling \ac{EM} by creating a hybrid of both 
 physics and data driven based models.
 In addition, it presents a workflow for surrogate modelling the air gap torque from \ac{FEA} simulated data and compares and contrasts the computationally efficiency with regards to both approaches. 
-Similarly, Yusuke et al in \cite{PANN-MT-2021} and \cite{PANN-MOO-2021} also claim that a physics assisted neural network significantly improved the accuracy performance when predicting the cogging torque 
+Similarly, Yusuke et al. in \cite{PANN-MT-2021} and \cite{PANN-MOO-2021} also claim that a physics assisted neural network significantly improved the accuracy performance when predicting the cogging torque 
 of Permanent Magnet Synchronous Motors. Their experiments suggest that approximating the cogging torque with a linear subdomain model which serves as an additional 
-input to the neural network when making the final prediction. With this methodology, they also disclose that a significant less data than estimated suffice
+input to the neural network when making the final prediction. With this methodology, they also disclose that a significant less data than estimated suffice.
 Works by \cite{EM TL-2020} explores methodologies to extend an already model to predict efficiency maps for a topology it was untrained for by exploiting 
 the concept of transfer learning. The writers claim to get this accomplished by mixture of greedy pretraining and then overall finetuning the model.
 They do so by freezing the pretrained network which they identify as common knowledge so that gradient flow is disabled and substitute the other 
@@ -501,8 +504,8 @@ We make the following observations:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/StandardDeviation_Baseline_y1.png} 
-    \caption{Standard Deviation of 2D KPI(Efficiency) Targets} 
-    \label{fig:Standard Deviation of 2D KPI(Efficiency) Targets}
+    \caption{Standard Deviation of 2D KPI} 
+    \label{fig:Standard Deviation of 2D KPI}
 \end{figure}
 \subsection{Data Exploration of the Efficiency \ac{KPI}(Efficiency Grid)}\label{sec:Deep Dive into 3D KPI}
 As the target values of the Efficiency \ac{KPI} are not provided with the correct dimensions we have an additional step which takes the maximum torque value from the Torque \ac{KPI} 
@@ -542,7 +545,7 @@ This is yet another finding we use in Post Processing as is further elaborated i
     \label{fig:Standard Deviation of 3D KPI(Efficiency) Positive Grid}
 \end{figure}
 
-Figure \ref{fig:Standard Deviation of 3D KPI(Efficiency) Positive Grid across Speed Intervals} gives us the big picture of how the efficiency values are 
+Figure \ref{fig:Standard Deviation of 3D KPI(Efficiency) Positive Grid across Speed Intervals} gives us the holistic view of how the efficiency values are 
 distributed across equally spaced intervals of angular velocity. The Figure plots the standard deviation of all the Efficiency values of all samples of our dataset 
 as an error bar for specific angular velocities at equal intervals of 2000 rpm.
 The distributions shows maximum skewness towards extreme angular velocities and is relatively stable between 4000 and 6000 rpm. 
@@ -561,7 +564,7 @@ variant considering it is in the form of a 2\ac{D} array.
 The csv files are then concatenated and stored into an array conserving dimensionality by padding \ac{NaN} values to match dimensionality of the grid 
 corresponding to the Torque \ac{KPI} with the largest torque value.
 In our case the value is 280 computed internally from the dataset but this is subject to change as we receive more data and there is a provision handy to override it 
-on demand. The array is then saved locally for easy access and loading during training.\\
+on demand. The array is then saved locally for easy access and loading during training.
 
 Initially we tried to set \ac{NaN} values as an incredibly high value hoping the model would consider this as a default value instead of \ac{NaN}.
 However, it resulted in poor predictions as the model must have been confused and tried to increase its spread of predictions to cover this large value and so all 
@@ -591,7 +594,7 @@ We decided against scaling the targets owing to below 2 reasons :
     It is not a good practice to do so as we will have lost a lot of originality in each example and is now introducing noise to new examples especially when they have a different data distribution.
     \item For the Efficiency \ac{KPI} we have loss regularization Equation \ref{eq:Y2 Maximum Efficiency Regularization} that has a constraint 
     check on the maximum range of efficiency values that can be predicted. If we had scaled the target, the constraint check would not be feasible to 
-    implement as the maximum value that the constraint takes would also have to be scaled with the same scaler for comparision.
+    implement as the maximum value that the constraint takes would also have to be scaled with the same scaler for comparison.
 \end{enumerate}
 
 During our experimentations where we initially scaled the targets, we observed then that the network required substantially less effort to learn and consequently lower learning rate and fewer epochs.
@@ -630,8 +633,8 @@ We have a hyperparameter to control the number of neurons in each hidden layer t
 Dropout layers ensure that not all neurons in each layer are used up during training to prevent the model from memorizing the data and hence overfitting.  
 We have 2 hyperparameters to control the dropout rate at which we freeze the neurons when training also to be discussed in Table \ref{tab:Hyperparameter Tunings}.
 We use dropout for the shared layers of the \ac{MLP} and for the layers corresponding to Efficiency \ac{KPI}.
-Batch normalisation layers are used to normalize the input from the \ac{ReLU} activations applied on it and so mitigate internal covariate shift to the next layer and hence speed up the training process.\\
-Thus both batch normalisation and dropout layers stabilize the network training.
+Batch normalization layers are used to normalize the input from the \ac{ReLU} activations applied on it and so mitigate internal co-variate shift to the next layer and hence speed up the training process.\\
+Thus both batch normalization and dropout layers stabilize the network training.
 Figure \ref{fig:MLP Model Architecture} gives an outline on how the \ac{MLP} Model architecture is designed. 
 We discuss each component of the architecture below :
 \begin{enumerate}
@@ -640,7 +643,7 @@ We discuss each component of the architecture below :
     \item \textbf{MLP Shared} \\
     The MLP Shared block is a sequential block comprising of 2 Linear Layers with the input features and neurons of each hidden layer to be a hyperparameter we tune.
     We do not increase the number of neurons in the hidden layers within this block as it needs to be in the range of input features and output features(in this case Torque \ac{KPI}).
-    Furthermore we have Batch Normalisation layers between each linear and \ac{ReLU} activation function in addition to drop out layers.
+    Furthermore we have Batch Normalization layers between each linear and \ac{ReLU} activation function in addition to drop out layers.
     The dropout rate for the layers in this block is relatively higher as we want to encourage the model to focus largely on learning the generality of the data.
     The 2 Linear Layers enable the network to learn a rich representation of the data during the initial feature extraction phase.
     \item \textbf{MLP Torque} \\
@@ -650,7 +653,7 @@ We discuss each component of the architecture below :
     This block comprises of 3 Linear Layers with the output feature to be the size of the Efficiency \ac{KPI}.
     Here we also increase the neurons of the hidden layers as we are not limited by the dimensionality of the output feature.
     This would enable the model to be more strong and grasp the complex patterns in the data better.
-    As usual we have batch normalisation, dropout and \ac{ReLU} activation functions between the 1st two Linear layers.
+    As usual we have batch normalization, dropout and \ac{ReLU} activation functions between the 1st two Linear layers.
     The dropout rate for the layers in this block is relatively lower as we want to encourage the model to learn the specific nature of the grid towards the end.
     For the Last Linear layer we have the output features corresponding to the target dimensions and a \ac{ReLU} activation again as the target values are inherently 
     always positive values and it again encourages the model to adhere to this fact.
@@ -696,7 +699,7 @@ as similar as possible. This is formulated mathematically as in Equation \ref{eq
 \label{eq:Y1 Smoothening Loss Regularization}
 \end{equation} 
 \vspace{0.2cm} % Adjusts vertical space between equation and text
-This nature is factored in by penalising the loss by the magnitude if the neighbouring values in the prediction are not close to each other.
+This nature is factored in by penalizing the loss by the magnitude if the neighboring values in the prediction are not close to each other.
 \ac{ReLU} helps to clips the difference if it is negative which is the scenario when a violation is not warranted.
 \item \textbf{Decreasing Loss Regularization} \\
 The Torque curve closely resembles a decreasing sigmoidal curve and hence we use this knowledge to penalize the loss for increasing consecutive values within the prediction. 
@@ -893,8 +896,9 @@ the Torque \ac{KPI} because the former is smaller than the latter then we decide
 
 \section{Experiments with \ac{MLP}}\label{sec:Experiments with MLP}
 
-After optimizing over an exhaustive random search of the hyperparameter space, we present them in Table \ref{tab:Hyperparameter Tunings} by monitoring the model's performance across 5 fold cross validation training.\\
-We use different splits for each round of training and tune the hyperparameters on the validation set. The final splits are saved locally and can be used later to ensure reproducibility. 
+After optimizing over an exhaustive random search of the hyperparameter space, we present them in Table \ref{tab:Hyperparameter Tunings} by monitoring the model's 
+performance across 5 fold cross validation. We use different splits for each round of training and tune the hyperparameters on the validation set. 
+The final splits are saved locally and can be used later to ensure reproducibility. 
 
 \begin{table}[H]
     \centering
@@ -925,113 +929,102 @@ We use different splits for each round of training and tune the hyperparameters 
 \end{table}
 
 We are using a learning rate scheduler which reduces the learning rate exponentially by the \textit{lr gamma} to decay learning as training progresses across epochs.
-This is to ensure that the model does not overshoot after few cycles of training.\\
-The \textit{batch size} is limited to the capacity of our \ac{GPU} memory. We use the maximum batch size to train faster and therefore use 72 after which we hit the memory roof of our GPU.\\
-The \textit{hidden size} refers to the number of neurons in the hidden layers of the \ac{MLP} model. 
-We have experimented with 2 hidden sizes only as we are constrained with the fact that the number of neurons must be between the range of input features and output features which was discussed in Section \ref{sec:MLP Model}.
-In addition to it being of the multiples of 8 as \ac{GPU}s are most optimized for the same.
-Dropout rate during training is controlled by the parameter \textit{$p_{y1}$} for shared layers and \textit{$p_{y2}$} for layers specific to Efficiency \ac{KPI}. This is discussed in Section \ref{sec:MLP Model}. \\
-We donot concern much about the data being dropped in larger extent than anticipated for the Torque \ac{KPI} because it is relatively simpler to learn and the value range is comparitively larger leading its loss to dominate the total loss.\\
-\textit{$\lambda_{1y1}$}, \textit{$\lambda_{2y1}$}, \textit{$\lambda_{y21}$} and \textit{$\lambda_{y22}$} parameters control the regularization weight for the regularization terms for the Torque \ac{KPI} and Efficiency \ac{KPI} respectively detailed in Equation \ref{eq:Total Loss}.\\
-The thresholds \textit{$t_{1}$}, \textit{$t_{2}$} and \textit{$t_{3}$} are used to control the number of rows and/or columns to be considered for the regularization terms for the Efficiency \ac{KPI} as detailed in Section \ref{sec:Loss for 3D KPI}.\\
-The weightage parameter to control the direction of loss is denoted by \textit{wt} and is also discussed in Equation \ref{eq:Total Loss}.\\
+This is to ensure that the model does not overshoot after few cycles of training.
+The \textit{batch size} is limited to the capacity of our \ac{GPU} memory. We use the maximum batch size to train faster and therefore use 72 after which we hit the 
+memory roof of our GPU.
+The \textit{hidden size} refers to the number of neurons in the hidden layers of the \ac{MLP} model. We have experimented with just 2 hidden sizes as we are 
+constrained by the fact that the number of neurons must be between the range of input features and output features which was discussed in Section \ref{sec:MLP Model}.
+In addition it has to be of the multiples of 8 as \ac{GPU}s are most optimized for the same.
+Dropout rate during training is controlled by the parameter \textit{$p_{y1}$} for shared layers and \textit{$p_{y2}$} for layers specific to Efficiency \ac{KPI}. 
+This is discussed in Section \ref{sec:MLP Model}. We are not so much concerned of the data being dropped in larger extent than anticipated for the Torque \ac{KPI} 
+because it is relatively simpler to learn and the value range is comparatively larger leading its loss to dominate the total loss.
+\textit{$\lambda_{1y1}$}, \textit{$\lambda_{2y1}$}, \textit{$\lambda_{y21}$} and \textit{$\lambda_{y22}$} parameters control the regularization weight for the 
+regularization terms for the Torque \ac{KPI} and Efficiency \ac{KPI} respectively detailed in Equation \ref{eq:Total Loss}.
+The thresholds \textit{$t_{1}$}, \textit{$t_{2}$} and \textit{$t_{3}$} are used to control the number of rows and/or columns to be considered for the loss
+regularization terms to learn the nature of the Efficiency \ac{KPI} as detailed in Section \ref{sec:Loss for 3D KPI}.
+The weightage parameter to control the direction of loss is denoted by \textit{wt} and is also discussed in Equation \ref{eq:Total Loss}.
 
-We also observe that the simple architecture of the model is not a significant downside for that limited data set. \\
+We also observe that a simple architecture of the model is not a significant downside for limited data set as it seems to learn the patterns within the data 
+especially since we supplement the loss regularization with more knowledge.
+Our main \ac{MLP} model only uses the loss regularization parameters \textit{$\lambda_{2y1}$} and \textit{$\lambda_{y2}$} ie, it does not consider the Smoothing curve 
+regularization for the Torque \ac{KPI} whose performance we will separately discuss in Section \ref{sec:Ablation Studies}.
 
-We chose a 3rd party application \texttt{Wandb}\footnote{Weights \& Biases} to log metrics from the training run and to monitor model performance across the 5 folds. \\
-Our \ac{MLP} model only uses the loss regularization parameters \textit{$\lambda_{2y1}$} and \textit{$\lambda_{y2}$} ie, it does not consider the Smoothening curve Regularization for the Torque \ac{KPI}s.
+We chose a 3rd party application \texttt{Wandb}\footnote{Weights \& Biases} to log metrics from the training run and to monitor model performance across the 5 folds.
+All 5 folds are monitored and shown in the Figures as training and validation occurs 5 times on different combinations of cross validation splits independent per fold.
+
+Figure \ref{fig:Training Loss Metrics} illustrates the loss at work as training progresses across epochs. 
+Figures \ref{fig:Training Loss Metrics} \ref{sub@fig:Training Loss for Torque Curve} and \ref{fig:Training Loss Metrics} \ref{sub@fig:Training Loss for Efficiency grid} 
+provides monitoring of how the losses for both the \ac{KPI}s vary. As was discussed in Equation \ref{eq:Y1 Loss} and Equation \ref{eq:Y2 Loss}, both the \ac{MSE} losses 
+also include their respective loss regularization terms weighted by the tunable regularization coefficients. 
+Figure \ref{fig:Training Loss Metrics} \ref{sub@fig:Aggregated Training Loss} depicts the weighted sum of losses 
+discussed in Equation \ref{eq:Total Loss}.
 
 \begin{figure}[H]
     \centering
-    \begin{minipage}[b]{0.325\textwidth}
+    \begin{subfigure}{0.32\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{./ReportImages/train_loss.png}
         \caption{\centering Aggregated Training Loss}
         \label{fig:Aggregated Training Loss}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[b]{0.325\textwidth}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{./ReportImages/train_loss_y1.png}
         \caption{\centering Training Loss for Torque \ac{KPI}}
         \label{fig:Training Loss for Torque Curve}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[b]{0.325\textwidth}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{./ReportImages/train_loss_y2.png}
         \caption{\centering Training Loss for Efficiency \ac{KPI}}
         \label{fig:Training Loss for Efficiency grid}
-    \end{minipage}
+    \end{subfigure}
+    \caption{Training Loss Metrics}
+    \label{fig:Training Loss Metrics}
 \end{figure}
 
+From the training plots we see that the model has converged after having run for 10 epochs with a total run time of 3 MNIUTES VERIFY:
+Even though the weightage assigned to the Efficiency \ac{KPI} is significantly more in addition to loss regularization parameter, it seems to have stopped learning 
+beyond a threshold and so we hypothesize to further increase the weightage of the Efficiency \ac{KPI}.
+The Torque \ac{KPI} shows promise in learning better but it would be at the cost of overfitting the Efficiency \ac{KPI}.
 \begin{figure}[H]
     \centering
-    \begin{minipage}[b]{0.325\textwidth}
-        \includegraphics[width=\textwidth]{./ReportImages/train_score.png}
-        \caption{\centering Aggregated Training Score}
-        \label{fig:Aggregated Training Score}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[b]{0.325\textwidth}
-        \includegraphics[width=\textwidth]{./ReportImages/train_score_y1.png}
-        \caption{\centering Training Score for Torque \ac{KPI}}
-        \label{fig:Training Score for Torque Curve}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[b]{0.325\textwidth}
-        \includegraphics[width=\textwidth]{./ReportImages/train_score_y2.png}
-        \caption{\centering Training Score for Efficiency \ac{KPI}}
-        \label{fig:Training Score for Efficiency grid}
-    \end{minipage}
-\end{figure}
-
-From the training plots we see that the model has converged after having run for 10 epochs with a total run time of 3 MNIUTES:::TABLE CREATION MINUTES:::\\
-Even though the weightage assigned to the Efficiency \ac{KPI} is significantly more in addition to loss regularization parameter, it seems to struggle to learn beyond a threshold and overfit by the 5th epoch.\\
-We hypothesize to further increase the weightage of the Efficiency \ac{KPI}.
-The Torque \ac{KPI} shows promise in learning better but it would be at the cost of overfitting the Efficiency \ac{KPI}.\\
-The Validations plots tells us the same tale although the Efficiency \ac{KPI} stops to learn after a certain point.
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}[b]{0.325\textwidth}
-        \includegraphics[width=\textwidth]{./ReportImages/val_loss.png}
-        \caption{\centering Aggregated Validation Loss}
-        \label{fig:Aggregated Validation Loss}
-    \end{minipage}
-    \begin{minipage}[b]{0.325\textwidth}
-        \includegraphics[width=\textwidth]{./ReportImages/val_loss_y1.png}
-        \caption{\centering Validation Loss for Torque \ac{KPI}}
-        \label{fig:Validation Loss for Torque Curve}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[b]{0.325\textwidth}
-        \includegraphics[width=\textwidth]{./ReportImages/val_loss_y2.png}
-        \caption{\centering Validation Loss for Efficiency \ac{KPI}}
-        \label{fig:Validation Loss for Efficiency grid}
-    \end{minipage}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{minipage}[b]{0.325\textwidth}
+    \begin{subfigure}{0.32\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{./ReportImages/val_score.png}
         \caption{\centering Aggregated Validation Score}
         \label{fig:Aggregated Validation Score}
-    \end{minipage}
-    \begin{minipage}[b]{0.325\textwidth}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{./ReportImages/val_score_y1.png}
         \caption{\centering Validation Score for Torque \ac{KPI}}
         \label{fig:Validation Score for Torque Curve}
-    \end{minipage}
-    \hfill
-    \begin{minipage}[b]{0.325\textwidth}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{./ReportImages/val_score_y2.png}
         \caption{\centering Validation Score for Efficiency \ac{KPI}}
         \label{fig:Validation Score for Efficiency grid}
-    \end{minipage}
-\end{figure}
+    \end{subfigure}
+    \caption{Validation Evaluation Metrics}
+    \label{fig:Validation Evaluation Metrics}
+\end{figure} 
+
+The Validations plots for losses also tells us the same tale although the Efficiency \ac{KPI} stops to learn after a certain point can be monitored in \ref{fig:Validation Loss Metrics}.
+Figure \ref{fig:Validation Evaluation Metrics} illustrates the evaluation metrics changing across each epoch of the validation dataset. This is important to us to know 
+the model's performance on unseen data fot the 5 folds. Figure \ref{sub@fig:Aggregated Validation Score} shows the aggregated validation score which is again the weighted 
+sum of the scores as was formulated in Equation CITE for both the \ac{KPI}s displayed in Figure \ref{sub@fig:Validation Loss for Torque Curve} and Figure 
+\ref{sub@fig:Validation Score for Efficiency grid} respectively. Likewise the training plots evaluation metrics are displayed in Figure \ref{fig:Training Evaluation Metrics}.
+
+The training loss and validation evaluation plots are most important to us to be able to judge the hyperparameters to optimize. 
+Therefore the other plots are moved to Appendix \ref{sec:Experimental setup} for further reflection.
+
+Our observations from the validation plots are : LIST THEM
 
 We have also enabled saving the best performant fold locally so it can be loaded on demand by the client when in need to only run inference.\\
+As the value ranges for both the \ac{KPI}s are starkly different, we give a glimpse of the percentage difference
 We have narrowed down scoring to follow the criteria as recorded in Table \ref{tab:Scoring Criteria}.
-
 \begin{table}[H]
     \centering
     \begin{tabularx}{1\linewidth}{|X|X|X|X|X|X|X|X|X|X|}
@@ -1050,20 +1043,17 @@ This is deduced from the Equations \ref{eq:Y1 Percentage Difference} and \ref{eq
     \text{Y1 Percentage Difference} = (\text{Y1 Score} / {(Y1 Max - Y1 Min)})  \times 100
     \label{eq:Y1 Percentage Difference}
 \end{equation}
-
 \begin{equation}
     \text{Y2 Percentage Difference} = (\text{Y2 Score} / {(Y2 Max - Y2 Min)})  \times 100
     \label{eq:Y2 Percentage Difference}
 \end{equation}
 
 From our observations the target values for Torque \ac{KPI} range between 50-280 and those of the Efficiency \ac{KPI} range between 0-100.
-
-The scoring of the Y2 at inference is slightly difference from that of training in the sense that for inference, we have the Torque \ac{KPI} to 
+The scoring of the Y2 at inference is slightly different from that of training in the sense that for inference, we have the Torque \ac{KPI} to 
 accurately slice of the envelope from the Efficiency \ac{KPI}. Also need to ensure how the difference works for NAN especially at inference coz 
-for Training there are no NANs and in targets it would be 0. But for training, we cant slice the envelope as we dont have the Torque curve yet.
+for Training there are no NANs and in targets it would be 0. But for training, we cant slice the envelope as we dont have the Torque curve yet.--TO BE REMMOVED
 
 \section{Results with \ac{MLP}}\label{sec:Results with MLP}
-
 \subsection{Torque \ac{KPI} Results with \ac{MLP}}\label{sec:2D Torque Curve Results with MLP}
 
 \begin{figure}[H]
@@ -1073,12 +1063,20 @@ for Training there are no NANs and in targets it would be 0. But for training, w
     \label{fig:MLP Training Results for 2D KPI(Torque)}
 \end{figure}
 
-Figure \ref{fig:MLP Training Results for 2D KPI(Torque)} depicts the difference and percentage difference on a twin scale to give a rough overview of the prediction deviations from the targets.
-Whereas the \ac{RMSE} equivalent to the Y1 score tells us that for 50\% of the plots shown, the predictions are off by about 5\% from the target values as per Table \ref{tab:Scoring Criteria}.\\
-Figure \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)} shows us the Average \ac{RMSE} and element wise \ac{RMSE} for the test dataset performance with the \ac{MLP}. \\
-Our inferences are overall the predictions closely resemble the trajectory of the target values allthough they fluctuate.
-Experimenting with the hyperparameters \textit{$\lambda_{1y1}$} and \textit{$\lambda_{2y1}$} has potential to improve this anomaly. 
-In addition granting a higher weight \textit{wt} can also help in this direction.\\
+Figure \ref{fig:MLP Training Results for 2D KPI(Torque)} illustrates 6 test dataset predicted Torque Values and their corresponding ground truths displayed against their angular velocities.
+The torque values are only displayed for the range of torque participating in the Torque curves and so the continuity to 0 Nm is not maintained here to ensure effective space 
+utilization. We also depict the difference and percentage difference on a twin y axis to give a rough overview of the prediction deviations from the targets.
+As the percentage difference formulated in Equation \ref{eq:Y1 Percentage Difference} would always result in positive values, they appear above the 0 line dotted separator.+
+Although we do see deviations, we notice for most of the cases, the predictions are such that the torque values predicted have smaller values than its respective ground truths.
+In addition, the \ac{RMSE} equivalent to the Y1 score tells us that for 50\% of the plots shown, the predictions are off by about 5\% from the target values as per 
+Table \ref{tab:Scoring Criteria}.
+
+Figure \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)} shows us the Average \ac{RMSE} and element wise \ac{RMSE} for the test dataset performance with the \ac{MLP}. 
+This figure closely resembles the skeleton of the Figure \ref{fig:Standard Deviation of 2D KPI} in terms of what is displayed. The only difference we can highlight is 
+that the \ac{RMSE} with that of the ground truth is plotted instead of standard deviation on the twin y-axis in red.
+Overall our inferences are the predictions closely resemble the trajectory of the target values although they fluctuate. Experimenting with the hyperparameters 
+\textit{$\lambda_{1y1}$} and \textit{$\lambda_{2y1}$} has potential to improve this anomaly. In addition, granting a higher weight \textit{wt} can also help in this direction.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/RMSE_MLP_y1.png} 
@@ -1086,8 +1084,7 @@ In addition granting a higher weight \textit{wt} can also help in this direction
     \label{fig:MLP RMSE Evaluation for 2D KPI(Torque)}
 \end{figure}
 
-
-Figure \ref{fig:Y1 Evaluation Statistics MLP} shows the score statistics of the model performance of Torque \ac{KPI} over the entire test dataset.
+Figure \ref{fig:Y1 Evaluation Statistics MLP} shows the score statistics of the model performance of Torque \ac{KPI} over few samples from the test dataset.
 The Y1 \ac{RMSE} from Equation \ref{eq:Y1 Score} is calculated for each sample and shown as a histogram in Figure \ref{fig:Y1 RMSE}.
 The Y1 Percentage Difference from Equation \ref{eq:Y1 Percentage Difference} is calculated for each sample and shown as a histogram in Figure \ref{fig:Y1 Percentage Difference}.\\
 
@@ -1430,14 +1427,14 @@ On the basis of the directionality of edges within graphs, they can have the fol
 In addition to their ability to incorporate both entity features and network features into a single, simultaneously trained model, most \ac{GNN}s scale linearly with 
 the number of edges in the network, making them applicable to large networks. A huge benefit of \ac{GNN}s in practical use cases is that they are inductive rather 
 than transductive. While transductive model can only be used on the specific data that was present during training, inductive models can be applied to entirely new 
-data without having to be retrained. This is defended by Fredrik Johannessen et al in \cite{ML HGNN-2023}
-A hallmark of \ac{GNN}s is that they can efficiently learn the architecture parameters from the training data as demonstrated by Damian Owerko et al in \cite{PO GNN-2018}.
+data without having to be retrained. This is defended by Johannessen et al. in \cite{ML HGNN-2023}
+A hallmark of \ac{GNN}s is that they can efficiently learn the architecture parameters from the training data as demonstrated by Owerko et al. in \cite{PO GNN-2018}.
 
-\ac{GNN}s cannot be too deep with layers due to the oversmoothening problem. 
+\ac{GNN}s cannot be too deep with layers due to the oversmoothing problem. 
 This is because the \ac{MP} algorithm would have already traversed over all hops and made all features indistinguishable from one another.
 Besides a deep \ac{GNN} would have a large number of parameters and would be computationally expensive to train.
 \cite{GCN-2018} sheds light on the oversmoothing concern faced by Graph Convolutional Networks.
-Studies also tells us that it can be mitigated by including pre-activation residual connections in the network. CITE\\
+Studies also tells us that it can be mitigated by including residual connections in the network \cite{RHGNN-2022}.\\
 
 Researchers have broadly classified \ac{GNN}s following 2 distinct paradigms:
 \begin{enumerate}
@@ -1494,87 +1491,6 @@ from Recommendation Systems, Chemistry, Traffic, Academic Networks, Information 
 These networks are generally represented by a giant graph in which case graph batching, splitting are unique.
 However our task requires us to build 1 graph each for each \ac{EM} variant.
 
-\subsection{Definition}\label{subsec:Definition}
-
-We largely adopt the commonly used notations from \cite{GNN-2019} and reformulate it slightly to meet our needs.
-We use bold uppercase characters to denote matrices and bold lowercase characters to denote vectors.\\
-
-\textbf{Graphs}
-
-A graph is represented as \( G = (V, E) \) where \( V \) is the set of vertices or nodes  and \( E \) is the set of edges. 
-Let \( v_i \in V \) denote a node and \( e_{ij} = (v_i, v_j) \in E \) denote an edge pointing from \( v_j \) to \( v_i \).
-A graph may have node attributes \( X \), where \( X \in \mathbb{R}^{n \times d} \) is a node feature matrix with 
-\( x_v \in \mathbb{R}^d \) representing the feature vector of a node \( v \). 
-Meanwhile, a graph may have edge attributes \( X_e \), where \( X_e \in \mathbb{R}^{m \times \\c} \) is an edge
-feature matrix with \( x_{v,u} \in \mathbb{R}^c \) representing the feature vector of an edge \( (v, u) \).\\
-
-\textbf{Neighbourhood}
-
-Neighbourhood essentially holds the information of the set of nodes that are in the vicinitY of a node in question.
-The neighborhood of a node \( v \) is defined as \( N(v) = \{ u \in V \mid (v, u) \in E \} \).\\
-
-\textbf{Adjacency Matrix}
-
-Adjacency matrix gives an overview of the neighbourhood of all nodes in the graph. It is typically referenced when performing \ac{MP} algorithm.
-The adjacency matrix \( A \) is a \( n \times n \) matrix with \( A_{ij} = 1 \) if \( e_{ij} \in E \) and \( A_{ij} = 0 \) if \( e_{ij} \notin E \).\\
-
-\textbf{Diagonal Matrix} 
-
-Diagonal Matrix of \( A \) denoted by  \( D = \operatorname{diag}(d_1, d_2, \dots, d_n) \), where \( d_i = \sum_{j} a_{ij} \) is the degree of vertex \( i \).\\
-
-\textbf{Laplacian Matrix}
-
-The graph Laplacian is defined as \( L := D - A \) \\ and the normalized Adjacency Matrix can be defined as
-\[
-A_{\text{norm}} = D^{-\frac{1}{2}} A D^{-\frac{1}{2}}.
-\]
-
-\textbf{Reference Operator}
-
-The Reference Operator \( R \) is a matrix of the same sparsity as the Adjacency Matrix \( A \). It is also called as Structure or Graph Shift operator.\\
-
-\textbf{Transformation Operator}
-
-The Transformation Operator is a feature map or a learnable matrix of weights, \( \theta \in \mathbb{R}^{F \times F'} \):\\
-
-\textbf{Message Passing}
-
-For Graph signals, \( V = [v_1, v_2, \dots, v_n], v_i  \in \mathbb{R}^F \), the updated Graph Signals is \( V' = RV\theta \) 
-where \( RV \) is the weighted sum of graph signals neighbourhood. \( RV \) also ensures only nodes with edges is considered.
-
-In contrast to \ac{CNN}s fixed shape kernel which considers pixels locality we have an increasing shaped kernel for \ac{GNN}s, this is clear in the Figure \ref{fig:GNN Kernel Filter}. 
-The fixed shaped kernel does not work for graphs  as they are irregular in size and not constrained to pixel dimensions as images are. 
-It is also called a Polynomial Graph Filter or Radial Filter and can be expressed as
-
-\[ V' = \sigma (\sum_{k=0}^{K}R^{k}V\theta^{k}) \]
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{./ReportImages/GNNKernel.png} 
-    \caption{\ac{GNN} Kernel Filter Source :WWW}
-    \label{fig:GNN Kernel Filter}
-\end{figure}
-
-A \ac{GNN} block contains three update functions, \( \phi \), and three aggregation functions, \( \rho \) for the nodes, edges and graph attributes, \cite{GNNs-2018}
-\[
-e'_k = \phi_e(e_k, v_{r_k}, v_{s_k}, u)
-\]
-\[
-v'_i = \phi_v(\bar{e}'_i, v_i, u)
-\]
-\[
-u' = \phi_u(\bar{e}', \bar{v}', u)
-\]
-\[
-\bar{e}'_i = \rho_{e \to v}(E'_i)
-\]
-\[
-\bar{e}' = \rho_{e \to u}(E')
-\]
-\[
-\bar{v}' = \rho_{v \to u}(V')
-\]
-
 \section{Heterogeneous \ac{GNN}}\label{sec:Heterogeneous GNN}
 
 Graphs are ubiquitously heterogeneous because of its capability to have different node and edge types on top of its inherent graph feature to abstract and model 
@@ -1584,7 +1500,7 @@ property and is true for all \ac{GNN}s. We largely adopt the commonly used notat
 
 \textbf{Heterogeneous Networks}
 
-Given a directed graph \( G = (V, E, X, R, T_v, T_e, \phi, \psi) \).
+Given a directed graph \( \mathcal{HG} = (V, E, X, R, T_v, T_e, \phi, \psi) \).
 
 The sets of possible node types can be represented as: \( T_v = \{ \phi(v) : \forall v \in V \} \) and the sets of possible edge types 
 can be represented as: \( T_e = \{ \psi(e) : \forall e \in E \}.\) 
@@ -1616,7 +1532,7 @@ This is in essence the relation triple ie.,  \(  (node type of s, edge type, nod
 
 Given a path
 \(
-P = T_{v1} \xrightarrow{T_{e1}} T_{v2} \xrightarrow{T_{e2}} \cdots \xrightarrow{T_{vk}} T_{ek}
+\mathcal{P} = T_{v1} \xrightarrow{T_{e1}} T_{v2} \xrightarrow{T_{e2}} \cdots \xrightarrow{T_{vk}} T_{ek}
 \), 
 if the path describes the composition of edges by its types \( T_{e1} \circ T_{e2} \circ \cdots \circ T_{el} \) between nodes of type \( T_{v1} \) and \( T_{vl} \) and 
 $\circ$ denotes the composition operator then the path is called a metapath. The length of the metapath can be calculated from its magnitude i.e, \textit{l-1}. 
@@ -1653,43 +1569,44 @@ Each metapath captures the proximity of nodes in a graph from a specific semanti
 % During runtime, the \ac{MP}-\ac{GNN} algorithm would need to iterate over edge type dictionaries during message computation and over node type dictionaries during node updates.
 \section{\ac{GNN} Literature Review}\label{sec:GNN Literature Review}
 
-Existing works for instance Xingtong Yu et al in \cite{PR-HGNN-2024} model heterogeneous graphs by splitting the graph into multiple 
+Existing works for instance Yu et al. in \cite{PR-HGNN-2024} model heterogeneous graphs by splitting the graph into multiple 
 homogeneous subgraphs based on their node types each retaining an aspect of the heterogeneity.
 This is ineffective in exploiting hidden rich semantic associations between different types of edges for large scale multi-relational graphs.
-However Shichao Zhu et al \cite{RSHGNN-2019}'s work does not undertake this methodology and is also independent of metapaths making it effective 
+However Zhu et al. \cite{RSHGNN-2019}'s work does not undertake this methodology and is also independent of metapaths making it effective 
 in dealing with large number of complex relations.\\
 Bias Amplification is a known problem most prevalent in recommender systems where the model is biased to certain outputs due to the training data statistics.
 It can be handled much better when a graph is modelled as a heterogeneous graph as is shown in \cite{EV HGNN-2023} this is because differing 
 edge types capture varying types of relationships in the graph. \\
 Modelling Heterogeneous Graphs with metapaths generally require domain specific knowledge as metapaths are customized. 
-In order to combat this, Ziniu Hu et al in \cite{HGT-2022} has used meta relations instead and a unique adjacencz matrix for each edge type.\\
-Works by Joshua Melton et al in \cite{MHGNN-2023} also use metarelations to extract soft metapaths and does message passing over multi-hop neighborhood of nodes. \\
+In order to combat this, Hu et al. in \cite{HGT-2022} has used meta relations instead and a unique adjacency matrix for each edge type.\\
+Works by Melton et al. in \cite{MHGNN-2023} also use metarelations to extract soft metapaths and does message passing over multi-hop neighborhood of nodes. \\
 Metarelations are most often used in knowledge graphs as it contains richer schema. 
-Such meta relations are shallow embeddings and not as deep as the meta paths as clarified by Carl Yang et al in \cite{HGNN-2020}. \\
-One such work by Yiling Zou et al in \cite{HNNC-2023} proposes a heterogeneous network node classification model which converts the 
+Such meta relations are shallow embeddings and not as deep as the meta paths as clarified by Yang et al. in \cite{HGNN-2020}. \\
+One such work by Zou et al. in \cite{HNNC-2023} proposes a heterogeneous network node classification model which converts the 
 heterogeneous network into multiple semantic graphs through metapaths. The polynomial graph convolutional kernel is also described in this paper.\\ 
-Qimai Li et al in \cite{GCN-2018} demystifies the Graph Convolutional Network and addresses the Laplacian oversmoothing concern by self-training or co-training the model.
+Li et al. in \cite{GCN-2018} demystifies the Graph Convolutional Network and addresses the Laplacian oversmoothing concern by self-training or co-training the model.
 Although it makes classification problem easier over multiple hops the features among different clusters will be the same.
 GCN achieves this by breaking down the heterogeneous graph into multiple homogeneous ones, one for each edge type. 
 In each layer, GCN is applied to each homogeneous graph, and the resulting node embeddings are element-wise summed to form the final output. 
 In RGCN, during message passing, neighbors under the same edge type will be aggregated and normalized first. 
 A drawback of RGCN is that it does not take node heterogeneity into account. \\
-Most of the existing works demonstrated by Carl Yang in \cite{HGNN-2020} also do not consider the edge features in their model. 
-However Fredrik Johannessen et al in \cite{ML HGNN-2023} uses edge features as transactions in a financial network to detect cases of money laundering.
+Most of the existing works demonstrated by Yang et al. in \cite{HGNN-2020} also do not consider the edge features in their model. 
+However Johannessen et al. in \cite{ML HGNN-2023} uses edge features as transactions in a financial network to detect cases of money laundering.
 It also breaks down the large heterogeneous graph into subgraphs based on different node type-edge type combinations. 
 The paper also brings to light that GraphSAGE does not incorporate the edge weights.\\
 However, the \ac{MP} neural network framework applies a learned message-passing function that utilizes edge features.\\
-Additionally Tsai Hor Chana et al in \cite{EHR HGNN-2024} has used heterogeneous \ac{GNN}s to model the heterogeneity and sparsity in Electronic 
+Additionally Chana et al. in \cite{EHR HGNN-2024} has used heterogeneous \ac{GNN}s to model the heterogeneity and sparsity in Electronic 
 Health Records of patients. This work takes into account the relational features of the dataset which is arguably the most important factor in this domain. 
 Their work also claim to learn its multi-task nature. However we note that this paper uses meta relations but donot factor in edge features.\\
-Justin Gilmer et al in \cite{QC-MP-2017} introduces modelling that makes it capable of learning features of molecular graphs directly and is 
+Gilmer et al. in \cite{QC-MP-2017} introduces modelling that makes it capable of learning features of molecular graphs directly and is 
 invariant to graph isomorphism. Graph isomorphism is the property of graph being similar even when the ordering of nodes and edges are different.
 They also suggest that edge features in the network can be learned by introducing hidden states for all edges in the graph and updating them.
 It also implements a message passing network which factors in the edge types.\\
-Yuxiao Dong et al in \cite{HNRL-2020} review pitfalls in Heterogeneous representation Learning. They also clarify that for metarelations connecting 2 different node types,  
+Dong et al. in \cite{HNRL-2020} review pitfalls in Heterogeneous representation Learning. They also clarify that for metarelations connecting 2 different node types,  
 its corresponding edge type will be unique so similarly connected nodetypes of other metarelations. Customizing metapaths could bias it to be task specific and is limited to discrete space.
 Alternatively Heterogeneous Graph Transformers can be used to learn the implicit metapaths first from the graph by using feature propagation across multiple layers in its 
 neural network architecture to augment the original graph..TO BE CITED OR Not
+Yu et al. in \cite{SHGNN-2020} addresses the concern of featureless nodes by padding 0s, imputing the mean of neighboring nodes and using pretrained graph embeddings as initial features.
 
 \section{\ac{EM} Heterogeneous \ac{GNN} Model}\label{sec:EM Heterogeneous GNN Model}
 We find the Heterogeneous graph to be most apt for our use case with its different node and edge types as it preserves both the structural and semantics of our data. \\
@@ -1841,10 +1758,14 @@ I would suggest the following improvements to our study :
 
 \newpage 
 
-\newpage 
+\appendix
+\chapter{Appendix}
+Supplementary material to the thesis.
 
-\chapter*{Appendix}
-
+\section{Dataset Supplementary Information}
+\label{sec:Dataset Supplementary Information}
+\subsection{File structure}
+\label{subsec:File structure}
 Among the excel files shared by Valeo per \ac{EM} variant, table \ref{tab:Excel File Structure} summarizes the sheets of interest to us.
 This is helpful for reproducing the experiments, visualizing the Figures \ref{fig:Torque Curve} and \ref{fig:Efficiency Grid} and for carrying out further analysis 
 with the same dataset in the future.
@@ -1866,7 +1787,11 @@ with the same dataset in the future.
     \label{tab:Excel File Structure}
 \end{table}
 
+\subsection{Data Summary Statistics}
+\label{subsec:Data Summary Statistics}
+
 Table \ref{tab:Input Parameters} shows the summary statistics of the input parameters of the motor. 
+
 %Median a column??
 \begin{longtable}{|p{1.75cm}|p{0.75cm}|p{1.8cm}|p{1.8cm}|p{3.10cm}|p{1cm}|p{1cm}|p{1cm}|}
 
@@ -1994,18 +1919,147 @@ In addition the \textit{N} and \textit{simQ} parameters are count of Stator pole
 1481 examples are of the Double V Magnet Topology apart from which 3 examples each for the other 2 topologies.
 Hence, the imbalanced topologies parameters would have relatively not so reliable statistics.\\ 
 
-\listoffigures
+\section{Experimental setup}
+\label{sec:Experimental setup}
 
-\newpage 
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./ReportImages/train_score.png}
+        \caption{\centering Aggregated Training Score}
+        \label{fig:Aggregated Training Score}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./ReportImages/train_score_y1.png}
+        \caption{\centering Training Score for Torque \ac{KPI}}
+        \label{fig:Training Score for Torque Curve}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./ReportImages/train_score_y2.png}
+        \caption{\centering Training Score for Efficiency \ac{KPI}}
+        \label{fig:Training Score for Efficiency grid}
+    \end{subfigure}
+    \caption{Training Evaluation Metrics}
+    \label{fig:Training Evaluation Metrics}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./ReportImages/val_loss.png}
+        \caption{\centering Aggregated Validation Loss}
+        \label{fig:Aggregated Validation Loss}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./ReportImages/val_loss_y1.png}
+        \caption{\centering Validation Loss for Torque \ac{KPI}}
+        \label{fig:Validation Loss for Torque Curve}
+    \end{subfigure}\hfill
+    \begin{subfigure}{0.32\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{./ReportImages/val_loss_y2.png}
+        \caption{\centering Validation Loss for Efficiency \ac{KPI}}
+        \label{fig:Validation Loss for Efficiency grid}
+    \end{subfigure}
+    \caption{Validation Loss Metrics}
+    \label{fig:Validation Loss Metrics}
+\end{figure}
+
+\section{GNN Terminologies}
+\label{sec:GNN Terminologies}
+
+We largely adopt the commonly used notations from \cite{GNN-2019} and reformulate it slightly to meet our needs.
+We use bold uppercase characters to denote matrices and bold lowercase characters to denote vectors.\\
+
+\textbf{Graphs}
+
+A graph is represented as \( \mathcal{G} = (V, E) \) where \( V \) is the set of vertices or nodes  and \( E \) is the set of edges. 
+Let \( v_i \in V \) denote a node and \( e_{ij} = (v_i, v_j) \in E \) denote an edge pointing from \( v_j \) to \( v_i \).
+A graph may have node attributes \( X \), where \( X \in \mathbb{R}^{n \times d} \) is a node feature matrix with 
+\( x_v \in \mathbb{R}^d \) representing the feature vector of a node \( v \). 
+Meanwhile, a graph may have edge attributes \( X_e \), where \( X_e \in \mathbb{R}^{m \times \\c} \) is an edge
+feature matrix with \( x_{v,u} \in \mathbb{R}^c \) representing the feature vector of an edge \( (v, u) \).\\
+
+\textbf{Neighbourhood}
+
+Neighbourhood essentially holds the information of the set of nodes that are in the vicinitY of a node in question.
+The neighborhood of a node \( v \) is defined as \( N(v) = \{ u \in V \mid (v, u) \in E \} \).\\
+
+\textbf{Adjacency Matrix}
+
+Adjacency matrix gives an overview of the neighbourhood of all nodes in the graph. It is typically referenced when performing \ac{MP} algorithm.
+The adjacency matrix \( A \) is a \( n \times n \) matrix with \( A_{ij} = 1 \) if \( e_{ij} \in E \) and \( A_{ij} = 0 \) if \( e_{ij} \notin E \).\\
+
+\textbf{Diagonal Matrix} 
+
+Diagonal Matrix of \( A \) denoted by  \( D = \operatorname{diag}(d_1, d_2, \dots, d_n) \), where \( d_i = \sum_{j} a_{ij} \) is the degree of vertex \( i \).\\
+
+\textbf{Laplacian Matrix}
+
+The graph Laplacian is defined as \( L := D - A \) \\ and the normalized Adjacency Matrix can be defined as
+\[
+A_{\text{norm}} = D^{-\frac{1}{2}} A D^{-\frac{1}{2}}.
+\]
+
+\textbf{Reference Operator}
+
+The Reference Operator \( R \) is a matrix of the same sparsity as the Adjacency Matrix \( A \). It is also called as Structure or Graph Shift operator.\\
+
+\textbf{Transformation Operator}
+
+The Transformation Operator is a feature map or a learnable matrix of weights, \( \theta \in \mathbb{R}^{F \times F'} \):\\
+
+\textbf{Message Passing}
+
+For Graph signals, \( V = [v_1, v_2, \dots, v_n], v_i  \in \mathbb{R}^F \), the updated Graph Signals is \( V' = RV\theta \) 
+where \( RV \) is the weighted sum of graph signals neighbourhood. \( RV \) also ensures only nodes with edges is considered.
+
+In contrast to \ac{CNN}s fixed shape kernel which considers pixels locality we have an increasing shaped kernel for \ac{GNN}s, this is clear in the Figure \ref{fig:GNN Kernel Filter}. 
+The fixed shaped kernel does not work for graphs  as they are irregular in size and not constrained to pixel dimensions as images are. 
+It is also called a Polynomial Graph Filter or Radial Filter and can be expressed as
+
+\[ V' = \sigma (\sum_{k=0}^{K}R^{k}V\theta^{k}) \]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{./ReportImages/GNNKernel.png} 
+    \caption{\ac{GNN} Kernel Filter Source :WWW}
+    \label{fig:GNN Kernel Filter}
+\end{figure}
+
+A \ac{GNN} block contains three update functions, \( \phi \), and three aggregation functions, \( \rho \) for the nodes, edges and graph attributes, \cite{GNNs-2018}
+\[
+e'_k = \phi_e(e_k, v_{r_k}, v_{s_k}, u)
+\]
+\[
+v'_i = \phi_v(\bar{e}'_i, v_i, u)
+\]
+\[
+u' = \phi_u(\bar{e}', \bar{v}', u)
+\]
+\[
+\bar{e}'_i = \rho_{e \to v}(E'_i)
+\]
+\[
+\bar{e}' = \rho_{e \to u}(E')
+\]
+\[
+\bar{v}' = \rho_{v \to u}(V')
+\]
+
+
+\listoffigures
 
 \newpage 
 
 \listoftables
 
 \newpage 
-
-\newpage 
-
 
 \begin{thebibliography}{00}
 
@@ -2210,6 +2264,16 @@ Hence, the imbalanced topologies parameters would have relatively not so reliabl
     \newblock Yuxiao Dong, Ziniu Hu, Kuansan Wang, Yizhou Sun, Jie Tang
     \newblock {\em Heterogeneous Network Representation Learning}.
     \newblock IJCAI, 2020.
+
+    \bibitem[41]{RHGNN-2022}
+    \newblock Hongjoon Ahn, Yongyi Yang, Quan Gan, Taesup Moon, David Wipf
+    \newblock {\em Descent Steps of a Relation-Aware Energy Produce Heterogeneous Graph Neural Networks}.
+    \newblock NeurIPS, 2022.
+
+    \bibitem[42]{SHGNN-2020}
+    \newblock Lingfan Yu, Jiajun Shen, Jinyang Li, Adam Lerer
+    \newblock {\em Scalable Graph Neural Networks for Heterogeneous Graphs}.
+    \newblock cs.LG, 19 Nov 2020.
 
     \end{thebibliography}
 \newpage 
