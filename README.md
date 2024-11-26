@@ -39,7 +39,7 @@ conda activate thesis
 When executing the program with python virtual environment
 
 ```bash
-python -m thesis venv
+python -m venv thesis
 source ./thesis/bin/activate
 pip install -r requirements.txt
 ```
