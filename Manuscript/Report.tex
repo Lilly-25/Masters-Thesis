@@ -114,11 +114,12 @@ Lastly we will enable the KPI's plot visualization in a manner presentable to th
 \chapter*{Acknowledgement}
 \addcontentsline{toc}{chapter}{Acknowledgement}
 I would like to thank my supervisor Prof. Dr. Magda Gregorová for her guidance and support throughout the course of this thesis.
-Her dedication and commitment to our work has been inspiring to me especially on how we transformed statistical math into modelling that I might have developed a new love for academia. \\
-I would also like to express my sincere gratitude to Valeo for providing us with the dataset.
-Special thanks are in order to Daniel and Leo for sharing valuable insights of the data from an electromechanical standpoint and for giving me a detailed understanding of my task. \\
-I owe my Mother and my Siblings my accomplishments. They have been very instrumental in making it possible for me to pursue a Master's degree outside my home country and for the endless support thoughout.\\
-Finally, I humble myself before God Almighty for all his blessings and for giving me the strength to persevere and bring my dreams to fruition.\\
+Her dedication and commitment to our work has been inspiring to me especially on how we transformed statistical math into modelling that I might have developed a 
+new love for academia. I would also like to express my sincere gratitude to Valeo for providing us with the dataset.
+Special thanks are in order to Daniel and Leo for sharing valuable insights of the data from an electromechanical standpoint and for giving me a detailed understanding 
+of my task. My Family have been very instrumental in making it possible for me to pursue a Master's degree outside my home country and their endless support throughout 
+enabled me to get to my thesis moving in the right direction. Finally, I humble myself before God Almighty for all his blessings and for giving me the strength 
+to persevere and bring my dreams to fruition.
 
 \newpage
 
@@ -298,48 +299,61 @@ trained on \ac{FEA} simulated data to reduce the computation burden of running t
 The inverse step of generating the motor designs is most useful for companies as they can get a feel of what the best designs would look before manufacturing them.
 
 \section{Objective}\label{sec:Objective}
-The motivation of our work is to verify whether surrogate modelling to replace the \ac{FEA} simulations could be done.
-Our task is a supervised learning task to predict 2 KPIs namely the Torque curve and the Efficiency grid which are vectors of parameters 
+The objective of our work is to verify whether surrogate modelling to replace \ac{FEA} simulations is feasible.
+Our task is a supervised learning task to predict 2 KPIs namely the Torque curve and the Efficiency grid which are vectors of numerical values  
 from the parametric description of topology invariant \ac{EM} and \ac{FEA} simulated KPIs as ground truth. 
-The remaining \ac{KPI} such as Losses can be calculated from these 2 KPIs as they are inversely proportional to the Efficiency values.
-The Torque curve is a 2D plot ie, a vector across angular velocity ranges and the Efficiency grid is a 3D plot ie, a matrix of dimensions torque ranges times speed ranges. 
-Both the outputs are continuous values which makes it a regression problem. 
+The remaining \ac{KPI} such as Costs, Vibration losses, Torque ripple etc., can be calculated from these 2 KPIs for instances the losses are inversely proportional to the Efficiency values.
+The Torque curve is a vector of torque values across angular velocity ranges which can be visualized as a a 2D plot whereas the Efficiency grid is a matrix of 
+dimensions (torque ranges $\times$ angular velocities ranges) and can be visualized as 3D heatmap of contour plots. 
+Both the \ac{KPI}s are continuous values which makes our task a regression problem. 
 
 \section{Motivation}\label{sec:Motivation}
-
+Our motivation to undertake this thesis is to lay the ground work for generating \ac{EM} designs in the future. To our knowledge, there has been no work yet on Generative 
+AI in the domain of \ac{EM} designs. The research goal would be to condition the generative model on the predicted \ac{KPI}s to be able to self generate the most efficient \ac{EM} 
+designs. From an application standpoint, it would be beneficial for Automaker companies to refer the generated \ac{EM} designs to be able to suggest the most appropriate \ac{EM}s 
+for automobiles as per customer requirements for instance the horsepower of the car.
 
 \section{Problem Statement}\label{sec:Problem Statement}
 
+Given our Data $\mathcal{X}  = [x_1, x_2, ..., x_{n}]^T \in \mathbb{R}^{n}$, where $n$=89 is the number of parameters of the \ac{EM} designs, we attempt to approximate the targets, 
+Torque curve as $\mathcal{Y}_1 = [y_1, y_2, ..., y_{h}]^T \in \mathbb{R}^{h}$ where $h$ denotes the number of participating angular velocities and 
+Efficiency map as $\mathcal{Y}_2 \in \mathbb{R}^{w \times h}$ representing a grid of efficiency values defining the operating range of the \ac{EM}, where $w$ refers to 
+different torque levels and $h$ the angular velocities. Each element $\mathcal{Y}_2(i,j)$ represents the efficiency at torque level $i$ and angular velocity $j$. 
+
+We list down the challenges we had faced when modelling our problem as follows : 
 \begin{enumerate}
-    \item We have a regression problem but as we are predicting two values it makes it a multi regression problem. The model 
-    architectures in Section \ref{sec:MLP Model} shines light on how we go about it.
-    \item Another concern we came across is the Torque Curve typically harbours integers values albeit our task is a regression problem and we discuss how we tackle it in Section \ref{sec:MLP Model}. 
-    \item The Efficiency grid dimensions vary across \ac{EM} variants, and we need the target from the model to be of a fixed size. This problem is mitigated in Section \ref{subsec:Deep Dive into 3D KPI}
-    \item The ranges among the 1st and 2nd target vary significantly and is yet another challenge we overcome in Section \ref{sec:Loss for 3D KPI}
+    \item Since we have 2 targets of continuous values to predict ours is now a multi regression problem. The model architectures in Section \ref{sec:MLP Model} 
+    shines light on how we go about it.
+    \item The Torque Curve typically harbours integers values albeit our task is in essence a regression problem which primarily works with floating point values. 
+    Section \ref{sec:MLP Model} discuss how we tackle this challenge. 
+    \item The dimensions of the Efficiency grid differ across \ac{EM} variants. However the targets which has to be supplied to the model needs to be of a fixed size.
+     We discuss in Section \ref{subsec:Deep Dive into 3D KPI} how we mitigate this problem.
+    \item The ranges among the 1st and 2nd target vary significantly and is yet another challenge we overcome in Section \ref{sec:Loss for 3D KPI}.
 \end{enumerate}
 
 \section{Research Question}\label{sec:Research Question}
 
-We were skeptical on building a model architecture wherein the 2nd KPI is dependent on the 1st KPI as typically the former's shape is dependendent on the latter and not its values.
-However we can assume the values within the shape to be non zero values and otherwise 0s and model it in future.
+We were skeptical on building a model architecture wherein the 2nd KPI is dependent on the 1st KPI as typically the former's shape is dependent on the latter 
+and not its values. However we can assume the values within the shape to be non zero values and otherwise 0s and model it in future.
 
-Alternatively we could also build 2 models one for each KPIs and thus feed in the dependent predictions when training the latter. 
+Alternatively we could also build 2 models one for each KPI and thus feed in the dependent predictions when training the latter. 
 However, it would be computationally expensive and does not help in the scenario when we might need to generate \ac{EM} parametric descriptions.
 Additionally we deemed it unnecessary as the dimensions of the Efficiency grid vary with the torque curve and not necessarily the Efficiency values. 
-
 
 \section{Thesis Structure}\label{sec:Thesis Structure}
 
 Over the course of the thesis we shall refer the Torque curve as Torque KPI and the Efficiency grid as Efficiency KPI respectively.
-The remainder of the thesis is organized to follow sections namely Literature Review, Dataset, Graph Modelling, Modelling, Experiments and Results, Conclusion, and Bibliography.
+The remainder of the thesis is organized to follow sections namely Literature Review, Dataset, Modelling, Experiments and Results, Graph Modelling, Conclusion, 
+Bibliography and Appendix.
 In Literature Review section will introduce the works that has already been carried out in this domain. 
-In the Dataset section a detailed insight to how our data is structured is elaborated.
+In the Dataset section a detailed insight is elaborated on how our data is structured .
 In the Modelling section, we introduce the network architectures and loss regularization techniques used to tackle the problem.
 The outcomes of our work are presented in Experiments and Results chapter in addition to other findings we unearth.
-Graph Modelling section is an empirical study which outlines the background of \ac{GNN}s primarily Heterogeneous \ac{GNN}s and defines its concepts.
-we also attempt to present a workflow on how to use \ac{GNN}s for out task.
+Graph Modelling section is an empirical study which outlines the background of \ac{GNN}s primarily Heterogeneous \ac{GNN}s and defines its concepts. We also attempt to 
+present a workflow on how to use \ac{GNN}s for out task.
 Conclusion chapter summarizes the thesis briefly and would also give a glimpse into possible areas of improvement. 
-Lastly the Bibliography section lists out the articles cited for this thesis.
+Bibliography section lists out the articles cited for this thesis. 
+Lastly we share all supplementary information in the Appendix section.
 
 \newpage 
 
