@@ -42,8 +42,8 @@ def main(max_torque=None, min_torque=None):
     batch_size = 72     ##try with 72 also
     epochs = 10
     lr = 0.075#0.075
-    lambda1_y1=0.5 # Smoothening
-    lambda2_y1=0 # Decreasing
+    lambda1_y1=0 # Smoothening
+    lambda2_y1=0.5 # Decreasing
     lambda_y21=5 # Tries to ensure Efficiency calues donot exceed 100
     lambda_y22=3.75 # Weight for diffferent operating points in the Efficiency grid
     y2_low_mm_threshold=20
