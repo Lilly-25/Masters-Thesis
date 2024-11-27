@@ -152,6 +152,7 @@ to persevere and bring my dreams to fruition.
     \acro{MP}{Message Passing}
     \acro{PDE}{Partial Differential Equation}
     \acro{PMSM}{Permanent Magnet Synchronous Motor}
+    \acro{ANN}{Artificial Neural Network}
 
 \end{acronym}
 
@@ -180,18 +181,18 @@ provide almost accurate results in relatively no time.
 This is because the \ac{FEA} simulations may take hours to days as it needs to generate for all operating points in the Efficiency map.
 Despite the computational burden it comes with, the authors from \cite{FEA-ETA-2017} defends that \ac{FEA} is most appropriate to 
 generate \ac{EM} efficiency maps in terms of accuracy based on experimenting overall error rates across operating ranges for different \ac{EM} losses.
-FE-based ANN models have been utilized for predicting stress distribution in a 3D printing process [30], bend angles in laser-guided bending [31], 
+FE-based \ac{ANN} models have been utilized for predicting stress distribution in a 3D printing process [30], bend angles in laser-guided bending [31], 
 and performance of a thermoelectric generator [32], for example.\cite{SM EMT-2020}
 
 This process, though well established in the \ac{EM} design is very resource intensive, time consuming and does not allow for high-throughput engine design optimization. 
 
-The actual engine data of Valeo is used here as the dataset comprising of multiple variant designs of the Double-V topology.
+The actual engine data of \texttt{Valeo}\footnote{\url{https://www.valeo.com/}} is used here as the dataset comprising of multiple variant designs of the Double-V topology.
 Figure \ref{fig:Valeo Motor Structure} depicts the structure of a \ac{EM} manufactured by Valeo. 
 The rotor rotates around the Stator to produce the magnetic field whereas the Stator is the stationary part that generates the force to rotate the Rotor.         
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/ValeoMotorStructure.jpg} 
-    \caption{\ac{EM} Motor (Source : Valeo)}
+    \caption{\ac{EM} Motor (\texttt{Valeo})}
     \label{fig:Valeo Motor Structure}
 \end{figure}
 
@@ -222,7 +223,7 @@ The 3 motor topologies manufactured by Valeo are displayed in Figure \ref{fig:EM
         \caption{Nabla Magnet}
         \label{fig:Nabla Magnet}
     \end{subfigure}
-    \caption{\ac{EM} Magnet Topologies (Source : Valeo)}
+    \caption{\ac{EM} Magnet Topologies (\texttt{Valeo})}
     \label{fig:EM Magnet Topologies}
 \end{figure}
 
@@ -253,7 +254,7 @@ We discuss each component of the flowchart below :
 \begin{enumerate}
     \item \textbf{\ac{EM} designs parameterized} \\
     The design of each of the \ac{EM} variants described parametrically for its geometric, physical and simulation features are considered as the input.
-    \item \textbf{Current Approach}
+    \item \textbf{Current Approach}\\
     Approach followed currently by Valeo.
     \begin{enumerate}
         \item \textbf{Matlab Script 1} \\
@@ -268,7 +269,7 @@ We discuss each component of the flowchart below :
         Motor builder settings such as length of the motor, maximum rotation speed as well as electrical settings for e.g. input voltage and current are given to 
         generate the \ac{KPI}s. The Motor Builder also is a GUI that provides visualization of the \ac{KPI} plots to the designer.
     \end{enumerate}
-    \item \textbf{Proposed Approach}
+    \item \textbf{Proposed Approach}\\
     Approach we undertake as surrogate modelling.
     \begin{enumerate}
         \item \textbf{Data Preprocessing} \\
@@ -290,7 +291,7 @@ exploiting data-driven deep neural networks to approximate the \ac{KPI}s derived
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/EM_design_flowchart_v2.png} 
-    \caption{EM Design Flowchart}
+    \caption{\ac{EM} Design Flowchart}
     \label{fig:EM Design Flowchart}
 \end{figure}
 
@@ -358,11 +359,9 @@ Lastly we share all supplementary information in the Appendix section.
 \newpage 
 
 \chapter{Literature Review} 
-There has been extensive research in modeling the Electric Motor with \ac{CNN} based on the images of the motor cross-section. \\
-However our approach is progressive in the sense that once the \ac{KPI}s are predicted we would like to be able to generate the inputs.\\
-Reproducing images is not known to be the best approach given the infamous known fact that AI generated images are faulty. 
-However by generating the parameters of the motor we can be rest assured of more precise results. 
-Hence the need to focus on the inputs as they are with their parametric description.
+There has been extensive research in modeling the Electric Motor with \ac{CNN} based on the images of the motor cross-section. 
+Reproducing images is not known to be the best approach given the infamous known fact that AI generated images are faulty. CITE!!
+However by generating the parameters of the motor we can be rest assured of more precise results. Hence the need to focus on the inputs as they are with their parametric description.
 Vivek et al. in \cite{VAE-MT-2021} also highlights that predicting \ac{KPI}s with tabular data is significantly more efficient than using the images because the latter could result 
 in less accurate designs due to the need of high resolution images in addition to its overall computation cost required for training. Their work 
 involves the use of a Variational Autoencoder to predict the \ac{KPI}s with an \ac{MLP} as well as sample the latent space to generate new \ac{EM} designs.\\
@@ -450,12 +449,6 @@ as the drive range of a vehicle's efficiency is determined with this \ac{KPI}.
 The Efficiency \ac{KPI}s generated by the \ac{FEA} simulations are obtained from torque, copper loss iron loss and mechanical loss.
 They study methods to further improve the accuracy of \ac{FEA} simulations of Interior Permanent Magnets by modelling the effect 
 of losses such as minor hysteresis loss, stray loss, AC loss and manufacturing degradations at different operating points into these simulations.\\
-Although this is fairly good foreseeing the impact of generating the inverse process yet \ac{MLP}s cannot necessarily learn all the intricacies within motor components.
-Hence the need to better represent the data typically in the form of graphs and model \ac{GNN}s to achieve the desired results. 
-Modelling with graphs preserves the spatiality of the design as well as also gives us provision to incorporate the physical and magnetic 
-characteristics of the designs if any which would not have been possible with \ac{CNN}s.
-There has been close to no work of \ac{GNN}s in this domain. 
-However we see progress of \ac{GNN}s in molecular chemistry and social networks usecases from which we draw inspiration.
 
 \newpage 
 
@@ -468,10 +461,10 @@ Figure \ref{fig:Full Motor} shows the geometry of a whole Double V motor which c
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{./ReportImages/FullMotorv2.png} 
-    \caption{Complete EM Geometry(Source:Valeo)}
+    \caption{Complete \ac{EM} Geometry (\texttt{Valeo})}
     \label{fig:Full Motor}
 \end{figure}
-Figure \ref{fig:1/8 Motor Crossection} is a hand drawn sketch showing our understanding of how the geometry of 1/8 cross-section of the same motor looks like.
+Figure \ref{fig:1/8 Motor Crossection} is a hand drawn sketch showing our understanding of how the geometry of 1/8th cross-section of the same motor looks like.
 This comes in handy when creating the graph representation of the motor.
 From the Figure, we can make out that the motor very largely is comprised of the Rotor and the Stator separated by the air gap between which the magnetic flux flows.
 The Rotor hosts the permanent magnets which when rotated generates the magnetic field. The magnets sits on top of free shaped air pockets in the design. 
@@ -482,7 +475,7 @@ up of copper sit at. The Stator yoke separates each tooth shoe from the outer ra
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/EMCrosssectionFiltered.png} 
-    \caption{1/8 Motor Crossection}
+    \caption{1/8th cross-section of \ac{EM}}
     \label{fig:1/8 Motor Crossection}
 \end{figure}
 
@@ -498,11 +491,10 @@ The values are then read and stored as their floating point equivalent to ensure
 Furthermore all degree columns are converted to their equivalent radian values as the latter are directly related to the geometry and makes derivation of other 
 parameters much simpler whereas degrees is a notion of denoting a sliced angle.\\ CITE...Explain better
 
-\subsection{Data Exploration of the Torque \ac{KPI}(Torque Curve)}\label{subsec:Deep Dive into 2D KPI}
+\subsection{Data Exploration of the Torque \ac{KPI}}\label{subsec:Deep Dive into 2D KPI}
 Figure \ref{fig:Standard Deviation of 2D KPI} shows the standard deviation of few samples of the Torque \ac{KPI} from the entire dataset.
 The x-axis represents the angular velocity of the motor ranging from 0 to 19000 rpm. Meanwhile, the y-axis represents the torque values corresponding to the angular velocity.
-For our dataset, the range of torque values are between 55 and 280 Nm. We do not start the y-axis from 0Nm as the torque curve stops its decline on reaching torque 
-saturation point of 55 Nm and we presumed it best to conserve spacing in the plot.
+For our dataset, the range of torque values are between 55 and 280 Nm. 
 The mean of all samples of the dataset is displayed with an overlay of how its standard deviation is around the mean.
 Furthermore, we display a twin y-axis in red showing the standard deviation of random handpicked samples with the mean.
 
@@ -511,7 +503,7 @@ We make the following observations:
     \item The \ac{RMSE} is at its peak at low angular velocities.
     This is evident from the Standard deviation ranging up to 3 until 5000 rpm. Beyond which the standard deviation decreases drastically until 
     saturation visible with the plateauing of the curve.
-    \item The curve to an extent resembles a mirrored S shape.
+    \item The curve to an extent resembles a mirrored S shape.                             
     This finding is critical for how we modelled the loss regularization for the target and will be further elaborated in Section \ref{sec:Loss for 2D KPI}
     This finding is critical for how we modelled the loss regularization for the target and will be further elaborated in Section \ref{sec:Loss for 2D KPI}
     \item Samples almost similar to one another
@@ -522,24 +514,24 @@ We make the following observations:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/StandardDeviation_Baseline_y1.png} 
-    \caption{Standard Deviation of 2D KPI} 
+    \caption{Standard Deviation of Torque KPI} 
     \label{fig:Standard Deviation of 2D KPI}
 \end{figure}
-\subsection{Data Exploration of the Efficiency \ac{KPI}(Efficiency Grid)}\label{subsec:Deep Dive into 3D KPI}
+\subsection{Data Exploration of the Efficiency \ac{KPI}}\label{subsec:Deep Dive into 3D KPI}
 As the target values of the Efficiency \ac{KPI} are not provided with the correct dimensions we have an additional step which takes the maximum torque value from the Torque \ac{KPI} 
 and slices off the Efficiency grid to only range from [-Maximum Torque, Maximum Torque]. 
 Subsequently we choose only the rows of the MM grid detailed in Table \ref{tab:Excel File Structure} which correspond to the indices of the sliced efficiency grid.
 This step ensures that we grant the model the correct dimensions of the Efficiency \ac{KPI} based on its Torque \ac{KPI}.\\
-Figures \ref{fig:Standard Deviation of 3D KPI(Efficiency)} and \ref{fig:Standard Deviation of 3D KPI(Efficiency) Positive Grid} both illustrate the standard deviation 
+Figures \ref{fig:Standard Deviation of Efficiency KPI(Mirrored Map)} and \ref{fig:Standard Deviation of Efficiency KPI} both illustrate the standard deviation 
 of the efficiency values plotted against its angular velocity. The standard deviation levels is shown as a scale with colors darkening as the standard deviation increases.
 Efficiency values for negative torque values correspond to when motor is in generating mode and those of positive torque values to when motor is in monitoring mode.\\
-In both modes, the efficiency is almost similar albeit from Figure \ref{fig:Standard Deviation of 3D KPI(Efficiency)}, we note it is not the case for our dataset. 
+In both modes, the efficiency is almost similar albeit from Figure \ref{fig:Standard Deviation of Efficiency KPI(Mirrored Map)}, we note it is not the case for our dataset. 
 This is evident from low angular velocity-high torque distribution area where we can see a clear distinction with \ac{NaN} values.
 Since these are \ac{FEA} simulations, it is probably an effect of a post processing step taken by the Motor builder.
 This observation made us decide on dropping the negative Efficiency \ac{KPI} and to focus on only predicting the positive Efficiency \ac{KPI}.\\
 The latter can be mirrored to replicate the efficiency when it is in generating mode if necessary.
 However over the course of this thesis, we donot do so, as it is not relevant to evaluate a duplicate again.
-From Figure \ref{fig:Standard Deviation of 3D KPI(Efficiency) Positive Grid}, we can observe the deviation is at its peak at low torques, extreme angular velocities. 
+From Figure \ref{fig:Standard Deviation of Efficiency KPI}, we can observe the deviation is at its peak at low torques, extreme angular velocities. 
 We discuss the modelling of this information in Section \ref{sec:Loss for 3D KPI}. 
 We also can observe that beyond the Efficiency envelope, there are no efficiency values and can be translated as blank values in the grid or \ac{NaN} values in the padded Efficiency matrix.
 we incorporate this information in Section \ref{sec:Loss for 3D KPI}.
@@ -552,20 +544,23 @@ This is yet another finding we use in Post Processing as is further elaborated i
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/stddev_y2.png} 
-    \caption{Standard Deviation of Efficiency \ac{KPI}} 
-    \label{fig:Standard Deviation of 3D KPI(Efficiency)}
+    \caption{Standard Deviation of Mirrored Efficiency \ac{KPI}} 
+    \label{fig:Standard Deviation of Efficiency KPI(Mirrored Map)}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/pos_stddev_y2.png} 
-    \caption{Standard Deviation of Efficiency \ac{KPI} Positive Grid} 
-    \label{fig:Standard Deviation of 3D KPI(Efficiency) Positive Grid}
+    \caption{Standard Deviation of Efficiency \ac{KPI}} 
+    \label{fig:Standard Deviation of Efficiency KPI}
 \end{figure}
 
-Figure \ref{fig:Standard Deviation of 3D KPI(Efficiency) Positive Grid across Angular Velocity Intervals} gives us the holistic view of how the efficiency values are 
-distributed across equally spaced intervals of angular velocity. The Figure plots the standard deviation of all the Efficiency values of all samples of our dataset 
-as an error bar for specific angular velocities at equal intervals of 2000 rpm.
+Figure \ref{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals} gives us the holistic view of how the efficiency values are 
+distributed across equally spaced intervals of angular velocity. The Figure plots the standard deviation of all the Efficiency values for all samples of our dataset 
+as an error bar at specific angular velocities over equally spaced intervals of 2000 rpm.
+We restrict the figure to only show the Efficiency values from 2000 rpm onwards since at very low angular velocities falling in the range of 0 and 2000 rpm, the efficiency 
+values range significantly from 0\% onwards.
+
 The distributions shows maximum skewness towards extreme angular velocities and is relatively stable between 4000 and 6000 rpm. 
 We discuss in Section \ref{sec:Loss for 3D KPI} how we integrate this finding into teaching over model.
 Another assumption we can safely make is that the Efficiency grid for all samples look nearly alike. We arrive at this deduction by noting that standard deviation at its 
@@ -574,11 +569,11 @@ maximal is at 3. This gives us leverage to decide on choosing the Baseline model
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{./ReportImages/stddev_y2_nn_Target.png} 
-    \caption{Standard Deviation of Efficiency \ac{KPI} Positive Grid across Angular Velocity Intervals} 
-    \label{fig:Standard Deviation of 3D KPI(Efficiency) Positive Grid across Angular Velocity Intervals}
+    \caption{Standard Deviation of Efficiency \ac{KPI} across Angular Velocity Intervals} 
+    \label{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals}
 \end{figure}
 
-Reading each sheet from the excel files particularlz the grids take up a lot of time and compute, hence we read the files as a onetime job when creating the 
+Reading each sheet from the excel files particularly the grids take up a lot of time and compute, hence we read the files as a onetime job when creating the 
 tabular data for training  and store them into pythonic objects for faster access for training.
 Both the input and target values for the Torque \ac{KPI} are stored locally as csv files whereas those of the Efficiency \ac{KPI} is stored as separate csv files per 
 variant considering it is in the form of a 2\ac{D} array.
@@ -689,7 +684,7 @@ We discuss each component of the architecture below :
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{./ReportImages/mlp_architecture.png} 
-    \caption{MLP Model Architecture}
+    \caption{\ac{MLP} Model Architecture}
     \label{fig:MLP Model Architecture}
 \end{figure}
 
@@ -697,7 +692,7 @@ We discuss each component of the architecture below :
 The \ac{MSE} loss is the error metric used for our problem with the intention that the squared losses penalize the model and inturn encourage it to 
 minimize the objective function even further. In addition to its contribution in exaggerating the loss by its square, \ac{MSE} also ensures that deviations are 
 positive and do not confuse the model by negating the losses of opposing signs. 
-\subsection{Loss for Torque \ac{KPI}(Torque curve)}\label{sec:Loss for 2D KPI}
+\subsection{Loss for Torque \ac{KPI}}\label{sec:Loss for 2D KPI}
 
 The \ac{MSE} loss for the Torque \ac{KPI} is formulated mathematically as in Equation \ref{eq:Y1 Loss}
 % Mean Squared Error (\ac{MSE}) Loss for 2D KPI
@@ -706,6 +701,7 @@ The \ac{MSE} loss for the Torque \ac{KPI} is formulated mathematically as in Equ
     \label{eq:Y1 Loss}
 \end{equation} 
 
+
 where, \(n\) is \ac{EM} samples, \(h\) is the columns of the 1D Torque vector, \(y_{ij}\) and $\hat{y_{ij}}$ are the ij-th ground truth and prediction respectively for 
 the torque at each operating point.
 
@@ -713,15 +709,17 @@ To encourage the model to learn the nature of the curve, we have experimented wi
 Both of which are L2 Regularization to be in sync with the dynamics of the \ac{MSE} loss.
 \begin{enumerate}
 \item \textbf{Smoothening Loss Regularization} \\
-To smoothen out the curve for the Torque \ac{KPI} we apply the below loss regularization factor to ensure that the torque values at neighboring operating points are 
+To smoothen out the curve for the Torque \ac{KPI} we apply a loss regularization factor to ensure that the torque values at neighboring operating points are 
 as similar as possible. This is formulated mathematically as in Equation \ref{eq:Y1 Smoothening Loss Regularization}.
 \begin{equation}
-\text{Y1 Smoothening Loss Regularization} = \frac{1}{n} \sum_{i=1}^{n}\frac{1}{h-1} \sum_{j=1}^{h-1} \left(\sigma(|\hat{y}_{i{j+1}} - \hat{y}_{ij}| - 1)\right)^2 
-\label{eq:Y1 Smoothening Loss Regularization}
-\end{equation} 
-where, $\sigma()$ is the \ac{ReLU} function.
-This nature is factored in by penalizing the loss by the magnitude if the neighboring values in the prediction are not close to each other.
-\ac{ReLU} helps to clips the difference if it is negative which is the scenario when a violation is not warranted.
+    \text{Y1 Smoothening Loss Regularization} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{h-1} \sum_{j=1}^{h-1}
+    \begin{cases} 
+        \left( \hat{y}_{i,j} - \hat{y}_{i,j+1}  \right)^2 & \text{if } |\hat{y}_{i,j} - \hat{y}_{i,j+1}| > 1, \\
+        0 & \text{otherwise}.
+    \end{cases}
+    \label{eq:Y1 Smoothening Loss Regularization}
+\end{equation}
+If the difference in magnitude of consecutive values in the predicted array is greater than 1, then the loss is penalized by the square of the difference.
 \item \textbf{Decreasing Loss Regularization} \\
 The Torque curve closely resembles a decreasing sigmoidal curve and hence we use this knowledge to penalize the loss for increasing consecutive values within the prediction. 
 This is intended to ensure that the torque values making up th Torque curve at each operating point is less than or equal to its prior operating point.
@@ -741,7 +739,7 @@ We have not combined both the above regularizations as they donot complement eac
 This holds true for the regularization in Equation \ref{eq:Y1 Declining Loss Regularization} as it may not necessarily have gradual transitions in the curve.
 Nevertheless, we perform ablation studies with both the regularizations and report the results obtained in Table \ref{tab:Ablation Studies}
 
-\subsection{Loss for Efficiency \ac{KPI}(Efficiency Grid)}\label{sec:Loss for 3D KPI}
+\subsection{Loss for Efficiency \ac{KPI}}\label{sec:Loss for 3D KPI}
 
 The \ac{MSE} loss for the Efficiency \ac{KPI} ca n be translated as in Equation \ref{eq:Y2 Loss}.
 \begin{equation}
@@ -759,7 +757,7 @@ where, \(M_{ijk}\) is Mask matrix, \(w\) is the rows of 2\ac{D} vector and \(h\)
 % The Efficiency \ac{KPI} is a 3\ac{D} plot of real numbers representing percentage values and is always in the range of 0-100\%.\\
 Based on one of our observation in Section \ref{subsec:Deep Dive into 3D KPI} on the efficiency values beyond the Efficiency envelope having blank values, 
 which we had also padded them to be \ac{NaN} values we construct a binary mask matrix to ignore them in the loss calculation.
-As ANN cannot be trained to predict \ac{NaN} values the binary mask is constructed such that values corresponding to \ac{NaN} in the target have value 0 and all other values as 1.
+As \ac{ANN} cannot be trained to predict \ac{NaN} values the binary mask is constructed such that values corresponding to \ac{NaN} in the target have value 0 and all other values as 1.
 Mathematically, this process can be expressed as is in Equation \ref{eq:Mask matrix} and thus ensure that the \ac{NaN} values are ignored in the loss calculation. 
 The mask is then multiplied with both the target and its respective prediction. 
 
@@ -782,7 +780,7 @@ Therefore, we do not see the need to needlessly punish the model for making mist
 from realistic learning and thus affect its focus on predicting the other values in the Efficiency grid correctly.
 \item \textbf{Efficiency Grid Loss Regularization} \\
 Additionally, to encourage the model to learn the nature of the Efficiency \ac{KPI} from our observations gathered in Section \ref{subsec:Deep Dive into 3D KPI} and from 
-the regions in Figure \ref{fig:Standard Deviation of 3D KPI(Efficiency) Positive Grid} which showed the most standard deviation, we have tried to incorporate all of 
+the regions in Figure \ref{fig:Standard Deviation of Efficiency KPI} which showed the most standard deviation, we have tried to incorporate all of 
 the below learnings via the loss function as Y2 Regularization techniques.
 \begin{enumerate}
 \item \textbf{Efficiency at Maximum Torque Loss Regularization} \\
@@ -842,9 +840,9 @@ We aggregate all the above regularizations to form the Y2 Loss Regularization as
 The Total Loss is calculated in Equation \ref{eq:Total Loss}
 \begin{equation}
     \begin{split}
-\text{Total Loss} = \text{wt} \times (\text{Y1 Loss} + (\lambda_{\text{1y1}} \times \text{Y1 Smoothening Loss Regularization}) +  (\lambda_{\text{2y1}} \times \\
-\text{Y1 Declining Loss Regularization })) + \text{(1-wt)} \times ((\text{Y2 Loss} + (\lambda_{\text{y21}} \times \\ 
-\text{Y2 Maximum Efficiency Loss Regularization}) + (\lambda_{\text{y22}} \times \\
+\text{Total Loss} = \text{wt} \cdot (\text{Y1 Loss} + (\lambda_{\text{1y1}} \cdot \text{Y1 Smoothening Loss Regularization}) +  (\lambda_{\text{2y1}} \cdot \\
+\text{Y1 Declining Loss Regularization })) + \text{(1-wt)} \cdot ((\text{Y2 Loss} + (\lambda_{\text{y21}} \cdot \\ 
+\text{Y2 Maximum Efficiency Loss Regularization}) + (\lambda_{\text{y22}} \cdot \\
 \text{Y2 Efficiency Grid Loss Regularization})))
     \end{split}
     \label{eq:Total Loss}
@@ -896,6 +894,8 @@ The Y2 score for the Efficiency \ac{KPI} is formulated in Equation \ref{eq:Y2 Sc
 \end{equation}
 where, \(w\) is the rows of 2\ac{D} vector, \(h\) is columns of 2\ac{D} vector and \(Y2\ \ac{RMSE}\) is the \ac{RMSE} for each test sample.
 
+We replace all \ac{NaN} values with 0s when we calculate the Y2 scores since \ac{NaN} values interfere with difference calculations. This is true for Evaluation of Predicted \ac{KPI}s.
+
 \section{Post Processing}\label{sec:Post Processing}
 The mean and standard deviation from the train-validation datasets are applied to transform the test dataset to maintain uniformity in the predictions generated.
 In the case of new files not part of the segregated test dataset we first convert it into the tabular representation our model consumes and then apply the scaling.\\
@@ -909,7 +909,6 @@ This brings us back to the point that it is imperative the prediction of the Tor
 However if in the worst case scenario where the y1 and y2 predictions are so starkly different that Efficiency \ac{KPI} cannot be sliced off from 
 the Torque \ac{KPI} because the former is smaller than the latter then we decide not to slice the Efficiency \ac{KPI} and instead use the predictions as is.
 
-\newpage 
 \newpage 
 
 % Masking NaN values
@@ -985,19 +984,19 @@ discussed in Equation \ref{eq:Total Loss}.
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/train_loss.png}
-        \caption{\centering Aggregated Training Loss}
+        \caption{\centering Aggregated}
         \label{fig:Aggregated Training Loss}
     \end{subfigure}\hfill
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/train_loss_y1.png}
-        \caption{\centering Training Loss for Torque \ac{KPI}}
+        \caption{\centering Torque \ac{KPI}}
         \label{fig:Training Loss for Torque Curve}
     \end{subfigure}\hfill
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/train_loss_y2.png}
-        \caption{\centering Training Loss for Efficiency \ac{KPI}}
+        \caption{\centering Efficiency \ac{KPI}}
         \label{fig:Training Loss for Efficiency grid}
     \end{subfigure}
     \caption{Training Loss Metrics}
@@ -1013,19 +1012,19 @@ The Torque \ac{KPI} shows promise in learning better but it would be at the cost
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/val_score.png}
-        \caption{\centering Aggregated Validation Score}
+        \caption{\centering Aggregated}
         \label{fig:Aggregated Validation Score}
     \end{subfigure}\hfill
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/val_score_y1.png}
-        \caption{\centering Validation Score for Torque \ac{KPI}}
+        \caption{\centering Torque \ac{KPI}}
         \label{fig:Validation Score for Torque Curve}
     \end{subfigure}\hfill
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/val_score_y2.png}
-        \caption{\centering Validation Score for Efficiency \ac{KPI}}
+        \caption{\centering Efficiency \ac{KPI}}
         \label{fig:Validation Score for Efficiency grid}
     \end{subfigure}
     \caption{Validation Evaluation Metrics}
@@ -1061,11 +1060,11 @@ We have narrowed down scoring to follow the criteria as recorded in Table \ref{t
 
 This is deduced from the Equations \ref{eq:Y1 Percentage Difference} and \ref{eq:Y2 Percentage Difference}.
 \begin{equation}
-    \text{Y1 Percentage Difference} = (\text{Y1 Score} / {(Y1 Max - Y1 Min)})  \times 100
+    \text{Y1 Percentage Difference} = (\text{Y1 Score} / {(Y1 Max - Y1 Min)})  \cdot 100
     \label{eq:Y1 Percentage Difference}
 \end{equation}
 \begin{equation}
-    \text{Y2 Percentage Difference} = (\text{Y2 Score} / {(Y2 Max - Y2 Min)})  \times 100
+    \text{Y2 Percentage Difference} = (\text{Y2 Score} / {(Y2 Max - Y2 Min)})  \cdot 100
     \label{eq:Y2 Percentage Difference}
 \end{equation}
 
@@ -1080,13 +1079,12 @@ for Training there are no NANs and in targets it would be 0. But for training, w
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/KPI2D_predictions.png} 
-    \caption{MLP Training Results for Torque \ac{KPI}} 
+    \caption{MLP Predictions for Torque \ac{KPI}} 
     \label{fig:MLP Training Results for 2D KPI(Torque)}
 \end{figure}
 
 Figure \ref{fig:MLP Training Results for 2D KPI(Torque)} illustrates 6 test dataset predicted Torque values and their corresponding ground truths displayed against their angular velocities.
-The torque values are only displayed for the range of torque participating in the Torque curves and so the continuity to 0 Nm is not maintained here to ensure effective space 
-utilization. We also depict the difference and percentage difference on a twin y axis to give a rough overview of the prediction deviations from the targets.
+We also depict the difference and percentage difference on a twin y axis to give a rough overview of the prediction deviations from the targets.
 As the percentage difference formulated in Equation \ref{eq:Y1 Percentage Difference} would always result in positive values, they appear above the 0 line dotted separator.+
 Although we do see deviations, we notice for most of the cases, the predictions are such that the torque values predicted have smaller values than its respective ground truths.
 In addition, the \ac{RMSE} equivalent to the Y1 score tells us that for 50\% of the plots shown, the predictions are off by about 5\% from the target values as per 
@@ -1213,26 +1211,26 @@ We visualize the images for the same samples in Figure \ref{fig:Efficiency KPI P
 a 3rd figure denoting difference overlap. Thus, the figures in \ref{fig:Efficiency KPI Predictions Vs Targets with MLP} serve to give a larger view for comparing and 
 contrasting the predictions and its targets.
 
-Additionally, we calculate the RMSE and differences of prediction from the target by truncating the predicted and ground truth matrices to be of common shape.
+Additionally, we calculate the \ac{RMSE} and differences of prediction from the target by truncating the predicted and ground truth matrices to be of common shape.
 We also replace \ac{NaN} values with 0s in either if it occurs as the Efficiency \ac{KPI}'s were padded with \ac{NaN}'s to be of the same shape but originally 
 had no values as was discussed in Section \ref{subsec:Deep Dive into 3D KPI}.
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{./ReportImages/stddev_y2_nn_MLP.png} 
-    \caption{\ac{MLP} Standard Deviation of Efficiency \ac{KPI} Positive Grid across Angular Velocity Intervals} 
-    \label{fig:MLP Standard Deviation of 3D KPI(Efficiency) Positive Grid across Angular Velocity Intervals}
+    \caption{\ac{MLP} Standard Deviation of Efficiency \ac{KPI} across Angular Velocity Intervals with \ac{MLP}} 
+    \label{fig:MLP Standard Deviation of 3D KPI(Efficiency) across Angular Velocity Intervals with MLP}
 \end{figure}
 
-Figure \ref{fig:MLP Standard Deviation of 3D KPI(Efficiency) Positive Grid across Angular Velocity Intervals} illustrates the standard deviation across different 
+Figure \ref{fig:MLP Standard Deviation of 3D KPI(Efficiency) across Angular Velocity Intervals with MLP} illustrates the standard deviation across different 
 angular velocity ranges for the \ac{MLP} predictions as error bar plots.
-In comparison to Figure \ref{fig:Standard Deviation of 3D KPI(Efficiency) Positive Grid across Angular Velocity Intervals} we infer that as the speed angular 
+In comparison to Figure \ref{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals} we infer that as the speed angular 
 velocity increases the target deviations of efficiency values are not so accurately captured by the model.
 
 Efficiency \ac{KPI} is harder to evaluate scoring being a 3\ac{D} plot. There exists 191 angular velocity ranges holding efficiency values.
 Since it is infeasible the deviations of the efficiency with respect to all angular velocity intervals, we visualize the Efficiency prediction deviation 
-with its respective targets only for specific angular velocities across the entire torque range in Figure \ref{fig:Eval MLP Efficiency RMSE KPI}. Therefore, the 
-whole figure encompasses6 subplots for specific angular velocities.
+with its respective targets only for specific angular velocities across the entire torque range in Figure \ref{fig:MLP RMSE Evaluation for Efficiency KPI}. Therefore, the 
+whole figure encompasses 6 subplots for specific angular velocities.
 The figure shows the mean Efficiency values and the \ac{RMSE} surrounding it for few samples from the test dataset.
 The angular velocities are chosen at equal intervals of 2000 rpm. The Efficiency values are usual range from 0 to 100\% percentage whereas the torque values are shown 
 from 0 to approximately 250 Nm which could be the maximum torque value for samples predicted from few random samples of the test dataset.
@@ -1247,7 +1245,7 @@ because the Efficiency \ac{KPI}s envelope starts to converge from around 6000 rp
 Nevertheless, we see on average among the angular velocities, the \ac{RMSE} is close to 5 which is 5\% deviation from the target values as per Table \ref{tab:Scoring Criteria}.
 
 With the additional loss regularization of constraining efficiency values to be with 100\% as per Equation \ref{eq:Y2 Maximum Efficiency Regularization}, we can now emphasize 
-that the efficiency values donot exceed 100. This is evident from the Figures in \ref{fig:Eval MLP Efficiency RMSE KPI} otherwise the mean efficiency would not be constrained 
+that the efficiency values donot exceed 100. This is evident from the Figures in \ref{fig:MLP RMSE Evaluation for Efficiency KPI} otherwise the mean efficiency would not be constrained 
 within each of the subplots, which we force to only display between 0-100\%. Additionally, the figures in \ref{fig:Efficiency KPI Predictions Vs Targets with MLP} and 
 \ref{fig:Efficiency KPI Predictions Vs Targets Vs Difference with MLP} would also highlight this anomaly if it occurs since the levels of the contours are also fixed to 
 be between 0-100\%. Any values beyond this range would be visualized haphazardly.
@@ -1260,8 +1258,8 @@ across plots and use it as a baseline for determining the levels in the contour 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/rmse_eta_MLP.png} 
-    \caption{Eval MLP Efficiency \ac{RMSE} \ac{KPI}} 
-    \label{fig:Eval MLP Efficiency RMSE KPI}
+    \caption{\ac{MLP} \ac{RMSE} Evaluation for Efficiency \ac{KPI}} 
+    \label{fig:MLP RMSE Evaluation for Efficiency KPI}
 \end{figure}
 
 Figure \ref{fig:Y2 Evaluation Statistics MLP} shows both the Figure \ref{fig:Y2 RMSE} and Figure \ref{fig:Y2 Percentage Difference} from Equations \ref{eq:Y2 Score} 
@@ -1323,7 +1321,7 @@ the \ac{RMSE} of the Baseline predictions from its target is displayed in dotted
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/RMSE_Baseline_y1.png} 
-    \caption{Baseline \ac{RMSE} Evaluation for 2D KPI(Torque)} 
+    \caption{Baseline \ac{RMSE} Evaluation for Torque \ac{KPI}} 
     \label{fig:Baseline RMSE Evaluation for 2D KPI(Torque)}
 \end{figure}
 
@@ -1339,16 +1337,16 @@ The Y2 Baseline score for the Efficiency \ac{KPI} is formulated in Equation \ref
 \end{equation}
 where, \(w\) is the rows of 2\ac{D} vector, \(h\) is the columns of 2\ac{D} vector and \(Y2\ Baseline\ \ac{RMSE}\) is the \ac{RMSE} for each test sample.
 
-Figure \ref{fig:Eval Baseline Efficiency RMSE KPI} gives a neat visualization of the Baseline Efficiency \ac{RMSE} with its respective targets for certain angular velocities  
-across the entire torque range. This figure is yet again similar in structure to the Figure \ref{fig:Eval MLP Efficiency RMSE KPI} however the efficiency values 
+Figure \ref{fig:Baseline RMSE Evaluation for Efficiency KPI} gives a neat visualization of the Baseline Efficiency \ac{RMSE} with its respective targets for certain angular velocities  
+across the entire torque range. This figure is yet again similar in structure to the Figure \ref{fig:MLP RMSE Evaluation for Efficiency KPI} however the efficiency values 
 shown now are the predictions of the Baseline model. We infer from the plots that the targets have essentially the same efficiency values across the entire grid.
 We arrive at this conclusion from the fact that the only region where we see significant deviation is at the Efficiency \ac{KPI} envelope and we attribute this 
 pattern to stem from the corresponding Torque \ac{KPI}'s curve. Thus, the efficiency values are almost the same for more than 3/4th of the grid across all samples.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/rmse_eta_Baseline.png} 
-    \caption{Eval Baseline Efficiency \ac{RMSE} \ac{KPI}} 
-    \label{fig:Eval Baseline Efficiency RMSE KPI}
+    \caption{Baseline \ac{RMSE} Evaluation for Efficiency \ac{KPI}} 
+    \label{fig:Baseline RMSE Evaluation for Efficiency KPI}
 \end{figure}
 
 \section{Results with Smoothening Loss Regularization}\label{sec:Results with Smoothening Loss Regularization}
@@ -1362,7 +1360,7 @@ We also observe that there are fluctuations in the curve but relatively less whe
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/RMSE_MLP_Smoothening_y1.png} 
-    \caption{Smoothening Torque \ac{RMSE} Evaluation for 2D KPI(Torque)} 
+    \caption{Smoothening curve \ac{RMSE} Evaluation for Torque \ac{KPI}} 
     \label{fig:Smoothening Torque RMSE Evaluation for 2D KPI(Torque)}
 \end{figure}
 
@@ -1375,7 +1373,7 @@ performance with the MLP Model without any regularizations.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/RMSE_MLP_no_lossreg_y1.png} 
-    \caption{No Loss Regularization \ac{RMSE} Evaluation for 2D KPI(Torque)} 
+    \caption{No Loss Regularization \ac{RMSE} Evaluation for Torque \ac{KPI}} 
     \label{fig:No Loss Regularization RMSE Evaluation for 2D KPI(Torque)}
 \end{figure}
 
@@ -1385,14 +1383,24 @@ This conclusion prompts us to omit the loss regularization for the Torque \ac{KP
 
 \subsection{Efficiency \ac{KPI} Results with No Loss Regularization}\label{subsec:3D Efficiency Results with No Loss Regularization}
 
-Figure \ref{fig:Eval No Loss Regularization Efficiency RMSE KPI} gives a neat visualization of the Baseline Efficiency \ac{RMSE} with its respective targets 
+We can clearly note the missing effect of loss regularization constraining maximum efficiency values in Figure 
+/ref{fig:No Loss Regularization Standard Deviation for Efficiency KPI across Angular Velocity Intervals} at an angular velocity of 12000rpm.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{./ReportImages/stddev_y2_nn_no_lossreg_MLP.png} 
+    \caption{No Loss Regularization Standard Deviation for Efficiency \ac{KPI} across Angular Velocity Intervals}
+    \label{fig:No Loss Regularization Standard Deviation for Efficiency KPI across Angular Velocity Intervals}
+\end{figure}
+
+Figure \ref{fig:No Loss Regularization RMSE Evaluation for Efficiency KPI} gives a neat visualization of the Baseline Efficiency \ac{RMSE} with its respective targets 
 for specific speeds across the entire torque range. The speeds are chosen at equal intervals of 2000 rpm.
 We observe similar patterns to the ones generated with loss regularization in place. This fuels us to also omit the loss regularizations for the Efficiency \ac{KPI}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/rmse_eta_no_lossreg_MLP.png} 
-    \caption{Eval No Loss Regularization Efficiency \ac{RMSE} \ac{KPI}} 
-    \label{fig:Eval No Loss Regularization Efficiency RMSE KPI}
+    \caption{No Loss Regularization \ac{RMSE} Evaluation for Efficiency \ac{KPI}} 
+    \label{fig:No Loss Regularization RMSE Evaluation for Efficiency KPI}
 \end{figure}
 
 \section{Ablation Studies}\label{sec:Ablation Studies}
@@ -1407,8 +1415,8 @@ We conduct comprehensive ablation studies on the \ac{MLP} model with different l
         \hline 
         Baseline & 4.8201 & 15.3708 \\
         MLP\footnote{MLP With Decreasing Y1 Loss Regularization} & 5.1213 & 14.099 \\
-        MLP\footnote{MLP With Smoothening Y1 Loss Regularization} & 5.5052 & 15.0257 \\
-        MLP\footnote{MLP without both Y1 and Y2 Loss Regularization} & 4.9887 & 12.6612  \\
+        MLP\footnote{MLP With Smoothening Y1 Loss Regularization} & 5.3795 & 13.8884 \\
+        MLP\footnote{MLP without both Y1 and Y2 Loss Regularization} & 3.3995 & 13.7342  \\
         \hline
         \end{tabular}
         \caption{Ablation Studies}
@@ -1432,11 +1440,11 @@ We also show a glimpse of the time conserved with surrogate modelling and relate
         \begin{tabular}{|p{0.275\textwidth}|p{0.275\textwidth}|p{0.275\textwidth}|}
         \hline {\bf Approach} & {\bf Time taken(minutes)} & {\bf Hardware}\\
         \hline 
-        Surrogate Modelling (Proposed Approach) & 2 mins & 1500 CPU Cores\\
-        \ac{FEA} simulations (Current Approach)\footnote{Source : Valeo} & 5 minutes & 32 CPU Cores \& 1 GPU\\
+        Surrogate Modelling (Proposed Approach) & 18.5 seconds & 32 CPU Cores \& 1 GPU\\
+        \ac{FEA} simulations (Current Approach)\footnote{Source : Valeo} & 5 minutes & 1500 CPU Cores\\
         \hline
         \end{tabular}
-        \caption{Compute Time Comparision}
+        \caption{Compute Time Comparison}
         \label{tab:Compute Time Comparisions}
     \end{table}
 \end{minipage}
@@ -1450,12 +1458,13 @@ We also bring to attention that the time of taking 5 minutes to generate \ac{KPI
 \ref{fig:EM Design Flowchart} is only possible by running the simulator across High Performance Computing machines of nearly 1500 CPU cores in parallel. 
 As the number of cores decrease the simulation would take minutes to hours to converge. Additionally, it is the \ac{FEA} simulator in the block that is the culprit of 
 consuming time. Another pointer to note is in reality the time needed to generate \ac{KPI}s with Surrogate Modelling is in the range of milliseconds. 
-However most time is utilized during the dataset creation in Data Preprocessing phase as reading the excel files take up a significant chunk of the time.
-The computing time of the ANN surrogate models varied between 50.3 to 68 ms/case, which makes the surrogates 2,911 to 2,154 times faster than the FE reference simulation, 
+However most time is utilized during the dataset creation in Data Preprocessing phase as reading the excel files to retrieve the tabular data takes up a 
+significant chunk of time close to 18 seconds whereas only 5 seconds is required to generate the prediction and display both \ac{KPI}s.
+The computing time of the \ac{ANN} surrogate models varied between 50.3 to 68 ms/case, which makes the surrogates 2,911 to 2,154 times faster than the FE reference simulation, 
 respectively. As opposed to \ac{FEA} simulations, the time required to generate predictions for several motor designs is memory bound 
 and computation is not so much of a bottleneck since we can potentially run both training and inference across multiple GPUs in parallel.
 
-We have used Python 3.10.14 for our development and the Pytorch library compatible with Cuda.\\
+We have used Python 3.10.14 for our development and the \texttt{Pytorch}\footnote{\url{https://pytorch.org/}} Pytorch library compatible with Cuda.\\
 The model was trained on a NVIDIA Tesla V100 \ac{GPU} with 32 GB Memory and the machine we used had 16 CPUs of the Intel(R) Xeon(R) Silver 4208 CPU @ 2.10GHz 
 with allocated disk space of 50 GB for our experiments.
 Source code is available at \texttt{\href{https://github.com/Lilly-25/Masters-Thesis}{Github Repository}}\footnote{\url{https://github.com/Lilly-25/Masters-Thesis}}.
@@ -1674,7 +1683,7 @@ its corresponding edge type will be unique so similarly connected nodetypes of o
 Alternatively Heterogeneous Graph Transformers can be used to learn the implicit metapaths first from the graph by using feature propagation across multiple layers in its 
 neural network architecture to augment the original graph..TO BE CITED OR Not
 Yu et al. in \cite{SHGNN-2020} addresses the concern of featureless nodes by padding 0s, imputing the mean of neighboring nodes and using pretrained graph embeddings as initial features.
-
+However we see progress of \ac{GNN}s in molecular chemistry and social networks usecases from which we draw inspiration.
 \section{\ac{EM} Heterogeneous \ac{GNN} Model}\label{sec:EM Heterogeneous GNN Model}
 We find the Heterogeneous graph to be most apt for our use case with its different node and edge types as it preserves both the structural and semantics of our data. \\
 This property is crucial in modelling our use case as we will then have similar node types-edge types per topology. \\
@@ -1685,7 +1694,7 @@ We aim to train a multi-task \ac{GNN} model M such that M can deliver high perfo
 
 \subsection{\ac{EM} Heterogeneous Graph Construction}\label{subsec:EM Heterogeneous Graph Construction}
 Inspired by the promising advantages of Heterogeneous \ac{GNN}, we took the effort of costructing the graph for only the Double V Magnet Topology.\\
-We construct the heterogeneous graph adaptable for each of the \ac{EM} variants as a \texttt{NetworkX}\footnote{Python library for graphs and networks} graph.
+We construct the heterogeneous graph adaptable for each of the \ac{EM} variants as a \texttt{NetworkX}\footnote{\url{https://networkx.org/}} graph.
 
 \begin{enumerate}
     \item Node Types \\
@@ -1994,19 +2003,19 @@ Hence, the imbalanced topologies parameters would have relatively not so reliabl
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/train_score.png}
-        \caption{\centering Aggregated Training Score}
+        \caption{\centering Aggregated }
         \label{fig:Aggregated Training Score}
     \end{subfigure}\hfill
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/train_score_y1.png}
-        \caption{\centering Training Score for Torque \ac{KPI}}
+        \caption{\centering Torque \ac{KPI}}
         \label{fig:Training Score for Torque Curve}
     \end{subfigure}\hfill
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/train_score_y2.png}
-        \caption{\centering Training Score for Efficiency \ac{KPI}}
+        \caption{\centering Efficiency \ac{KPI}}
         \label{fig:Training Score for Efficiency grid}
     \end{subfigure}
     \caption{Training Evaluation Metrics}
@@ -2018,19 +2027,19 @@ Hence, the imbalanced topologies parameters would have relatively not so reliabl
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/val_loss.png}
-        \caption{\centering Aggregated Validation Loss}
+        \caption{\centering Aggregated}
         \label{fig:Aggregated Validation Loss}
     \end{subfigure}\hfill
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/val_loss_y1.png}
-        \caption{\centering Validation Loss for Torque \ac{KPI}}
+        \caption{\centering Torque \ac{KPI}}
         \label{fig:Validation Loss for Torque Curve}
     \end{subfigure}\hfill
     \begin{subfigure}{0.32\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/val_loss_y2.png}
-        \caption{\centering Validation Loss for Efficiency \ac{KPI}}
+        \caption{\centering Efficiency \ac{KPI}}
         \label{fig:Validation Loss for Efficiency grid}
     \end{subfigure}
     \caption{Validation Loss Metrics}
@@ -2095,7 +2104,7 @@ It is also called a Polynomial Graph Filter or Radial Filter and can be expresse
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{./ReportImages/GNNKernel.png} 
-    \caption{\ac{GNN} Kernel Filter Source :WWW}
+    \caption{\ac{GNN} Kernel Filter (\cite{GNN-2019})}
     \label{fig:GNN Kernel Filter}
 \end{figure}
 
