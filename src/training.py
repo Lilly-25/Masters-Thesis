@@ -20,8 +20,14 @@ class Y1LossRegularisation(nn.Module):
         mse_loss = self.mse_loss(y_pred, y_target)
         # y2-y1<=0 - it has to be a declining curve--
         #relu clips the negative values to zero so that increasing values are penalised
-        smoothened_curve_violations = torch.pow(torch.relu(torch.abs(y_pred[:, 1:]-y_pred[:, :-1]) - 1.0), 2) # Violations if difference in consecutive values in prediction are greater than 1
+        # smoothened_curve_violations = torch.pow(torch.relu(torch.abs(y_pred[:, 1:]-y_pred[:, :-1]) - 1.0), 2) # Violations if difference in consecutive values in prediction are greater than 1
 
+        smoothened_curve_violations = torch.where(
+                                                    torch.abs(y_pred[:, 1:] - y_pred[:, :-1]) > 1.0,  # Condition: If neighboring values difference greater than 1
+                                                    torch.pow(torch.abs(y_pred[:, 1:] - y_pred[:, :-1]), 2),  # Apply squaring for violations
+                                                    torch.zeros_like(y_pred[:, 1:])  # No penalty otherwise
+                                                )
+        
         decreasing_curve_violations = torch.pow(torch.relu(y_pred[:, 1:]-y_pred[:, :-1]), 2)#Squared difference incase of increasing values in y_pred
             # y2-y1>=0 - then it would have to be an increasing curve
             
