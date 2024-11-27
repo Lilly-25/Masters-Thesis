@@ -5,6 +5,7 @@ from tqdm import tqdm
 import os
 import pandas as pd
 from matplotlib.colors import Normalize
+import matplotlib.ticker as ticker
 
 def read_file_1d(file_path, sheet_name):
     # We only need the 1st row from NN and 1st column from MM for plotting
@@ -59,6 +60,7 @@ def plot_kpi2d(nn_values, mgrenz_values):
     plt.xlim(left=0)  
     plt.ylim(bottom=0)  
     ax=plt.gca()
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f"{int(x)}" if x != 0 else ""))
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     # plt.legend()
@@ -82,11 +84,13 @@ def plot_kpi3d(nn, mm, eta):
     ax.set_ylabel('Torque (Nm)', fontsize=12)
     # ax.set_title('Efficiency Grid', fontsize=14)
     
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f"{int(x)}" if x != 0 else ""))
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
 
     cbar = fig.colorbar(im, ax=ax)
     cbar.set_label('Efficiency (%)', fontsize=12)
+    cbar.ax.tick_params(labelsize=12) 
 
     ax.xaxis.set_major_locator(plt.MaxNLocator(10))
     # plt.xticks(rotation=45, ha='right')
@@ -155,6 +159,9 @@ def plot_wandb_logs(df, filename, metric):
 
     ax.set_xlabel('Epoch', fontsize=14)
     ax.set_ylabel(f'{metric}', fontsize=14)
+    ax.set_xlim(left=0)
+    ax.set_ylim(bottom=0)
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f"{int(x)}" if x != 0 else ""))
     ax.tick_params(axis='both', which='major', labelsize=14)
     ax.legend(fontsize=14)
     ax.spines['top'].set_visible(False)
