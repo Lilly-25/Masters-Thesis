@@ -80,16 +80,12 @@
 
 \end{titlepage}
 
-\newpage % Start a new page
-
-
-% Including an image on this page
+\newpage 
 \begin{figure}[h]
-    \includegraphics[width=0.8\textwidth]{./ReportImages/qrcode.png} % Adjust path and filename
+    \centering
+    \includegraphics[width=0.5\textwidth]{./ReportImages/qrcode.png} 
     \label{fig:your-image}
 \end{figure}
-
-\newpage % Start a new page
 
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
@@ -107,10 +103,6 @@ and as a baseline with the average of the parameters.\\
 Additionally we conduct a study to model the task as its graph representation and use Graph Neural Networks(GNN) to predict the KPIs.\\
 Lastly we will enable the KPI's plot visualization in a manner presentable to the client Valeo(Automaker Company specializes in manufacturing electric motors for cars).\\
 
-\newpage 
-
-\newpage 
-
 \chapter*{Acknowledgement}
 \addcontentsline{toc}{chapter}{Acknowledgement}
 I would like to thank my supervisor Prof. Dr. Magda Gregorová for her guidance and support throughout the course of this thesis.
@@ -121,17 +113,9 @@ of my task. I owe my accomplishments to my Family who have been very instrumenta
 and their endless support throughout enabled me to get to my thesis moving in the right direction. Finally, I humble myself before God Almighty for all his blessings 
 and for giving me the strength to persevere and bring my dreams to fruition.
 
-\newpage
-
-\newpage
-
 \begin{spacing}{1.2}
     \tableofcontents
 \end{spacing}
-
-\newpage
-
-\newpage
 
 \chapter*{Abbreviations}
 \addcontentsline{toc}{chapter}{Abbreviations}
@@ -163,41 +147,55 @@ and for giving me the strength to persevere and bring my dreams to fruition.
 
 \chapter{Introduction} 
 In the design of \acl{EM} (\ac{EM})s, vast amounts of data are generated to determine which design of an \ac{EM} fits best to \acl{KPI} (\ac{KPI})s.
-\ac{PMSM}s are largely classified as Surface Mounted \ac{PMSM} and Interior \ac{PMSM}.
 
-\ac{KPI}s of an \ac{EM} are its representative characteristics of a motor drive and is essential to judge the performance of the motor before manufacturing.
-Traditionally these \ac{KPI}s are inferred from the description of an \ac{EM} design using \ac{FEA} simulations by approximating the solutions of the Maxwell's equations which are essentially \ac{PDE}. \\
+\ac{KPI}s of an \ac{EM} are its representative characteristics of a motor drive and is essential to judge the performance of the motor before manufacturing it.
 The Torque multiplied by the Angular Velocity gives us an insight of the total Power of the \ac{EM}.
 The Efficiency map is a behavior map that expresses the motor efficiency function in the torque-angular velocity domain of an \ac{EM}.
 One would calculate such kind of behavior maps when there are multiple operating points to consider within the \ac{EM}'s drive cycle.
 The other \ac{KPI}s such as Losses and Torque ripple are also behavior maps similar to the Efficiency \ac{KPI}.
-The paper in \cite{ETA-2021} also cites that the Efficiency vs Torque and Angular Velocity map is most representative of the characteristics of the \ac{EM}. 
+The paper in Ref. \cite{ETA-2021} also cites that the Efficiency vs Torque and Angular Velocity map is most representative of the characteristics of the \ac{EM}. 
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.35\textwidth]{./ReportImages/FEA.png} 
+    \caption{\ac{FEA} Simulation of a \ac{PMSM} (Ref. \cite{CNNFEA-2020})}
+    \label{fig:FEA Simulation of a PMSM}
+\end{figure}
+
+Traditionally these \ac{KPI}s are inferred from the description of an \ac{EM} design using \ac{FEA} simulations by approximating the solutions of the Maxwell's equations 
+which are essentially \ac{PDE}.
+\ac{FEA} are numerical methods that discretize any physical phenomena to simulate and understand its performance under given loads and boundary conditions during design 
+phase. This enables designers to understand the performance and make a well informed decision before manufacturing. Although \ac{FEA} only gives approximate solutions, 
+it is regarded the best among the alternatives that exists.
+The color scale obtained in Fig. \ref{fig:FEA Simulation of a PMSM} represents possibly the magnetic flux density at different parts of the \ac{EM}.
+\ac{FEA} as a method are used in several domains ranging from civil, mechanical, aerospace, automotive and electrical engineering to name a few.
 \ac{FEA} simulations are numerical methods that discretize the geometric parameters of an \ac{EM} into finite elements and solve the \ac{PDE}s for each of them.
+The simulations are carried out by creating a mesh with the discretized points that amount to the shape of the \ac{EM} and then solving the \ac{PDE}s for each of them.
 This is typically done to simulate the magnetic field distribution of the \ac{EM} and thus assists to generate its \ac{KPI}s.  
-It requires domain knowledge in motor physics and complicated setup to run simulations typically in Matlab.
+It requires domain knowledge in motor physics and complicated setup to run simulations typically in \texttt{Matlab}\footnote{\url{https://de.mathworks.com/}} .
+\ac{FEA} simulations are famously expensive in terms of time taken to solve the equations which are also non differentiable.
+Despite the computational burden it comes with, the authors from Ref. \cite{FEA-ETA-2017} defends \ac{FEA} to be most appropriate to 
+generate \ac{EM} efficiency maps in terms of accuracy based on experimenting overall error rates across operating ranges for different \ac{EM} losses.
+This process, though well established in the \ac{EM} design is very resource intensive, time consuming and does not allow for high-throughput engine design optimization. 
 
 In computational electromagnetics, deep learning can be seen as the most eligible surrogate of \ac{FEA} simulator as they can provide almost accurate results in 
 relatively no time. This is because the \ac{FEA} simulations may take hours to days as it needs to generate for all operating points in the Efficiency map.
-Despite the computational burden it comes with, the authors from \cite{FEA-ETA-2017} defends \ac{FEA} to be most appropriate to 
-generate \ac{EM} efficiency maps in terms of accuracy based on experimenting overall error rates across operating ranges for different \ac{EM} losses.
 \ac{FEA}-based \ac{ANN} models have been utilized in other applications such as for predicting stress distribution in 3D printing, bend angles in laser-guided bending, 
-and performance of thermoelectric generator as cited in \cite{SM EMT-2020}.
+and performance of thermoelectric generator as cited in Ref. \cite{SM EMT-2020}.
 
-This process, though well established in the \ac{EM} design is very resource intensive, time consuming and does not allow for high-throughput engine design optimization. 
-
-The actual engine data of \texttt{Valeo}\footnote{\url{https://www.valeo.com/}} is used here as the dataset comprising of multiple variant designs of the Double-V magnet \ac{EM} topology.
+The actual engine data of \texttt{Valeo}\footnote{\url{https://www.valeo.com/}} is used here as the dataset comprising of multiple variant designs of the Double-V 
+magnet \ac{EM} topology. Valeo is an Automaker company that specializes in manufacturing electric motors for automobiles.
 Fig. \ref{fig:Valeo Motor Structure} depicts the structure of an \ac{EM} manufactured by Valeo. 
 The rotor rotates around the Stator to produce the magnetic field whereas the Stator is the stationary part that generates the force to rotate the Rotor.         
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/ValeoMotorStructure.jpg} 
-    \caption{\ac{EM} Motor (\texttt{Valeo})}
+    \caption{\ac{EM} Motor (\href{https://www.valeoservice.in/en-in/newsroom/basic-understanding-automotive-electric-motors}{(\texttt{Source})})}
     \label{fig:Valeo Motor Structure}
 \end{figure}
 
 The 3 motor topologies manufactured by Valeo are displayed in Fig. \ref{fig:EM Magnet Topologies}:
-\begin{enumerate}
+\begin{enumerate}[nosep]
     \item Single V Magnet - Consists of a single V magnet shown in Fig. \ref{fig:V1 Magnet}.
     \item Double V Magnet - Consists of double V magnets shown in Fig. \ref{fig:V2 Magnet}.
     \item Nabla Magnet - Consists of a single V Magnet and a delta magnet shown in Fig. \ref{fig:Nabla Magnet}.
@@ -287,6 +285,8 @@ We discuss each component of the flowchart below :
 
 This master thesis explores a way to do light-weight surrogate modelling of the current process as is highlighted in Fig. \ref{fig:EM Design Flowchart} by 
 exploiting data-driven deep neural networks to approximate the \ac{KPI}s derived from \ac{FEA} simulations.
+Complete replacement of \ac{FEA} simulations with deep learning models is not feasible however we can exploit the use of deep neural networks 
+trained on \ac{FEA} simulated data to reduce the computation burden of running these simulations repeatedly in the future.
 
 \begin{figure}[H]
     \centering
@@ -294,9 +294,6 @@ exploiting data-driven deep neural networks to approximate the \ac{KPI}s derived
     \caption{\ac{EM} Design Flowchart}
     \label{fig:EM Design Flowchart}
 \end{figure}
-
-Complete replacement of \ac{FEA} simulations with deep learning models is not feasible however we can exploit the use of deep neural networks 
-trained on \ac{FEA} simulated data to reduce the computation burden of running these simulations repeatedly in the future.
 
 \section{Objective}\label{sec:Objective}
 The objective of our work is to verify whether surrogate modelling to replace \ac{FEA} simulations is feasible.
@@ -321,35 +318,29 @@ Given our Data $\mathcal{X}  = [x_1, x_2, ..., x_{n}]^T \in \mathbb{R}^{n}$, whe
 We refer our targets, Torque curve as $\mathcal{Y}_1 = [y_1, y_2, ..., y_{h}]^T \in \mathbb{R}^{h}$ where $h$ is the number of participating angular velocities and
 Efficiency map as $\mathcal{Y}_2 \in \mathbb{R}^{w \times h}$ representing a grid of efficiency values defining the operating range of the \ac{EM}, where $w$ denotes to 
 different torque levels and $h$ the angular velocities. Each element $\mathcal{Y}_2(i,j)$ represents the efficiency at torque $i$ and angular velocity $j$.
-We aim to approximate the targets by training a \ac{MLP} model $\mathcal{M}$ to learn the mapping between $\mathcal{X}$ and $\mathcal{Y}_1$, $\mathcal{Y}_2$
+We aim to approximate the targets by training a \ac{MLP} model $\mathcal{M}$ to learn the mapping between $\mathcal{X}$ and $\mathcal{Y}_1$, $\mathcal{Y}_2$.
 
 \section{Research Question}\label{sec:Research Question}
 
 The Research Questions we aim to address are presented as follows :
  
-\begin{enumerate}
-    \item Is it feasible to predict the targets as a multi regression problem with a single model?
-    
+\begin{enumerate}[nosep]
+    \item \textbf{Is it feasible to predict the targets as a multi regression problem with a single model?}\\
     Since we have 2 targets of continuous values to predict, our task becomes a multi regression problem. The model architectures in Section \ref{sec:MLP Model} 
     shines light on how we go about it.
-    \item Is it possible to model an array of integer values to be predicted as a regression problem?
-    
+    \item \textbf{Is it possible to model an array of integer values to be predicted as a regression problem?}\\
     The Torque Curve typically harbours integers values albeit our task is in essence a regression problem which primarily works with floating point values. 
     Section \ref{sec:MLP Model} discuss how we tackle this challenge. 
-    \item How to handle varying dimensions within a target for model training?
-    
+    \item \textbf{How to handle varying dimensions within a target for model training?}\\
     The dimensions of the Efficiency grid differ across \ac{EM} variants. However the targets which has to be supplied to the model needs to be of a fixed size.
     We discuss in Section \ref{subsec:Deep Dive into 3D KPI} how we mitigate this problem.
-    \item How to accommodate predictions of targets of varying ranges with a single model?
-    
+    \item \textbf{How to accommodate predictions of targets of varying ranges with a single model?}\\
     The ranges among the 1st and 2nd target vary significantly and is yet another challenge we overcome in Section \ref{sec:Loss for 3D KPI}.
-    \item With a single model, how to predict 2 targets where the dimensionality of a target is dependent on the other?
-     
+    \item \textbf{With a single model, how to predict 2 targets where the dimensionality of a target is dependent on the other?}\\
     Given our noted observation that the efficiency envelope is controlled explicitly by the torque curve, we discuss in Section \ref{sec:Post Processing} how we tackle this scenario.
-    There has been literature on how the values of a target are affected by the the values of another target. However, our situation is tricky in the sense that the dimensionality 
-    of the Efficiency grid is dependent on the values of the Torque curve.
+    There has been literature on modelling wherein the values of a target are dependent on the values of another target. However, our situation is tricky in the sense 
+    that instead of the values the dimensionality of the Efficiency grid is dependent on the values of the Torque curve.
 \end{enumerate}
-
 
 \section{Thesis Structure}\label{sec:Thesis Structure}
 
@@ -373,15 +364,15 @@ We review the concept of surrogate modelling and its applications in \ac{EM} dom
 \section{Surrogate Modelling}\label{sec:Surrogate Modelling}
 \subsection{\ac{CNN}}\label{subsec:LR CNN}
 There has been extensive research in modeling the \ac{EM} with \ac{CNN} based on the images of the motor cross-section. Reproducing images is not the most wisest 
-approach as can be inferred from \cite{DFIG-2023} where the author presents numerous scenarios of generated images not being upto mark. These scenarios include difficulty to render 
+approach as can be inferred from Ref. \cite{DFIG-2023} where the author presents numerous scenarios of generated images not being upto mark. These scenarios include difficulty to render 
 the background accurately by only focussing on one subject, compression quality not being good enough, inability to focus on details and make images realistic among many other 
 discrepancies. This research largely encompasses evaluation of image generation of faces which could be concluded that deepfakes generated were quite easy to 
 distinguish from real ones.
-In \cite{BFIG-2023}, the authors have attempted to generate images of bicycle frame generation using a Deep Conditional 
+In Ref. \cite{BFIG-2023}, the authors have attempted to generate images of bicycle frame generation using a Deep Conditional 
 Generative Adversarial Network conditioned on loads, forces acting on bicycle frames. However, the authors conclude that the distribution of the synthetic images are 
 quite similar to real world data and seemed to be more diverse.
 However by generating the parameters of the motor we can be rest assured of more precise results. Hence the need to focus on the inputs as they are with their 
-parametric description. Vivek \textit{et al.} in \cite{VAE-MT-2021} also highlights that predicting \ac{KPI}s with tabular data is significantly more efficient than 
+parametric description. Vivek \textit{et al.} in Ref. \cite{VAE-MT-2021} also highlights that predicting \ac{KPI}s with tabular data is significantly more efficient than 
 using the images because the latter could result in less accurate designs due to the need of high resolution images in addition to its overall computation cost 
 required for training. Their work involves the use of a Variational Autoencoder to predict the \ac{KPI}s with an \ac{MLP} as well as sampling the latent space to 
 generate new \ac{EM} designs.
@@ -392,7 +383,7 @@ into account the pixel spatiality from motor designs as RGB images. In addition 
 description but have comparable reported performance with that of \ac{CNN}s.
 They also suggest a slight decline in accuracy for a linearly dependent target for the \ac{CNN} model as image resolution constrained the precision of the inputs.\\
 Existing literature also covers works on modelling this work as tabular data using \ac{MLP}s. \\
-Furthermore, research by \cite{EM CNN-2024} also presents their approach on handling surrogate modelling of topology invariant Interior 
+Furthermore, research by Ref. \cite{EM CNN-2024} also presents their approach on handling surrogate modelling of topology invariant Interior 
 Permanent Magnets motors to predict its Torque characteristics.
 Generally the topology differs based on the count of the magnets, this is evident from the Figures in \ref{fig:EM Magnet Topologies}.
 The writers claim to have used the cross-sectional images of motor designs in addition to the magnetic flux distribution of the Stator as input to the
@@ -402,29 +393,29 @@ They also claim to have improved the generalization performance of \ac{CNN}s wit
 can also be beneficial for both parameter and topology optimization of \ac{EM} as well as for prediction of its other \ac{KPI}s.\\
 
 \subsection{Machine Learning Approaches}\label{subsec:LR Machine Learning Approaches}
-The authors of \cite{EM 2DFMP-2022} presents a method to predict 2\ac{D} flux maps of an Interior \ac{PMSM} motor using classical machine learning ensemble regression models.
+The authors of Ref. \cite{EM 2DFMP-2022} presents a method to predict 2\ac{D} flux maps of an Interior \ac{PMSM} motor using classical machine learning ensemble regression models.
 Therefore for each coefficients of the 2\ac{D} flux maps, a separate regression model is trained which are then ensembled to make target predictions. 
 Although there are classical Machine Learning models which handle multi regression, they do not perform very well with higher dimensions as opposed to deep neural 
 networks. The writer also points out that these models fare better than deep neural networks when it comes to data required and training time.\\
-Similar to our usecase for modelling \ac{EM} for cars, the writers of \cite{ETA-V-2020} experiments to compute the efficiency map of Toyota Prius have 
+Similar to our usecase for modelling \ac{EM} for cars, the writers of Ref. \cite{ETA-V-2020} experiments to compute the efficiency map of Toyota Prius have 
 been computed. The methodology used is to observe Magnetic field flux density to predict how it evolves over time for different operating points of the map.
-The paper \cite{HMLO-2021} also examines a study of how a machine learning observer can augment the performance of torque estimation of 
+The paper Ref. \cite{HMLO-2021} also examines a study of how a machine learning observer can augment the performance of torque estimation of 
 induction motors trained with deep neural networks. The motivation behind using the observer is made by domain aware knowledge that the torque estimated depends on 
 the stator's magnetic flux. The authors claim to have made this possible by incorporating the information of speed, voltage and current into the network to realize 
 the \ac{EM}'s torque. They also indicate that physics modelling of the network enabled them to develop light-weight models with better accuracy.\\
-In \cite{EM SM-2023}, the authors compare and evaluate the performance of surrogate modelling Surface Permanent Magnet's parametric and image based designs.
+In Ref. \cite{EM SM-2023}, the authors compare and evaluate the performance of surrogate modelling Surface Permanent Magnet's parametric and image based designs.
 
 \subsection{Hybrid Models}\label{subsec:LR Hybrid Models}
-The researchers of \cite{SM EMT-2020} state that the use of domain knowledge improved the accuracy of surrogate modelling \ac{EM} by creating a hybrid of both 
+The researchers of Ref. \cite{SM EMT-2020} state that the use of domain knowledge improved the accuracy of surrogate modelling \ac{EM} by creating a hybrid of both 
 physics and data driven based models. In addition, it presents a workflow for surrogate modelling the air gap torque from \ac{FEA} simulated data and compares 
 and contrasts the computationally efficiency with regards to both approaches. 
-Similarly, Yusuke \textit{et al.} in \cite{PANN-MT-2021} and \cite{PANN-MOO-2021} also claim that a physics assisted neural network significantly improved the accuracy 
+Similarly, Yusuke \textit{et al.} in Ref. \cite{PANN-MT-2021} and Ref. \cite{PANN-MOO-2021} also claim that a physics assisted neural network significantly improved the accuracy 
 performance when predicting the cogging torque of Permanent Magnet Synchronous Motors. Their experiments suggest that approximating the cogging torque with a 
 linear subdomain model which serves as an additional input to the neural network when making the final prediction. With this methodology, they also disclose that a 
 significant less data than estimated would suffice.
 
 \subsection{Transfer Learning}\label{subsec:LR Transfer Learning}
-Works by Arbaaz \textit{et al.} in \cite{EM TL-2020} explores methodologies to extend an already model to predict efficiency maps for a topology it was untrained for 
+Works by Arbaaz \textit{et al.} in Ref. \cite{EM TL-2020} explores methodologies to extend an already model to predict efficiency maps for a topology it was untrained for 
 by exploiting the concept of transfer learning. The writers claim to get this accomplished by mixture of greedy pretraining and then overall finetuning the model.
 They do so by freezing the pretrained network which they identify as common knowledge so that gradient flow is disabled and substitute the other 
 layers of the pretrained model with new layers which is essential for the new task.
@@ -441,9 +432,9 @@ In addition a larger number of iterations of these algorithms is necessary to ev
 We do surrogate modelling of the \ac{FEA} simulations which serves as the baseline to eliminate the role of evolutionary algorithms as well for generating designs as 
 was discussed in Section \ref{sec:Research Question}. The latter could potentially be a future work to be carried out since the time complexity associated with the 
 Genetic Algorithms may discourage users to wait until convergence and rather persuade them to be satisfied with a suboptimal design.\\
-Marius \textit{et al.} in \cite{VAE-MT-2021} undertake works on optimizing \ac{EM} design generation by compressing its parametric description 
+Marius \textit{et al.} in Ref. \cite{VAE-MT-2021} undertake works on optimizing \ac{EM} design generation by compressing its parametric description 
 across multiple topologies into a latent space using a Variational Autoencoder thereafter from which new \ac{EM} designs can be sampled.
-Bucher \textit{et al.} in \cite{GDEM-2023} proposed a deep conditional generative design workflow using a to generate complete parametric 
+Bucher \textit{et al.} in Ref. \cite{GDEM-2023} proposed a deep conditional generative design workflow using a to generate complete parametric 
 description of Engineering Structures by taking as input the partially defined design and its performance attributes generated by \ac{FEA} software. 
 The workflow comprises of a conditional variational autoencoder as proof of concept by learning a joint probability distribution between the parametric description and 
 its performance attributes. This would be a useful read when we plan to extend the current work with its inverse formulation. 
@@ -452,7 +443,7 @@ Furthermore, the writers claim that their approach as opposed to evolutionary al
 the sample space of generated designs, expressive designs, reduced computational costs and model transferability among others.
 
 \section{Data Preprocessing Techniques}\label{sec:LR Data Preprocessing Techniques}
-The authors of \cite{VAE-MT-2021} also disclose the solutions taken to address the problem wherein unique parameters of 1 topology are absent in another topology.
+The authors of Ref. \cite{VAE-MT-2021} also disclose the solutions taken to address the problem wherein unique parameters of 1 topology are absent in another topology.
 They mitigate this concern with 2 approaches. Firstly, they default the missing values with an arbitrary fixed constant 0s this inturn pushes the model to learn a 
 nonsensical value for irrelevant features. However they also note that this shortcut results in wasting model capacity making the learning unnecessarily more difficult.
 Therefore, they have also used a second approach termed as Masked Learning Process wherein only features relevant for the motor topology are 
@@ -460,7 +451,7 @@ considered for modelling loss reconstruction of the model.
 
 
 \section{Evaluation Techniques}\label{sec:LR Evaluation Techniques}
-Arbaaz \textit{et al.} in \cite{DL-ETA-2019} also tries to generate the efficiency map by first generating its flux linkage maps and the torque curve 
+Arbaaz \textit{et al.} in Ref. \cite{DL-ETA-2019} also tries to generate the efficiency map by first generating its flux linkage maps and the torque curve 
 thus accounting for geometric and operating point variations. Two interesting points are made in this paper.
 First, since the number of excitation points vary across designs a model suitable for handling variable input sequence length is needed which implies that the values 
 within the torque curve i.e., excitation points are predicted. This results in conserving training time when predicting a fixed sized grid.
@@ -468,21 +459,21 @@ They also use confusion matrix for efficiency threshold so designer can filter o
 Secondly, for efficiencies being predicted outside the excitation points, the authors propose to provide an uncertainty measure to quantify confidence level using 
 Monte Carlo dropout. Reason being the error rate in the efficiency grid is maximum at the envelope of the curve. This factor gives the end user 
 the flexibility to choose to generate the \ac{KPI}s with the \ac{FEA} simulations or the surrogate model.\\
-Studies in \cite{EM-PM-2020} presents an interesting take on evaluating the performance of \ac{EM} with electrical engineering inspired benchmarks.
+Studies in Ref. \cite{EM-PM-2020} presents an interesting take on evaluating the performance of \ac{EM} with electrical engineering inspired benchmarks.
 They highlight the inadequacy of evaluations generated by classical Machine Learning approaches such as \ac{MSE}, R2 Score and Symmetric Mean Absolute Percentage Error.
 The argument is that these metrics favor the static area in the \ac{KPI}s which are relatively easier to predict.
 Meanwhile the dynamic areas in the \ac{KPI}s is not projected as much having less dominance with respect to coverage area. They experimented this finding with 
 Induction Motors to generate its Torque Vs Speed Predictions. The dynamic parts they considered were typically the regions in the curve before saturation is achieved. 
 In such cases the Machine Learning metrics could give an over optimistic score when compared to Electrical Engineering designed metrics.\\
 
-Researchers in \cite{DL-MF-2019} also discusses approaches to judge the accuracy with a physics aware metric for estimating 
+Researchers in Ref. \cite{DL-MF-2019} also discusses approaches to judge the accuracy with a physics aware metric for estimating 
 magnetic field of low frequency electromagnetic devices. The do so by quantifying the uncertainty of the predictions by adding a probabilistic component to the weights 
 of the neurons in the network architecture. The technique they employed is known as  Monte Carlo dropout with which they generate uncertainty maps. 
 The distribution of the predictions they thus generate more closely approximate that of the same generated by \ac{FEA} simulations as the accuracy improves.
 Interestingly they also discuss the possibility of modelling the usecase with Graph Convolutional Networks instead of \ac{CNN}s.
 They suggest that rather than images, graphs are better suited as they can handle unstructured design mesh which is 
 typically fed into the \ac{FEA} simulator as is shown in the Fig. \ref{fig:EM Design Flowchart}.\\
-The writers of \cite{ETA-LA-2020} emphasize the importance of having a very low error rate for the Efficiency Maps by \ac{FEA} simulations as the drive range of a 
+The writers of Ref. \cite{ETA-LA-2020} emphasize the importance of having a very low error rate for the Efficiency Maps by \ac{FEA} simulations as the drive range of a 
 vehicle's efficiency is determined with this \ac{KPI}. The Efficiency \ac{KPI}s generated by the \ac{FEA} simulations are obtained from torque, copper loss iron loss 
 and mechanical loss.They study methods to further improve the accuracy of \ac{FEA} simulations of Interior Permanent Magnets by modelling the effect 
 of losses such as minor hysteresis loss, stray loss, AC loss and manufacturing degradations at different operating points into these simulations.\\
@@ -537,21 +528,21 @@ Fig. \ref{fig:Standard Deviation of 2D KPI} shows the standard deviation of few 
 The x-axis represents the angular velocity of the motor ranging from 0 to 19000 rpm. Meanwhile, the y-axis represents the torque values corresponding to the angular velocity.
 For our dataset, the range of torque values are between 55 and 280 Nm. 
 The mean of all samples of the dataset is displayed with an overlay of how its standard deviation is around the mean.
-Furthermore, we display a twin y-axis in red showing the standard deviation of random handpicked samples with the mean.
+Furthermore, we display a twin y-axis in red showing the standard deviation of random handpicked samples with the mean.\\
 
 We make the following observations:
-\begin{enumerate}
-    \item The Standard deviation is at its peak at low angular velocities.
+\begin{enumerate}[nosep]
+    \item \textbf{The Standard deviation is at its peak at low angular velocities}\\
     This is evident from the Standard deviation ranging up to 3 until 5000 rpm. Beyond which the standard deviation decreases drastically until 
     saturation visible with the plateauing of the curve.
-    \item The curve to an extent resembles a mirrored S shape.                             
+    \item \textbf{The curve to an extent resembles a mirrored S shape}\\           
     This finding is critical for how we modelled the loss regularization for the target and will be further elaborated in Section \ref{sec:Loss for 2D KPI}
-    \item Samples almost similar to one another
+    \item \textbf{Samples are almost similar to one another}\\
     The samples shown here are almost resembling one another in shape and nature of curve. The finer details are at the points of the curve where it makes its transitions 
     This observation is crucial and directly impacts our  decision on choosing our Baseline model to be discussed in greater detail in Section \ref{sec:Results with Baseline}
-    \item Some Samples Standard Deviation seems to follow the mean curve.
+    \item \textbf{Some Samples Standard Deviation appears to follow the mean curve}\\
     These samples are among the few whose values lies on the outliers of the approximated distribution around the mean of all samples. This becomes more 
-    prominent when we visualize the results of the Troque curves and compare the \ac{RMSE} values in Sections \ref{sec:Results with Baseline}, \ref{sec:Results with MLP}  among others.
+    prominent when we visualize the results of the Torque curves and compare the \ac{RMSE} values in Sections \ref{sec:Results with Baseline}, \ref{sec:Results with MLP}  among others.
 \end{enumerate}
 
 \begin{figure}[H]
@@ -563,27 +554,12 @@ We make the following observations:
 \subsection{Data Exploration of the Efficiency \ac{KPI}}\label{subsec:Deep Dive into 3D KPI}
 As the target values of the Efficiency \ac{KPI} are not provided with the correct dimensions of Torque range we have an additional step which takes the maximum 
 torque value from the Torque \ac{KPI} and slices off the Efficiency grid to only range from [-Maximum Torque, Maximum Torque]. 
-Subsequently we choose only the rows of the MM grid detailed in Table \ref{tab:Excel File Structure} which correspond to the indices of the sliced efficiency grid.
+Subsequently we choose only the rows of the MM grid introduced in Table \ref{tab:Excel File Structure} which correspond to the indices of the sliced efficiency grid.
 This step ensures that we grant the model the correct dimensions of the Efficiency \ac{KPI} based on its Torque \ac{KPI}.\\
+
 Figures \ref{fig:Standard Deviation of Efficiency KPI(Mirrored Map)} and \ref{fig:Standard Deviation of Efficiency KPI} both illustrate the standard deviation 
 of the efficiency values plotted against its angular velocity considering all samples of the dataset. The standard deviation levels is shown as a scale with colors 
 darkening as the standard deviation increases.
-Efficiency values for negative torque values correspond to when motor is in generating mode and those of positive torque values to when motor is in monitoring mode.\\
-In both modes, the efficiency is almost similar albeit from Fig. \ref{fig:Standard Deviation of Efficiency KPI(Mirrored Map)}, we note it is not the case for our dataset. 
-This is evident from low angular velocity-high torque distribution area where we can see a clear distinction with \ac{NaN} values.
-Since these are \ac{FEA} simulations, it is probably an effect of a post processing step taken by the Motor builder.
-This observation made us decide on dropping the negative Efficiency \ac{KPI} and to focus on only predicting the positive Efficiency \ac{KPI}.\\
-The latter can be mirrored to replicate the efficiency when it is in generating mode if necessary.
-However over the course of this thesis, we donot do so, as it is not relevant to evaluate a duplicate again.
-From Fig. \ref{fig:Standard Deviation of Efficiency KPI}, we can observe the deviation is at its peak at low torques, extreme angular velocities. 
-We discuss the modelling of this information in Section \ref{sec:Loss for 3D KPI}. 
-We also can observe that beyond the Efficiency envelope, there are no efficiency values and can be translated as blank values in the grid or \ac{NaN} values in the padded Efficiency matrix.
-we incorporate this information in Section \ref{sec:Loss for 3D KPI}.
-In addition, we notice skewness at the border of the curve within the grid, we discuss in Section \ref{sec:Post Processing} how we handle this scenario.
-
-As we had noted already the Efficiency \ac{KPI} envelope is completely dependent on its equivalent Torque \ac{KPI} curve. 
-The area beneath the boundary of which is looked into by the \ac{EM} manufacturers to determine the car's efficiency in the drive range.
-This is yet another finding we use in Post Processing as is further elaborated in Section \ref{sec:Post Processing}
 
 \begin{figure}[H]
     \centering
@@ -591,6 +567,8 @@ This is yet another finding we use in Post Processing as is further elaborated i
     \caption{Standard Deviation of Mirrored Efficiency \ac{KPI}} 
     \label{fig:Standard Deviation of Efficiency KPI(Mirrored Map)}
 \end{figure}
+
+Efficiency values for negative torque values correspond to when motor is in generating mode and those of positive torque values to when motor is in monitoring mode.
 
 \begin{figure}[H]
     \centering
@@ -605,17 +583,41 @@ as an error bar at certain angular velocities over equally spaced intervals of 2
 We restrict the figure to only show the Efficiency values from 2000 rpm onwards since at very low angular velocities falling in the range of 0 and 2000 rpm, the efficiency 
 values range significantly from 0\% onwards.
 
-The distributions shows maximum skewness towards extreme angular velocities and is relatively stable between 4000 and 6000 rpm. 
-We discuss in Section \ref{sec:Loss for 3D KPI} how we integrate this finding into teaching over model.
-Another assumption we can safely make is that the Efficiency grid for all samples look nearly alike. We arrive at this deduction by noting that standard deviation at its 
-maximal is at 3. This gives us leverage to decide on choosing the Baseline model which will be further elaborated in Section \ref{sec:Results with Baseline}.
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{./ReportImages/stddev_y2_nn_Target.png} 
     \caption{Standard Deviation of Efficiency \ac{KPI} across Angular Velocity Intervals} 
     \label{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals}
 \end{figure}
+
+We make the following observations:
+\begin{enumerate}[nosep]
+    \item \textbf{Efficiency values flawed in generating mode}\\
+    In both modes, the efficiency is almost similar albeit from Fig. \ref{fig:Standard Deviation of Efficiency KPI(Mirrored Map)}, we note it is not the case for our dataset. 
+    This is evident from low angular velocity-high torque distribution area where we can see a clear distinction with \ac{NaN} values.
+    Since these are \ac{FEA} simulations, it is probably an effect of a post processing step taken by the Motor builder.
+    This observation made us decide on dropping the negative Efficiency \ac{KPI} and to focus on only predicting the positive Efficiency \ac{KPI}.\\
+    The latter can be mirrored to replicate the efficiency when it is in generating mode if necessary.
+    However over the course of this thesis, we donot do so, as it is not relevant to evaluate a duplicate again.
+    \item \textbf{Maximum deviation at low torques, extreme angular velocities}\\
+    From Fig. \ref{fig:Standard Deviation of Efficiency KPI}, we can observe the deviation is at its peak at low torques, extreme angular velocities. 
+    In Fig. \ref{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals}, we can observe the distributions shows maximum skewness towards 
+    extreme angular velocities and is relatively stable between 4000 and 6000 rpm. 
+    We discuss the modelling of this information in Section \ref{sec:Loss for 3D KPI} on how we integrate this finding into teaching over model. 
+    \item \textbf{Efficiency values beyond the Efficiency Envelope}\\
+    We also can observe that beyond the Efficiency envelope, there are no efficiency values and can be translated as blank values in the grid or \ac{NaN} values 
+    in the padded Efficiency matrix, we incorporate this information in Section \ref{sec:Loss for 3D KPI}.
+    \item \textbf{Considerable deviation along the Efficiency Envelope}\\
+    In addition, we notice skewness at the border of the curve within the grid, we discuss in Section \ref{sec:Post Processing} how we handle this scenario.
+    \item \textbf{Efficiency \ac{KPI} envelope is dependent on its equivalent Torque \ac{KPI} curve}\\
+    As we had noted already in Figures \ref{fig:Torque Curve},\ref{fig:Efficiency Grid} the Efficiency \ac{KPI} envelope is completely dependent on its equivalent 
+    Torque \ac{KPI} curve. The area beneath the boundary of which is looked into by the \ac{EM} manufacturers to determine the car's efficiency in the drive range.
+    This is yet another finding we use in Post Processing as is further elaborated in Section \ref{sec:Post Processing}
+    \item \textbf{The Efficiency grid for all samples look almost alike} \\
+    We make this assumption by noting that standard deviation at its maximal is at 3. This gives us leverage to decide on choosing the Baseline model which will 
+    be further elaborated in Section \ref{sec:Results with Baseline}.
+\end{enumerate}
+
 
 Reading each sheet from the excel files particularly the grids take up a lot of time and compute, hence we read the files as a onetime job when creating the 
 tabular data for training  and store them into pythonic objects for faster access for training.
@@ -647,7 +649,7 @@ For the Input features both Mean and Standard deviation are calculated across co
 This is attributed to the fact we have columns with different ranges for the input since we concern each feature a column mentioned in Section \ref{subsec:Deep Dive into Input Parameters}.
 
 We decided against scaling the targets owing to below 2 reasons :
-\begin{enumerate}
+\begin{enumerate}[nosep]
     \item They do not enter the network architecture but are only used during loss calculation.
     \item If we scale the target we will have to scale each example from the train dataset and then average the calculated scaling parameters.
     % This in turn would mean 1 scaling parameter i.e, mean and standard deviation each for the entire dataset.
@@ -746,7 +748,6 @@ The \ac{MSE} loss for the Torque \ac{KPI} is formulated mathematically as in Equ
     \text{$\mathcal{Y}_1$ Loss} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{h} \sum_{j=1}^{h} (y_{ij} - \hat{y}_{ij})^2
     \label{eq:Y1 Loss}
 \end{equation} 
-
 
 where, \(n\) is \ac{EM} samples, \(h\) is the columns of the 1D Torque vector, \(y_{ij}\) and $\hat{y_{ij}}$ are the ij-th ground truth and prediction respectively for 
 the torque at each operating point.
@@ -898,12 +899,12 @@ where, \(\lambda_{\text{1y1}}\) is $\mathcal{Y}_1$ Smoothening Loss Regularizati
         \(wt\) is $\mathcal{Y}_1$ Loss Weightage, \(1-wt\) is $\mathcal{Y}_2$ Loss Weightage. \\
 
 We have added a Weightage parameter that controls the contribution of the $\mathcal{Y}_1$ Loss and $\mathcal{Y}_2$ Loss to the Total Loss. There are 2 reasons why this is useful for us :
-\begin{enumerate}
+\begin{enumerate}[nosep]
     \item  When the targets are not of the same scale. \\
     Without scaling, the losses for both targets Torque and Efficiency \ac{KPI}s being of different ranges are drastically different.\\
     We circumvent this by weighing up the loss of the target not performing better on validation dataset and weighing down the loss of the 
     targets by the factor of how much its value range varies.
-    \item When the prediction accuracy of one \ac{KPI} is substantially more vital than the other. 
+    \item When the prediction accuracy of one \ac{KPI} is substantially more vital than the other. \\
     Our task demands the same as the Efficiency \ac{KPI} is post processed to be within the shape of the Torque \ac{KPI}. \\
     Therefore, in theory have higher weightage for the Torque \ac{KPI} as its loss in performing well is costlier but as its value range is relatively higher we make decisions from monitoring the perdiction performances.\\
     We reflect on these decisions based on whether the envelope of the Efficiency \ac{KPI} grid is more valuable that the efficiency values within it.\\
@@ -915,7 +916,7 @@ Finally the aggregated loss is backpropagated.
 
 \section{Optimizer}\label{sec:Optimizer}
 
-Adam optimizer is used for optimization as it is known to be computationally efficient and requires less memory \cite{ADAM-2017}. 
+Adam optimizer is used for optimization as it is known to be computationally efficient and requires less memory Ref. \cite{ADAM-2017}. 
 It infers the gradients of the loss and how it impacts the weights and biases of each layer and thus controls learning by guiding the model to decrease the loss over the course of training. 
 The optimizer acts once the loss is backpropagated across training each batch of the dataset.
 The optimizer also uses the learning rate to control the step size with which the model parameters are updated.
@@ -928,7 +929,6 @@ Needless to mention for the Efficiency \ac{KPI}, we have the Masking mechanism a
 same \ac{KPI} which in a way shows a pessimistic view of the model's performance. This is particularly prominent during training however during inference we make use of 
 not \ac{NaN} differencing to mask out values beyond the Efficiency envelope. While training we donot have visibility of the Efficiency envelope until its Torque \ac{KPI} 
 values are generated.
-
 
 \subsection{Evaluation Metrics for Torque \ac{KPI}}\label{sec:Evaluation Metrics for 2D KPI}
 The $\mathcal{Y}_1$ Score for the Torque \ac{KPI} is formulated in Equation \ref{eq:Y1 Score} :
@@ -1112,11 +1112,11 @@ We have narrowed down scoring to follow the criteria as recorded in Table \ref{t
 
 This is deduced from the Equations \ref{eq:Y1 Percentage Difference} and \ref{eq:Y2 Percentage Difference}.
 \begin{equation}
-    \text{$\mathcal{Y}_1$ Percentage Difference} = (\text{$\mathcal{Y}_1$ Score} / {(\mathcal{Y}_1 Max - \mathcal{Y}_1 Min)})  \cdot 100
+    \text{$\mathcal{Y}_1$ Percentage Difference} = (\text{$\mathcal{Y}_1$ Score} / {(Max(\mathcal{Y}_1) - Min(\mathcal{Y}_1))})  \cdot 100
     \label{eq:Y1 Percentage Difference}
 \end{equation}
 \begin{equation}
-    \text{$\mathcal{Y}_2$ Percentage Difference} = (\text{$\mathcal{Y}_2$ Score} / {(\mathcal{Y}_2 Max - \mathcal{Y}_2 Min)})  \cdot 100
+    \text{$\mathcal{Y}_2$ Percentage Difference} = (\text{$\mathcal{Y}_2$ Score} / {(Max(\mathcal{Y}_2) - Min(\mathcal{Y}_2))})  \cdot 100
     \label{eq:Y2 Percentage Difference}
 \end{equation}
 
@@ -1135,9 +1135,9 @@ for Training there are no NANs and in targets it would be 0. But for training, w
     \label{fig:MLP Training Results for 2D KPI(Torque)}
 \end{figure}
 
-Fig. \ref{fig:MLP Training Results for 2D KPI(Torque)} illustrates 6 test dataset predicted Torque values and their corresponding ground truths displayed against their angular velocities.
-We also depict the difference and percentage difference on a twin y axis to give a rough overview of the prediction deviations from the targets.
-As the percentage difference formulated in Equation \ref{eq:Y1 Percentage Difference} would always result in positive values, they appear above the 0 line dotted separator.+
+Fig. \ref{fig:MLP Training Results for 2D KPI(Torque)} illustrates 6 test dataset predicted Torque values and their corresponding ground truths displayed against their 
+angular velocities. We also depict the difference and percentage difference on a twin y axis to give a rough overview of the prediction deviations from the targets.
+As the percentage difference formulated in Equation \ref{eq:Y1 Percentage Difference} would always result in positive values, they appear above the 0 line dotted separator.
 Although we do see deviations, we notice for most of the cases, the predictions are such that the torque values predicted have smaller values than its respective ground truths.
 In addition, the \ac{RMSE} equivalent to the $\mathcal{Y}_1$ score tells us that for 50\% of the plots shown, the predictions are off by about 5\% from the target values as per 
 Table \ref{tab:Scoring Criteria}.
@@ -1540,17 +1540,15 @@ A graph can be composed of nodes and edges with their corresponding features in 
 The graph attributes contain the information relevant to the graph as a whole whereas the node features captures the information of the node's role in the network and 
 likewise the edge features captures the information of the edge's role in the network. Graphs also take into account their respective neighborhoods.
 
-On the basis of the directionality of edges within graphs, they can have the following taxonomy: \cite{GNN-2019}:
-\begin{enumerate}
+On the basis of the directionality of edges within graphs, they can have the following taxonomy: Ref. \cite{GNN-2019}:
+\begin{enumerate}[nosep]
     \item Directed Graph - A graph in which the edges have a direction from source node to its target node.
     \item Undirected Graph - A graph whose Adjacency matrix is symmetrical such that for each edge there will be its respective reverse edge in the opposite direction.
 \end{enumerate}
 
 In addition to their ability to incorporate both entity features and network features into a single, simultaneously trained model, most \ac{GNN}s scale linearly with 
-the number of edges in the network, making them applicable to large networks. A huge benefit of \ac{GNN}s in practical use cases is that they are inductive rather 
-than transductive. While transductive model can only be used on the specific data that was present during training, inductive models can be applied to entirely new 
-data without having to be retrained. This is defended by Johannessen \textit{et al.} in \cite{ML HGNN-2023}.
-Owerko \textit{et al.} demonstrate in \cite{PO GNN-2018} that power outages rely on sensors in the vicinity and can be attributed to weather conditions 
+the number of edges in the network, making them applicable to large networks.
+Owerko \textit{et al.} demonstrate in Ref. \cite{PO GNN-2018} that power outages rely on sensors in the vicinity and can be attributed to weather conditions 
 and so can be modelled using \ac{GNN}s. A hallmark of \ac{GNN}s is that they can efficiently learn the architecture parameters from the training data.
 
 \ac{GNN}s cannot be too deep with layers due to the oversmoothing problem. 
@@ -1558,15 +1556,15 @@ Oversmoothing is said to have occurred when the \ac{MP} algorithm would have alr
 Besides a deep \ac{GNN} would have a large number of parameters and would be computationally expensive to train.
 
 Researchers have broadly classified \ac{GNN}s following 2 distinct paradigms:
-\begin{enumerate}
+\begin{enumerate}[nosep]
     \item \textbf{Homogeneous \ac{GNN}} \\
         Homogeneous \ac{GNN} are designed for graphs with a single type of nodes and edges. 
         \ac{MP} is done for neighbouring nodes and edges over hops until it learns a representation equivalent from its neighbours.
         Homogeneous \ac{GNN} are typically build to capture the structural information within a graph.
-        These models are effective when the node and edge heterogeneity is negligible cited by the authors of \cite{EHR HGNN-2024}. 
+        These models are effective when the node and edge heterogeneity is negligible cited by the authors of Ref. \cite{EHR HGNN-2024}. 
     \item \textbf{Heterogeneous \ac{GNN}} \\    
         Heterogeneous \ac{GNN} are designed for graphs with differing types of nodes and edges implying difference in features as well as dimensionality.
-        The authors of \cite{{HNNC-2023}} argue that each type of node and edge reveal unique semantic information.
+        The authors of Ref. \cite{{HNNC-2023}} argue that each type of node and edge reveal unique semantic information.
         As a single function cannot cater to each type, hence different \ac{MP} and node updating functions needs to be implemented for each edge and node type respectively.
         Therefore \ac{MP} is conditioned on the node and edge type thus allowing the flow of information to be more controlled. 
         In addition to the structural information, Heterogeneous \ac{GNN}s also excel to capture semantic information within the graph.
@@ -1603,7 +1601,7 @@ Therefore, the final representation will be rich enough to have captured all the
 \begin{figure}[H]
     \centering
     \includegraphics[width=.6\textwidth]{./ReportImages/MessagePassing.png} 
-    \caption{Message Passing in \ac{GNN}s (\cite{PINO-2022})} 
+    \caption{Message Passing in \ac{GNN}s (Ref. \cite{PINO-2022})} 
     \label{fig:Message Passing in GNNs}
 \end{figure}
 
@@ -1640,7 +1638,7 @@ Some of the well known \ac{GNN} tasks can be seen in Fig. \ref{fig:GNN Predictio
 \end{figure}
 
 \ac{GNN}s have several applications where data are generated from non-Euclidean domains and are represented as graphs with complex relationships 
-and interdependency between objects \cite{GNN-2019}.
+and interdependency between objects Ref. \cite{GNN-2019}.
 These networks are generally represented by a giant graph in which case graph batching, splitting are unique. However our task requires us to build 1 graph each for each \ac{EM} variant.
 
 \subsection{Case Study Structure}\label{subsec:Case Study Structure}
@@ -1655,8 +1653,8 @@ Lastly, we wrap up with a brief discussion of the pros and cons of using heterog
 
 Graphs are ubiquitously heterogeneous because of its capability to have different node and edge types on top of its inherent graph feature to abstract and model 
 relations between objects.
-Heterogeneous \ac{GNN}s also takes into account homophily wherein nodes close on a network have similar embeddings \cite{HGNN-2020} this is in essence the structural 
-property and is true for all \ac{GNN}s. We largely adopt the commonly used notations from \cite{ML HGNN-2023} and reformulate it slightly for our task. \\
+Heterogeneous \ac{GNN}s also takes into account homophily wherein nodes close on a network have similar embeddings Ref. \cite{HGNN-2020} this is in essence the structural 
+property and is true for all \ac{GNN}s. We largely adopt the commonly used notations from Ref. \cite{ML HGNN-2023} and reformulate it slightly for our task. \\
 
 \textbf{Heterogeneous Networks}
 
@@ -1675,10 +1673,12 @@ Each edge \( e_{uv}^{\varepsilon} \) has features \( r_{uv}^{\varepsilon} \in R^
 where \( R^{\varepsilon} = \{ r_{uv}^{\varepsilon} \mid u, v \in V \} \) and \( R = \{ R^{\varepsilon} \mid \varepsilon \in T_e \} \). 
 Similar to nodes, the edge features can have different dimensions and attributes for different edge types.
 
-When \( |T_v| = |T_e| = 1 \), which implies there is only 1 node and edge type then the graph degenerates into a homogeneous graph \cite{SE HGNN-2023}.
+When \( |T_v| = |T_e| = 1 \), which implies there is only 1 node and edge type then the graph degenerates into a homogeneous graph Ref. \cite{SE HGNN-2023}.
 
 Heterogeneous \ac{GNN}s aim to learn a representation vector \( \mathbf{h}^{(L)}_v \in \mathbb{R}^{d_L} \) for each node \( v \) after \( L \)-layer transformations, 
-based on the graph structure and the initial node feature \( \mathbf{h}^{(0)}_v \in \mathbb{R}^{d_0} \) \cite{REF HGNN-2021}.\\
+based on the graph structure and the initial node feature \( \mathbf{h}^{(0)}_v \in \mathbb{R}^{d_0} \) Ref. \cite{REF HGNN-2021}.\\
+
+Fig. \ref{fig:Heterogeneous GNN Terminologies} illustrates each of the below terminologies to relate better.
 
 \textbf{Metarelation}
 
@@ -1712,21 +1712,21 @@ its metapath based neighbors. Moreover, $\mathcal{H_P}$ degenerates to a homogen
     \begin{subfigure}{0.35\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/Metapath.png}
-        \caption{Metapath} % Center the caption here
+        \caption{Metapath} 
         \label{fig:Metapath}
-    \end{subfigure}
+    \end{subfigure}\hfill
     \begin{subfigure}{0.35\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/Metarelation.png}
         \caption{Metarelation}
         \label{fig:Metarelation}
-    \end{subfigure}
+    \end{subfigure}\vfill
     \begin{subfigure}{0.35\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/MetapathNeighbors.png}
         \caption{Metapath based Neighbors} % Center the caption here
         \label{fig:MetapathNeighbors}
-    \end{subfigure}
+    \end{subfigure}\hfill
     \begin{subfigure}{0.35\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/Metasubgraph.png}
@@ -1746,7 +1746,7 @@ adjacency matrix where the nonzero values indicate positions of edges \(E_{c_t c
 Metapaths are composite relationships between nodes that help to capture the structural information of heterogeneous graphs.
 
 The Metapaths in Heterogeneous \ac{GNN}s are divided into 2 streams:
-\begin{enumerate}
+\begin{enumerate}[nosep]
     \item Metapath based method\\
     It strictly follows the metapaths defined for the network.
     Each metapath is assumed to be unique in terms of its semantic meaning, therefore this method aggregates inforamtion from each metapath before fusing 
@@ -1756,82 +1756,82 @@ The Metapaths in Heterogeneous \ac{GNN}s are divided into 2 streams:
     It aggregates message from neighbourhood of the same hop for all node types and so captures both structural and semantic information simultaneously.
 \end{enumerate}
 
-Multiple \ac{MP} operations are done across different metapaths which are finally aggregated into a new representation for the node.\cite{ML HGNN-2023}.
-Each metapath captures the proximity of nodes in a graph from a specific semantic view \cite{HGNN-2020}.
+Multiple \ac{MP} operations are done across different metapaths which are finally aggregated into a new representation for the node.Ref. \cite{ML HGNN-2023}.
+Each metapath captures the proximity of nodes in a graph from a specific semantic view Ref. \cite{HGNN-2020}.
 
 % During runtime, the \ac{MP}-\ac{GNN} algorithm would need to iterate over edge type dictionaries during message computation and over node type dictionaries during node updates.
 \section{\ac{GNN} Literature Review}\label{sec:HGNN Literature Review}
 We review the works of Heterogeneous \ac{GNN} in this section.
 
 \subsection{Subgraphs}\label{subsec:HGNN Subgraphs}
-Existing works for instance Yu \textit{et al.} in \cite{PR-HGNN-2024} model heterogeneous graphs by splitting the graph into multiple 
+Existing works for instance Yu \textit{et al.} in Ref. \cite{PR-HGNN-2024} model heterogeneous graphs by splitting the graph into multiple 
 homogeneous subgraphs based on their node types each retaining an aspect of its heterogeneity.
 This is ineffective in exploiting hidden rich semantic associations between different types of edges for large scale multi-relational graphs.
-However Zhu \textit{et al.} \cite{RSHGNN-2019}'s work does not undertake this methodology and is also independent of metapaths making it effective 
+However Zhu \textit{et al.} Ref. \cite{RSHGNN-2019}'s work does not undertake this methodology and is also independent of metapaths making it effective 
 in dealing with large number of complex relations.\\
-One such work by Zou \textit{et al.} in \cite{HNNC-2023} proposes a heterogeneous \ac{GNN} for node classification which converts the 
+One such work by Zou \textit{et al.} in Ref. \cite{HNNC-2023} proposes a heterogeneous \ac{GNN} for node classification which converts the 
 heterogeneous network into multiple semantic graphs from its defined metapaths. Attention mechanism is leveraged to learn the weight of each of the subgraphs. 
 The polynomial graph convolutional kernel is also described in this paper.\\ 
-Guan \textit{et al.} in \cite{HGNNSG-2023} presents a methodology to learn a heterogeneous graph by decomposing it into homogeneous and heterogeneous subgraphs from its metapaths 
+Guan \textit{et al.} in Ref. \cite{HGNNSG-2023} presents a methodology to learn a heterogeneous graph by decomposing it into homogeneous and heterogeneous subgraphs from its metapaths 
 as opposed to symmetrical metapaths. The information from each subgraph is finally attention aggregated which would serve as the final representation of the model.
 This approach was undertaken because of the fear that symmetric metapaths ignore intermediary nodes resulting in node biased learning.
 
 \subsection{Metarelations}\label{subsec:HGNN Metarelations}
 Modelling Heterogeneous Graphs with metapaths generally require domain specific knowledge as metapaths are customized. 
-In order to combat this, Hu \textit{et al.} in \cite{HGT-2022} has used meta relations instead and a unique adjacency matrix for each edge type.\\
-Works by Melton \textit{et al.} in \cite{MHGNN-2023} wherein they present a multilayer heterogeneous \ac{GNN} also use metarelations to extract soft metapaths 
+In order to combat this, Hu \textit{et al.} in Ref. \cite{HGT-2022} has used meta relations instead and a unique adjacency matrix for each edge type.\\
+Works by Melton \textit{et al.} in Ref. \cite{MHGNN-2023} wherein they present a multilayer heterogeneous \ac{GNN} also use metarelations to extract soft metapaths 
 and does message passing over multi-hop neighborhood of nodes.
-Such meta relations are shallow embeddings and not as deep as the meta paths as was clarified by Yang \textit{et al.} in \cite{HGNN-2020}. \\
-Additionally Chana \textit{et al.} in \cite{EHR HGNN-2024} has used heterogeneous \ac{GNN}s to model the heterogeneity and sparsity in Electronic 
+Such meta relations are shallow embeddings and not as deep as the meta paths as was clarified by Yang \textit{et al.} in Ref. \cite{HGNN-2020}. \\
+Additionally Chana \textit{et al.} in Ref. \cite{EHR HGNN-2024} has used heterogeneous \ac{GNN}s to model the heterogeneity and sparsity in Electronic 
 Health Records of patients. This work claims to learn the multi-task nature and also takes into account the relational features of the dataset which is arguably the 
 most important factor in this domain for example past medical history. However we note that although this paper uses meta relations it does not factor in edge features.\\
 
 \subsection{Oversmoothing}\label{subsec:HGNN Oversmoothing}
-Li \textit{et al.} in \cite{GCN-2018} demystifies the \ac{GCN} and addresses the Laplacian oversmoothing concern by self-training or co-training the model.
+Li \textit{et al.} in Ref. \cite{GCN-2018} demystifies the \ac{GCN} and addresses the Laplacian oversmoothing concern by self-training or co-training the model.
 Although it makes classification problem easier over multiple hops the features among different clusters will be the same.
 \ac{GCN} achieves this by breaking down the heterogeneous graph into multiple homogeneous ones, one for each edge type. 
 In each layer, \ac{GCN} is applied to each homogeneous graph, and the resulting node embeddings are element-wise summed to form the final output. 
 In Recurrent \ac{GCN}, during message passing, neighbors under the same edge type will be aggregated and normalized first. 
 A drawback of Recurrent \ac{GCN} is that it does not take node heterogeneity into account. \\
-\cite{GCN-2018} sheds light on the oversmoothing concern faced by \ac{GCN}.
+Ref. \cite{GCN-2018} sheds light on the oversmoothing concern faced by \ac{GCN}.
 \ac{GNN}s often face a dilemma to balance between resisting over-smoothing and capturing long range dependencies within the network.
-Ahn \textit{et al.} in \cite{RHGNN-2022} propose to mitigate oversmoothing by by introducing skip connections between layers in the network to favor node specific embeddings.
-Similarly in \cite{REF HGNN-2021}, Lv \textit{et al.} study existing heterogeneous \ac{GNN}s and also cites preactivated residual connections can help resist over-smoothing from happening.
+Ahn \textit{et al.} in Ref. \cite{RHGNN-2022} propose to mitigate oversmoothing by by introducing skip connections between layers in the network to favor node specific embeddings.
+Similarly in Ref. \cite{REF HGNN-2021}, Lv \textit{et al.} study existing heterogeneous \ac{GNN}s and also cites preactivated residual connections can help resist over-smoothing from happening.
 
 \subsection{Applications}\label{subsec:HGNN Applications}
-Most of the existing works demonstrated by Yang \textit{et al.} in \cite{HGNN-2020} also do not consider the edge features in their model. 
-However Johannessen \textit{et al.} in \cite{ML HGNN-2023} uses edge features as transactions in a financial network to detect cases of money laundering.
+Most of the existing works demonstrated by Yang \textit{et al.} in Ref. \cite{HGNN-2020} also do not consider the edge features in their model. 
+However Johannessen \textit{et al.} in Ref. \cite{ML HGNN-2023} uses edge features as transactions in a financial network to detect cases of money laundering.
 It also breaks down the large heterogeneous graph into subgraphs based on different node type-edge type combinations. 
 The paper also brings to light that GraphSAGE does not incorporate the edge weights.
 However, the \ac{MP} neural network framework applies a learned message-passing function that utilizes edge features.\\
-Gilmer \textit{et al.} in \cite{QC-MP-2017} introduces modelling for chemical prediction problems that makes it capable of learning features of molecular graphs 
+Gilmer \textit{et al.} in Ref. \cite{QC-MP-2017} introduces modelling for chemical prediction problems that makes it capable of learning features of molecular graphs 
 and is invariant to graph isomorphism. Graph isomorphism is the property of graph being similar even when the ordering of nodes and edges are different.
 They also suggest that edge features in the network can be learned by introducing hidden states for all edges in the graph and updating them.
 Additionally, the writers has implemented a message passing network which factors in the edge types.\\
 Bias Amplification is a known problem most prevalent in recommender systems where the model is biased to certain outputs due to the training data statistics.
-It can be handled much better when a graph is modelled as a heterogeneous graph as is shown in \cite{EV HGNN-2023} this is because differing 
+It can be handled much better when a graph is modelled as a heterogeneous graph as is shown in Ref. \cite{EV HGNN-2023} this is because differing 
 edge types capture varying types of relationships in the graph. The authors of this paper propose a heterogeneous \ac{GNN} to predict the purchase probability of 
 electric vehicles by modelling different characteristics such as charging infrastructure, branding, environmental factors, local policies among others in the form of a 
 heterogeneous graph.\\
-Dong \textit{et al.} in \cite{HNRL-2020} review pitfalls in Heterogeneous representation Learning. They also clarify that for metarelations connecting 2 different node types,  
+Dong \textit{et al.} in Ref. \cite{HNRL-2020} review pitfalls in Heterogeneous representation Learning. They also clarify that for metarelations connecting 2 different node types,  
 its corresponding edge type will be unique so similarly connected nodetypes of other metarelations. Customizing metapaths could bias it to be task specific and is limited to discrete space.
 Alternatively Heterogeneous Graph Transformers can be used to learn the implicit metapaths first from the graph by using feature propagation across multiple layers in its 
 neural network architecture to augment the original graph..TO BE CITED OR Not
 \subsection{Data Preprocessing Techniques}\label{subsec:HGNN Data Preprocessing Techniques}
-Yu \textit{et al.} in \cite{SHGNN-2020} addresses the concern of featureless nodes by padding 0s, imputing the mean of neighboring nodes and using pretrained graph 
+Yu \textit{et al.} in Ref. \cite{SHGNN-2020} addresses the concern of featureless nodes by padding 0s, imputing the mean of neighboring nodes and using pretrained graph 
 embeddings as initial features. 
 
 \subsection{Metapaths}\label{subsec:HGNN Metapaths}
-Xu \textit{et al.} in \cite{EMPHGNN-2023} demonstrated a technique of splitting metapaths from inside out to be able to capture the semantic meaning as much as 
+Xu \textit{et al.} in Ref. \cite{EMPHGNN-2023} demonstrated a technique of splitting metapaths from inside out to be able to capture the semantic meaning as much as 
 possible when developing a semi supervised explicit message passing hetergogeneous \ac{GNN}. This is particularly useful when the metapaths are too long and the 
 intermediary paths within the metapaths are prioritized to be the newly created metapaths.
-Yang \textit{et al.} in \cite{SE HGNN-2023} conducted a study on building an efficient Heterogeneous \ac{GNN} by using single layer longer metapaths rather than 
+Yang \textit{et al.} in Ref. \cite{SE HGNN-2023} conducted a study on building an efficient Heterogeneous \ac{GNN} by using single layer longer metapaths rather than 
 multilayer smaller metapaths to capture semantic information of the graph. To capture the structural information instead of repeated neighborhood attention, 
 the authors propose to compute the mean aggregate of the neighborhood as part of a preprocessing step thus simplifying the heterogeneous \ac{GNN}. 
 
-Gao \textit{et al.} in \cite{HGNNAS-2021} proposes an architercture search for heterogeneous \ac{GNN}s to effectively choose best network architecture by using 
+Gao \textit{et al.} in Ref. \cite{HGNNAS-2021} proposes an architercture search for heterogeneous \ac{GNN}s to effectively choose best network architecture by using 
 reinforcement learning. 
-The authors of \cite{HGNNRM-2023} propose a relevance measure to capture the sematics of nodes of different types in a heterogeneous graph based on context path 
+The authors of Ref. \cite{HGNNRM-2023} propose a relevance measure to capture the sematics of nodes of different types in a heterogeneous graph based on context path 
 bypassing the need of having semantically meaningfull metapaths. Context path is principally a path linking two nodes of the same type however the intermediary nodes in the 
 path are auxillary nodes of different types. The nodes making up the context path are weighted with varying importance scores on the basis of their corresponding relevance measure.
 
@@ -1840,8 +1840,9 @@ We find the Heterogeneous graph to be most apt for our use case with its differe
 This property is crucial in modelling our use case as we will then have similar node types-edge types per topology. 
 In contrast Homogeneous graphs would lead to suboptimal results as it cannot factor in the heterogeneity and thus the semantic nature of the usecase fully. 
 
-Given the \ac{EM} data \( D\), our goal is to construct a heterogeneous graph \( G\) from \( D\). Let \( T1\), \( T2\) on \( G\) be the 2 \ac{KPI}s we need to 
-learn from \( D\). We aim to train a multi-task \ac{GNN} model M such that M can deliver high performance on \( T1\) and \( T2\).
+Given the \ac{EM} data $\mathcal{D}$ , our goal is to construct a heterogeneous graph $\mathcal{H}$ from $\mathcal{D}$. Let $\mathcal{Y}_1$, $\mathcal{Y}_2$ on 
+$\mathcal{H}$ be the 2 \ac{KPI}s we need to learn from $\mathcal{D}$. We aim to train a multi-task \ac{GNN} model $\mathcal{M}$ such that $\mathcal{M}$ can deliver 
+high performance on $\mathcal{Y}_1$ and $\mathcal{Y}_2$.
 
 \subsection{\ac{EM} Heterogeneous Graph Construction}\label{subsec:EM Heterogeneous Graph Construction}
 Inspired by the promising advantages of Heterogeneous \ac{GNN}, we took the effort of costructing the graph for only the Double V Magnet Topology.
@@ -1957,9 +1958,14 @@ involves one large graph with multiple node and edge types.
 However, our problem involves creation of multiple heterogeneous graphs ie, 1 per \ac{EM} variant.\\
 Therefore, the applicability of Heterogeneous \ac{GNN}s for our problem is to be seen.
 
-Our thesis is loosely inspired from \cite{ML HGNN-2023} which has strived to extend \ac{MP} into Heterogeneous \ac{GNN}s.\\
+Our thesis is loosely inspired from Ref. \cite{ML HGNN-2023} which has strived to extend \ac{MP} into Heterogeneous \ac{GNN}s.\\
 
 \section{Summary}\label{sec:EM Heterogeneous GNN Discussion}
+We are faced with a dilemma most common when designing Heterogeneous \ac{GNN}s with predefined Metapaths.
+The challenge is to choose whether we want to represent each component of the \ac{EM} as dedicated nodes and edges to preserve the semantics of the data and be moren flexible 
+across topologies or to define reasonabley sized metapaths. As the nodes and edges increases, the metapath length exponentially increases.
+This makes computation tricky since for each metapath, the \ac{MP} is done across the nodes and edges its composed of.
+As we donot have enough domain knowledge in \ac{EM} modelling, our metapaths comprised of the stator , rotor and the its combination components.
 
 \chapter{Conclusion}
 
@@ -1979,7 +1985,7 @@ Additionally we deemed it unnecessary as the dimensions of the Efficiency grid v
 \section{Future Improvements}\label{sec:Future Improvements}
 I would suggest the following improvements to our study : 
 
-\begin{enumerate}
+\begin{enumerate}[nosep]
     \item Build a model that uses the Torque \ac{KPI} prediction to predict its corresponding Efficiency \ac{KPI}. 
     \item Although we have designed the model to be topology invariant for 3 topologies, we only had sufficient data from Double V Topology to draw evaluations from.
     Further evaluations on the other topologies would be beneficial to critically assess our model's performance.
@@ -2204,7 +2210,7 @@ Hence, the imbalanced topologies parameters would have relatively not so reliabl
 \section{GNN Terminologies}
 \label{sec:GNN Terminologies}
 
-We largely adopt the commonly used notations from \cite{GNN-2019} and reformulate it slightly to meet our needs.
+We largely adopt the commonly used notations from Ref. \cite{GNN-2019} and reformulate it slightly to meet our needs.
 We use bold uppercase characters to denote matrices and bold lowercase characters to denote vectors.\\
 
 \textbf{Graphs}
@@ -2257,23 +2263,23 @@ It is also called a Polynomial Graph Filter or Radial Filter and can be expresse
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{./ReportImages/GNNKernel.png} 
-    \caption{\ac{GNN} Kernel Filter (\cite{GNN-2019})}
+    \caption{\ac{GNN} Kernel Filter (Ref. \cite{GNN-2019})}
     \label{fig:GNN Kernel Filter}
 \end{figure}
 
-A \ac{GNN} block contains three update functions, \( \phi \), and three aggregation functions, \( \rho \) for the nodes, edges and graph attributes, \cite{GNNs-2018}
+A \ac{GNN} block contains three update functions, \( \phi \), and three aggregation functions, \( \rho \) for the nodes, edges and graph attributes, Ref. \cite{GNNs-2018}
 
 $e'_k = \phi_e(e_k, v_{r_k}, v_{s_k}, u)$, $v'_i = \phi_v(\bar{e}'_i, v_i, u)$, $u' = \phi_u(\bar{e}', \bar{v}', u)$
 
 $\bar{e}'_i = \rho_{e \to v}(E'_i)$, $\bar{e}' = \rho_{e \to u}(E')$, $\bar{v}' = \rho_{v \to u}(V')$
 
+A huge benefit of \ac{GNN}s in practical use cases is that they are inductive rather 
+than transductive. While transductive model can only be used on the specific data that was present during training, inductive models can be applied to entirely new 
+data without having to be retrained. This is defended by Johannessen \textit{et al.} in Ref. \cite{ML HGNN-2023}.
+
 \listoffigures
 
-\newpage 
-
 \listoftables
-
-\newpage 
 
 \begin{thebibliography}{00}
 
@@ -2528,6 +2534,11 @@ $\bar{e}'_i = \rho_{e \to v}(E'_i)$, $\bar{e}' = \rho_{e \to u}(E')$, $\bar{v}' 
     \newblock Ali Borji
     \newblock {\em Qualitative failures of image generation models and their application in detecting deepfakes}.
     \newblock cs.CV, 2023.
+
+    \bibitem[51]{CNNFEA-2020}
+    \newblock Dario Pasqualotto, Mauro Zigliotto
+    \newblock {\em A comprehensive approach to convolutional neural networks‐based condition monitoring of permanent magnet synchronous motor drives}.
+    \newblock May 20, 2020.
 
     \end{thebibliography}
 \newpage 
