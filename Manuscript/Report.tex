@@ -9,7 +9,6 @@
 \usepackage{enumitem} % For customized lists
 \usepackage{amsfonts} % For the \forall symbol
 \usepackage{multicol} % For multiple columns if needed
-\usepackage{enumitem} % For customizing lists
 \usepackage{hyperref} % For hyperlinks for table of contents
 \usepackage{acronym} % For defining acronyms
 \usepackage{tocbibind} % For adding list of figures, tables to table of contents
@@ -76,7 +75,7 @@
     
     \large
     Initial examiner: Prof. Dr. Magda Gregorová\\
-    Secondary examiner: Prof. Gracia Herranz Mercedes\\
+    Secondary examiner: Prof. Dr.-Ing. Mercedes Herranz Gracia\\
 
 \end{titlepage}
 
@@ -84,7 +83,7 @@
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.5\textwidth]{./ReportImages/qrcode.png} 
-    \label{fig:your-image}
+    \label{fig:qrcode}
 \end{figure}
 
 \chapter*{Abstract}
@@ -92,21 +91,21 @@
 
 The thesis explores an approach to predict Key Performance Indicators (KPI)s of topology invariant Permanent Magnet Synchronous Machine
 (PMSM) Electric Motors from its geometric, physical and simulation parameters.
-We intend to model the dynamics of Electric Motor functionality by creating surrogate models trained with Finite Element Method (FEM) simulations from its parametric description.
+I intend to model the dynamics of Electric Motor functionality by creating surrogate models trained with Finite Element Method (FEM) simulations from its parametric description.
 The KPIs to be predicted are vectors of numerical values which can be displayed as the Torque curve(2D) and the Efficiency grid(3D) respectively.
-We note the relationship between the Torque curve and the Efficiency grid and incorporate our learnings of both the KPI's nature into our solutions's modelling. \\
-We aim to first parameterize the Electric Motor design such that it is feasible to convert into a tabular representation. \\
-Next, we would create a table with relevant attributes and design a Multi Linear Perceptron(MLP) to train it in a supervised manner.\\
-Subsequently we will regularize the loss functions in a way that would smoothen out the plot curves for both the KPIs. \\
-Then we will evaluate the predictions with the test target values by experimenting with various hyperparameter tuning settings 
-and as a baseline with the average of the parameters.\\
-Additionally we conduct a study to model the task as its graph representation and use Graph Neural Networks(GNN) to predict the KPIs.\\
-Lastly we will enable the KPI's plot visualization in a manner presentable to the client Valeo(Automaker Company specializes in manufacturing electric motors for cars).\\
+I note the relationship between the Torque curve and the Efficiency grid and incorporate my learnings of both the KPIs nature into the solutions's modelling.
+I first parameterize the Electric Motor design such that it is feasible to convert into a tabular representation.
+Next, I create a table with relevant attributes and design a Multi Linear Perceptron(MLP) to train it in a supervised manner.
+Subsequently I regularize the loss functions in a way that would smoothen out the plot curves for both the KPIs.
+Then I evaluate the predictions with the test target values by experimenting with various hyperparameter tuning settings 
+and as a baseline with the average of the parameters.
+Additionally I conduct a study to model the task as its graph representation and use Graph Neural Networks(GNN) to predict the KPIs.
+Lastly I enable the KPIs plot visualization in a manner presentable to the client Valeo(Automaker Company specializes in  electric motors for cars).
 
 \chapter*{Acknowledgement}
 \addcontentsline{toc}{chapter}{Acknowledgement}
 I would like to thank my supervisor Prof. Dr. Magda Gregorová for her guidance and support throughout the course of this thesis.
-Her dedication and commitment to our work has been inspiring to me notably on how we transformed statistical math into modelling that I might have developed a 
+Her dedication and commitment to our work has been inspiring to me notably on how I transformed statistical math into modelling that I might have developed a 
 new love for academia. I would also like to express my sincere gratitude to Valeo for providing us with the dataset.
 Special thanks are in order to Daniel and Leo for sharing valuable insights of the data from an electromechanical standpoint and for giving me a detailed understanding 
 of my task. I owe my accomplishments to my Family who have been very instrumental in making it possible for me to pursue a Master's degree outside my home country 
@@ -146,7 +145,7 @@ and for giving me the strength to persevere and bring my dreams to fruition.
 \newpage
 
 \chapter{Introduction} 
-In the design of \acl{EM} (\ac{EM})s, vast amounts of data are generated to determine which design of an \ac{EM} fits best to \acl{KPI} (\ac{KPI})s.
+In the design of \ac{EM}, vast amounts of data are generated to determine which design of an \ac{EM} fits best to \ac{KPI}s.
 
 \ac{KPI}s of an \ac{EM} are its representative characteristics of a motor drive and is essential to judge the performance of the motor before manufacturing it.
 The Torque multiplied by the Angular Velocity gives us an insight of the total Power of the \ac{EM}.
@@ -158,7 +157,7 @@ The paper in Ref. \cite{ETA-2021} also cites that the Efficiency vs Torque and A
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.35\textwidth]{./ReportImages/FEA.png} 
-    \caption{\ac{FEA} Simulation of a \ac{PMSM} (Ref. \cite{CNNFEA-2020})}
+    \caption{\ac{FEA} Simulation of a \ac{PMSM} (Source : \cite{CNNFEA-2020})}
     \label{fig:FEA Simulation of a PMSM}
 \end{figure}
 
@@ -190,7 +189,7 @@ The rotor rotates around the Stator to produce the magnetic field whereas the St
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/ValeoMotorStructure.jpg} 
-    \caption{\ac{EM} Motor (\href{https://www.valeoservice.in/en-in/newsroom/basic-understanding-automotive-electric-motors}{(\texttt{Source})})}
+    \caption{\ac{EM} Motor (Source : https://www.valeoservice.in/en-in/newsroom/basic-understanding-automotive-electric-motors)}
     \label{fig:Valeo Motor Structure}
 \end{figure}
 
@@ -221,7 +220,7 @@ The 3 motor topologies manufactured by Valeo are displayed in Fig. \ref{fig:EM M
         \caption{Nabla Magnet}
         \label{fig:Nabla Magnet}
     \end{subfigure}
-    \caption{\ac{EM} Magnet Topologies (\texttt{Valeo})}
+    \caption{\ac{EM} Magnet Topologies (Source : Valeo)}
     \label{fig:EM Magnet Topologies}
 \end{figure}
 
@@ -243,12 +242,12 @@ Fig. \ref{fig:Torque Curve} and Fig. \ref{fig:Efficiency Grid} give a glimpse of
     \end{minipage}
 \end{figure}
 
-We can observe the relation between the Torque curve and the Efficiency grid. 
+I can observe the relation between the Torque curve and the Efficiency grid. 
 The values within the Efficiency envelope can be identified with differing contour shades whose level of shading is shown to the right.
-Most importantly we can also make out that the Efficiency envelope is of the same shape as the Torque curve.
+Most importantly I can also make out that the Efficiency envelope is of the same shape as the Torque curve.
 
-Fig. \ref{fig:EM Design Flowchart} gives an outlook of both the current approach and our proposed approach to generate the \ac{KPI}s.
-We discuss each component of the flowchart below :
+Fig. \ref{fig:EM Design Flowchart} gives an outlook of both the current approach and the proposed approach to generate the \ac{KPI}s.
+I discuss each component of the flowchart below :
 \begin{enumerate}
     \item \textbf{\ac{EM} designs parameterized} \\
     The design of each of the \ac{EM} variants described parametrically for its geometric, physical and simulation features are regarded as the input.
@@ -268,13 +267,13 @@ We discuss each component of the flowchart below :
         generate the \ac{KPI}s. The Motor Builder also is a GUI that provides visualization of the \ac{KPI} plots to the designer.
     \end{enumerate}
     \item \textbf{Proposed Approach}\\
-    Approach we undertake as surrogate modelling.
+    Approach I undertake as surrogate modelling.
     \begin{enumerate}
         \item \textbf{Data Preprocessing} \\
         The input features typically as its numerical equivalent is preprocessed and converted into its tabular representation such that it is suitable to be fed into the Neural Network.
         For training the network, additionally the targets are taken from the \textbf{Matlab Script 2} which also serves as the ground truth represented as a dotted line.
         \item \textbf{Neural Network} \\
-        We use \ac{MLP} as our deep learning model which is made up of fully feedforward connected layers. For training, also the targets are considered to minimize 
+        I have used \ac{MLP} as the deep learning model which is made up of fully feedforward connected layers. For training, also the targets are considered to minimize 
         the loss of the predictions to be generated. However for inference, only the inputs are used to generate its approximated targets.
         \item \textbf{Data Postprocessing} \\
         The predictions generated by the neural network is post processed to be similar to the targets of the \textbf{Matlab Script 2} in terms of dimensions and is plotted.
@@ -285,7 +284,7 @@ We discuss each component of the flowchart below :
 
 This master thesis explores a way to do light-weight surrogate modelling of the current process as is highlighted in Fig. \ref{fig:EM Design Flowchart} by 
 exploiting data-driven deep neural networks to approximate the \ac{KPI}s derived from \ac{FEA} simulations.
-Complete replacement of \ac{FEA} simulations with deep learning models is not feasible however we can exploit the use of deep neural networks 
+Complete replacement of \ac{FEA} simulations with deep learning models is not feasible however I can exploit the use of deep neural networks 
 trained on \ac{FEA} simulated data to reduce the computation burden of running these simulations repeatedly in the future.
 
 \begin{figure}[H]
@@ -296,17 +295,17 @@ trained on \ac{FEA} simulated data to reduce the computation burden of running t
 \end{figure}
 
 \section{Objective}\label{sec:Objective}
-The objective of our work is to verify whether surrogate modelling to replace \ac{FEA} simulations is feasible.
+The objective of the work is to verify whether surrogate modelling to replace \ac{FEA} simulations is feasible.
 Our task is a supervised learning task to predict 2 KPIs namely the Torque curve and the Efficiency grid which are vectors of numerical values 	 
 from the parametric description of topology invariant \ac{EM} and \ac{FEA} simulated \ac{KPI}s as ground truth. 
 The Torque curve is a vector of torque values across certain angular velocity ranges which can be visualized as a 2\ac{D} plot whereas the Efficiency grid is a matrix of 
 efficiency values of all combinations of torque ranges $\times$ angular velocities ranges and can be visualized as 3\ac{D} heatmap of contour plots. 
-Both the \ac{KPI}s are continuous values which makes our task a regression problem. 
+Both the \ac{KPI}s are continuous values which makes the task a regression problem. 
 The remaining \ac{KPI}s such as Costs, Vibration losses, Torque ripple among others can be calculated from these 2 \ac{KPI}s for instance the losses 
 are inversely proportional to the Efficiency values.
 
 \section{Motivation}\label{sec:Motivation}
-Our motivation to undertake this thesis is to lay the ground work for the problem's inverse formulation of generating \ac{EM} designs in the future. To our knowledge, 
+Our motivation to undertake this thesis is to lay the ground work for the problem's inverse formulation of generating \ac{EM} designs in the future. To my knowledge, 
 there has been no work yet on Generative AI in the domain of \ac{EM} designs. The research goal would be to condition the generative model on the predicted 
 \ac{KPI}s to be able to self-generate the most efficient \ac{EM} designs. From an application standpoint, it would be beneficial for Automaker companies to refer the 
 generated \ac{EM} designs to be able to suggest the most appropriate \ac{EM}s for automobiles as per customer requirements on say the horsepower of the car before manufacturing them. 
@@ -314,55 +313,55 @@ Companies could then evaluate the \ac{KPI}s of the synthetically generated \ac{E
 
 \section{Problem Statement}\label{sec:Problem Statement}
 
-Given our Data $\mathcal{X}  = [x_1, x_2, ..., x_{n}]^T \in \mathbb{R}^{n}$, where $n$ is the number of parameters of the \ac{EM} designs. 
-We refer our targets, Torque curve as $\mathcal{Y}_1 = [y_1, y_2, ..., y_{h}]^T \in \mathbb{R}^{h}$ where $h$ is the number of participating angular velocities and
+Given the Data $\mathcal{X}  = [x_1, x_2, ..., x_{n}]^T \in \mathbb{R}^{n}$, where $n$ is the number of parameters of the \ac{EM} designs. 
+The targets can be referred as, Torque curve as $\mathcal{Y}_1 = [y_1, y_2, ..., y_{h}]^T \in \mathbb{R}^{h}$ where $h$ is the number of participating angular velocities and
 Efficiency map as $\mathcal{Y}_2 \in \mathbb{R}^{w \times h}$ representing a grid of efficiency values defining the operating range of the \ac{EM}, where $w$ denotes to 
 different torque levels and $h$ the angular velocities. Each element $\mathcal{Y}_2(i,j)$ represents the efficiency at torque $i$ and angular velocity $j$.
-We aim to approximate the targets by training a \ac{MLP} model $\mathcal{M}$ to learn the mapping between $\mathcal{X}$ and $\mathcal{Y}_1$, $\mathcal{Y}_2$.
+I aim to approximate the targets by training a \ac{MLP} model $\mathcal{M}$ to learn the mapping between $\mathcal{X}$ and $\mathcal{Y}_1$, $\mathcal{Y}_2$.
 
 \section{Research Question}\label{sec:Research Question}
 
-The Research Questions we aim to address are presented as follows :
+The Research Questions I aim to address are presented as follows :
  
 \begin{enumerate}[nosep]
     \item \textbf{Is it feasible to predict the targets as a multi regression problem with a single model?}\\
-    Since we have 2 targets of continuous values to predict, our task becomes a multi regression problem. The model architectures in Section \ref{sec:MLP Model} 
-    shines light on how we go about it.
+    Since I have 2 targets of continuous values to predict, the task becomes a multi regression problem. The model architectures in Section \ref{sec:MLP Model} 
+    shines light on how I go about it.
     \item \textbf{Is it possible to model an array of integer values to be predicted as a regression problem?}\\
-    The Torque Curve typically harbours integers values albeit our task is in essence a regression problem which primarily works with floating point values. 
-    Section \ref{sec:MLP Model} discuss how we tackle this challenge. 
+    The Torque Curve typically harbours integers values albeit the task is in essence a regression problem which primarily works with floating point values. 
+    Section \ref{sec:MLP Model} discuss how I tackle this challenge. 
     \item \textbf{How to handle varying dimensions within a target for model training?}\\
     The dimensions of the Efficiency grid differ across \ac{EM} variants. However the targets which has to be supplied to the model needs to be of a fixed size.
-    We discuss in Section \ref{subsec:Deep Dive into 3D KPI} how we mitigate this problem.
+    I discuss in Section \ref{subsec:Deep Dive into 3D KPI} how I mitigate this problem.
     \item \textbf{How to accommodate predictions of targets of varying ranges with a single model?}\\
-    The ranges among the 1st and 2nd target vary significantly and is yet another challenge we overcome in Section \ref{sec:Loss for 3D KPI}.
+    The ranges among the 1st and 2nd target vary significantly and is yet another challenge I overcome in Section \ref{sec:Loss for 3D KPI}.
     \item \textbf{With a single model, how to predict 2 targets where the dimensionality of a target is dependent on the other?}\\
-    Given our noted observation that the efficiency envelope is controlled explicitly by the torque curve, we discuss in Section \ref{sec:Post Processing} how we tackle this scenario.
-    There has been literature on modelling wherein the values of a target are dependent on the values of another target. However, our situation is tricky in the sense 
+    Given my noted observation that the efficiency envelope is controlled explicitly by the torque curve, I discuss in Section \ref{sec:Post Processing} how I tackle this scenario.
+    There has been literature on modelling wherein the values of a target are dependent on the values of another target. However, the situation is tricky in the sense 
     that instead of the values the dimensionality of the Efficiency grid is dependent on the values of the Torque curve.
 \end{enumerate}
 
 \section{Thesis Structure}\label{sec:Thesis Structure}
 
-Over the course of the thesis we shall refer the Torque curve as Torque \ac{KPI} and the Efficiency grid as Efficiency \ac{KPI} respectively.
+Over the course of the thesis I shall refer the Torque curve as Torque \ac{KPI} and the Efficiency grid as Efficiency \ac{KPI} respectively.
 The remainder of the thesis is organized to follow sections namely Literature Review, Dataset, Modelling, Experiments and Results, Graph Modelling, Conclusion, 
 Bibliography and Appendix.
-In Literature Review section we will review the works that has already been carried out in this domain. 
-In the Dataset section a detailed insight is elaborated on how our data is structured .
-In the Modelling section, we introduce the network architectures and loss regularization techniques used to tackle the problem.
-The outcomes of our work are presented in Experiments and Results chapter in addition to other findings we unearth.
-Graph Modelling section is an empirical study which outlines the background of \ac{GNN}s primarily Heterogeneous \ac{GNN}s and defines its concepts. We also attempt to 
-present a workflow on how to use \ac{GNN}s for our task.
+In Literature Review section I review the works that has already been carried out in this domain. 
+In the Dataset section a detailed insight is elaborated on how the data is structured .
+In the Modelling section, I introduce the network architectures and loss regularization techniques used to tackle the problem.
+The outcomes of the work are presented in Experiments and Results chapter in addition to other findings I unearth.
+Graph Modelling section is an empirical study which outlines the background of \ac{GNN}s primarily Heterogeneous \ac{GNN}s and defines its concepts. I also attempt to 
+present a workflow on how to use \ac{GNN}s for my task.
 Conclusion chapter summarizes the thesis briefly and would also give a glimpse into possible areas of improvement. 
 Bibliography section lists out the articles cited for this thesis. 
-Lastly we share all supplementary information in the Appendix section.
+Lastly I share all supplementary information in the Appendix section.
 
 \chapter{Literature Review} 
 
-We review the concept of surrogate modelling and its applications in \ac{EM} domain.
+I review the concept of surrogate modelling and its applications in \ac{EM} domain.
 
 \section{Surrogate Modelling}\label{sec:Surrogate Modelling}
-\subsection{\ac{CNN}}\label{subsec:LR CNN}
+\subsection{Convolutional Neural Networks}\label{subsec:LR CNN}
 There has been extensive research in modeling the \ac{EM} with \ac{CNN} based on the images of the motor cross-section. Reproducing images is not the most wisest 
 approach as can be inferred from Ref. \cite{DFIG-2023} where the author presents numerous scenarios of generated images not being upto mark. These scenarios include difficulty to render 
 the background accurately by only focussing on one subject, compression quality not being good enough, inability to focus on details and make images realistic among many other 
@@ -371,7 +370,7 @@ distinguish from real ones.
 In Ref. \cite{BFIG-2023}, the authors have attempted to generate images of bicycle frame generation using a Deep Conditional 
 Generative Adversarial Network conditioned on loads, forces acting on bicycle frames. However, the authors conclude that the distribution of the synthetic images are 
 quite similar to real world data and seemed to be more diverse.
-However by generating the parameters of the motor we can be rest assured of more precise results. Hence the need to focus on the inputs as they are with their 
+However by generating the parameters of the motor it can be rest assured of more precise results. Hence the need to focus on the inputs as they are with their 
 parametric description. Vivek \textit{et al.} in Ref. \cite{VAE-MT-2021} also highlights that predicting \ac{KPI}s with tabular data is significantly more efficient than 
 using the images because the latter could result in less accurate designs due to the need of high resolution images in addition to its overall computation cost 
 required for training. Their work involves the use of a Variational Autoencoder to predict the \ac{KPI}s with an \ac{MLP} as well as sampling the latent space to 
@@ -397,7 +396,7 @@ The authors of Ref. \cite{EM 2DFMP-2022} presents a method to predict 2\ac{D} fl
 Therefore for each coefficients of the 2\ac{D} flux maps, a separate regression model is trained which are then ensembled to make target predictions. 
 Although there are classical Machine Learning models which handle multi regression, they do not perform very well with higher dimensions as opposed to deep neural 
 networks. The writer also points out that these models fare better than deep neural networks when it comes to data required and training time.\\
-Similar to our usecase for modelling \ac{EM} for cars, the writers of Ref. \cite{ETA-V-2020} experiments to compute the efficiency map of Toyota Prius have 
+Similar to my usecase for modelling \ac{EM} of cars, the writers of Ref. \cite{ETA-V-2020} experiments to compute the efficiency map of Toyota Prius have 
 been computed. The methodology used is to observe Magnetic field flux density to predict how it evolves over time for different operating points of the map.
 The paper Ref. \cite{HMLO-2021} also examines a study of how a machine learning observer can augment the performance of torque estimation of 
 induction motors trained with deep neural networks. The motivation behind using the observer is made by domain aware knowledge that the torque estimated depends on 
@@ -424,12 +423,12 @@ to each other. This eventually assist the model to generalize better and conserv
 Finetuning is a also a boon when the dataset for the new topologies are limited in existence.\\
 
 
-\section{\ac{EM} design generation}\label{sec:LR EM design generation}
+\section{EM design generation}\label{sec:LR EM design generation}
 Evolutionary algorithms such as genetic algorithms are traditionally used as multi objective optimization algorithms to generate the designs by iteratively
 updating the design parameters whereas the \ac{FEA} simulations evaluate the performance of each design. 
 The optimization algorithms are itself incredibly time consuming because fitness evaluation will need to be performed multiple times with \ac{FEA}.
 In addition a larger number of iterations of these algorithms is necessary to evaluate each design candidate in order to explore the entire design space.
-We do surrogate modelling of the \ac{FEA} simulations which serves as the baseline to eliminate the role of evolutionary algorithms as well for generating designs as 
+I do surrogate modelling of the \ac{FEA} simulations which serves as the baseline to eliminate the role of evolutionary algorithms as well for generating designs as 
 was discussed in Section \ref{sec:Research Question}. The latter could potentially be a future work to be carried out since the time complexity associated with the 
 Genetic Algorithms may discourage users to wait until convergence and rather persuade them to be satisfied with a suboptimal design.\\
 Marius \textit{et al.} in Ref. \cite{VAE-MT-2021} undertake works on optimizing \ac{EM} design generation by compressing its parametric description 
@@ -437,7 +436,7 @@ across multiple topologies into a latent space using a Variational Autoencoder t
 Bucher \textit{et al.} in Ref. \cite{GDEM-2023} proposed a deep conditional generative design workflow using a to generate complete parametric 
 description of Engineering Structures by taking as input the partially defined design and its performance attributes generated by \ac{FEA} software. 
 The workflow comprises of a conditional variational autoencoder as proof of concept by learning a joint probability distribution between the parametric description and 
-its performance attributes. This would be a useful read when we plan to extend the current work with its inverse formulation. 
+its performance attributes. This would be a useful read when there is a plan to extend the current work with its inverse formulation. 
 The authors also justify the usage of parametric description of the designs to be flexible for different model configurations and datasets. 
 Furthermore, the writers claim that their approach as opposed to evolutionary algorithms have multiple benefits such as complete control over 
 the sample space of generated designs, expressive designs, reduced computational costs and model transferability among others.
@@ -482,18 +481,19 @@ of losses such as minor hysteresis loss, stray loss, AC loss and manufacturing d
 
 Valeo has shared 1481 Excel Workbook files for each motor variant of three-phase interior \ac{PMSM} motors with 8 poles and 48 slots. 
 Around 89 parameters which comprises of the geometric, physical and simulation properties of the motor are chosen among the 196 parameters depending on its overall variability and significance.
-This was a design decision we made based on our understanding of the data.
-Moreover, we detail out the structure of the dataset files in Appendix \ref{subsec:File structure}.
+This was a design decision I had made based on my understanding of the data.
+Moreover, I detail out the structure of the dataset files in Appendix \ref{subsec:File structure}.
 Fig. \ref{fig:Full Motor} shows the geometry of a whole Double V motor which can be sliced into 8 identical parts owing to the motor design's rotational symmetry.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{./ReportImages/FullMotorv2.png} 
-    \caption{Complete \ac{EM} Geometry (\texttt{Valeo})}
+    \caption{Complete \ac{EM} Geometry (Source : Valeo)}
     \label{fig:Full Motor}
 \end{figure}
-Fig. \ref{fig:1/8 Motor Crossection} is a hand drawn sketch showing our understanding of how the geometry of 1/8th cross-section of the same motor looks like.
+
+Fig. \ref{fig:1/8 Motor Crossection} is a hand drawn sketch showing my understanding of how the geometry of 1/8th cross-section of the same motor looks like.
 This comes in handy when creating the graph representation of the motor.
-From the Figure, we can make out that the motor very largely is comprised of the Rotor and the Stator separated by the air gap between which the magnetic flux flows.
+From the Figure, I can make out that the motor very largely is comprised of the Rotor and the Stator separated by the air gap between which the magnetic flux flows.
 The Rotor hosts the permanent magnets which when rotated generates the magnetic field. The magnets sits on top of free shaped air pockets in the design. 
 The free shape of these air pockets are described geometrically by oblongs which draws the shape geometrically along fixed points.
 The Stator comprises of the Stator poles which are 6 in number here. There are 4 slot windings for each stator slot in the tooth shoe, the slots are where the stator windings made 
@@ -507,11 +507,11 @@ up of copper sit at. The Stator yoke separates each tooth shoe from the outer ra
 \end{figure}
 
 \section{Data Preprocessing}\label{sec:Data Preprocessing for MLP}
-For modelling the \ac{MLP}, we present the data in tabular form with the parameters corresponding to columns. 
-In Appendix \ref{subsec:Data Summary Statistics}, we provide the summary statistics of the input parameters of the \ac{EM}.
-The summary of the input parameters of all the \ac{EM} variants are disclosed in Table \ref{tab:Input Parameters} however we focus only on the Double V Magnet Topology 
-due to lack of data for the remaining two topology. Nevertheless, we have made our architecture to be compatible for the 3 topologies however we cannot draw plausible 
-inferences from the class imbalanced topologies. In order to make the data compatible with our model, some level of data processing was carried out as elaborated below.
+For modelling the \ac{MLP}, I present the data in tabular form with the parameters corresponding to columns. 
+In Appendix \ref{subsec:Data Summary Statistics}, I provide the summary statistics of the input parameters of the \ac{EM}.
+The summary of the input parameters of all the \ac{EM} variants are disclosed in Table \ref{tab:Input Parameters} however I focus only on the Double V Magnet Topology 
+due to lack of data for the remaining two topology. Nevertheless, I have made the architecture to be compatible for the 3 topologies however I cannot draw plausible 
+inferences from the class imbalanced topologies. In order to make the data compatible with the model, some level of data processing was carried out as elaborated below.
 
 \subsection{Data Exploration of the Input Parameters}\label{subsec:Deep Dive into Input Parameters}
 All parameters including the additional ones in each topology are regarded as a separate columns and therefore if a particular column is topology dependent then the 
@@ -520,29 +520,29 @@ to imputing them with the mean or median values. This is because the mean or med
 The values are then read and stored as their floating point equivalent to ensure data precision.
 Furthermore all degree columns are converted to their equivalent radian values as all trigonometric functions expects inputs to be in radian form and radian values are of
 a relatively narrow scale. 
-We assumed this would be relevant given the variety of shapes in the \ac{EM} design and the fact that they are 6 phase \ac{EM} however in hindsight we donot see the 
+I assumed this would be relevant given the variety of shapes in the \ac{EM} design and the fact that they are 6 phase \ac{EM} however in hindsight I donot see the 
 necessity of this step and can be avoided.
 
-\subsection{Data Exploration of the Torque \ac{KPI}}\label{subsec:Deep Dive into 2D KPI}
+\subsection{Data Exploration of the Torque KPI}\label{subsec:Deep Dive into 2D KPI}
 Fig. \ref{fig:Standard Deviation of 2D KPI} shows the standard deviation of few samples of the Torque \ac{KPI} from the entire dataset.
 The x-axis represents the angular velocity of the motor ranging from 0 to 19000 rpm. Meanwhile, the y-axis represents the torque values corresponding to the angular velocity.
-For our dataset, the range of torque values are between 55 and 280 Nm. 
+For the dataset, the range of torque values are between 55 and 280 Nm. 
 The mean of all samples of the dataset is displayed with an overlay of how its standard deviation is around the mean.
-Furthermore, we display a twin y-axis in red showing the standard deviation of random handpicked samples with the mean.\\
+Furthermore, I display a twin y-axis in red showing the standard deviation of random handpicked samples with the mean.\\
 
-We make the following observations:
+I make the following observations:
 \begin{enumerate}[nosep]
     \item \textbf{The Standard deviation is at its peak at low angular velocities}\\
     This is evident from the Standard deviation ranging up to 3 until 5000 rpm. Beyond which the standard deviation decreases drastically until 
     saturation visible with the plateauing of the curve.
     \item \textbf{The curve to an extent resembles a mirrored S shape}\\           
-    This finding is critical for how we modelled the loss regularization for the target and will be further elaborated in Section \ref{sec:Loss for 2D KPI}
+    This finding is critical for how I modelled the loss regularization for the target and will be further elaborated in Section \ref{sec:Loss for 2D KPI}
     \item \textbf{Samples are almost similar to one another}\\
     The samples shown here are almost resembling one another in shape and nature of curve. The finer details are at the points of the curve where it makes its transitions 
-    This observation is crucial and directly impacts our  decision on choosing our Baseline model to be discussed in greater detail in Section \ref{sec:Results with Baseline}
+    This observation is crucial and directly impacts my decision on choosing the Baseline model to be discussed in greater detail in Section \ref{sec:Results with Baseline}
     \item \textbf{Some Samples Standard Deviation appears to follow the mean curve}\\
     These samples are among the few whose values lies on the outliers of the approximated distribution around the mean of all samples. This becomes more 
-    prominent when we visualize the results of the Torque curves and compare the \ac{RMSE} values in Sections \ref{sec:Results with Baseline}, \ref{sec:Results with MLP}  among others.
+    prominenton visualizing the results of the Torque curves and compare the \ac{RMSE} values in Sections \ref{sec:Results with Baseline}, \ref{sec:Results with MLP}  among others.
 \end{enumerate}
 
 \begin{figure}[H]
@@ -551,11 +551,11 @@ We make the following observations:
     \caption{Standard Deviation of Torque KPI} 
     \label{fig:Standard Deviation of 2D KPI}
 \end{figure}
-\subsection{Data Exploration of the Efficiency \ac{KPI}}\label{subsec:Deep Dive into 3D KPI}
-As the target values of the Efficiency \ac{KPI} are not provided with the correct dimensions of Torque range we have an additional step which takes the maximum 
+\subsection{Data Exploration of the Efficiency KPI}\label{subsec:Deep Dive into 3D KPI}
+As the target values of the Efficiency \ac{KPI} are not provided with the correct dimensions of Torque range I have an additional step which takes the maximum 
 torque value from the Torque \ac{KPI} and slices off the Efficiency grid to only range from [-Maximum Torque, Maximum Torque]. 
-Subsequently we choose only the rows of the MM grid introduced in Table \ref{tab:Excel File Structure} which correspond to the indices of the sliced efficiency grid.
-This step ensures that we grant the model the correct dimensions of the Efficiency \ac{KPI} based on its Torque \ac{KPI}.\\
+Subsequently I choose only the rows of the MM grid introduced in Table \ref{tab:Excel File Structure} which correspond to the indices of the sliced efficiency grid.
+This step ensures that I grant the model the correct dimensions of the Efficiency \ac{KPI} based on its Torque \ac{KPI}.
 
 Figures \ref{fig:Standard Deviation of Efficiency KPI(Mirrored Map)} and \ref{fig:Standard Deviation of Efficiency KPI} both illustrate the standard deviation 
 of the efficiency values plotted against its angular velocity considering all samples of the dataset. The standard deviation levels is shown as a scale with colors 
@@ -578,9 +578,9 @@ Efficiency values for negative torque values correspond to when motor is in gene
 \end{figure}
 
 Fig. \ref{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals} gives us the holistic view of how the efficiency values are 
-distributed across equally spaced intervals of angular velocity. The Figure plots the standard deviation of all the Efficiency values for all samples of our dataset 
+distributed across equally spaced intervals of angular velocity. The Figure plots the standard deviation of all the Efficiency values for all samples of the dataset 
 as an error bar at certain angular velocities over equally spaced intervals of 2000 rpm.
-We restrict the figure to only show the Efficiency values from 2000 rpm onwards since at very low angular velocities falling in the range of 0 and 2000 rpm, the efficiency 
+I restrict the figure to only show the Efficiency values from 2000 rpm onwards since at very low angular velocities falling in the range of 0 and 2000 rpm, the efficiency 
 values range significantly from 0\% onwards.
 
 \begin{figure}[H]
@@ -590,54 +590,54 @@ values range significantly from 0\% onwards.
     \label{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals}
 \end{figure}
 
-We make the following observations:
+The following observations can be made for the Efficiency \ac{KPI}:
 \begin{enumerate}[nosep]
     \item \textbf{Efficiency values flawed in generating mode}\\
-    In both modes, the efficiency is almost similar albeit from Fig. \ref{fig:Standard Deviation of Efficiency KPI(Mirrored Map)}, we note it is not the case for our dataset. 
-    This is evident from low angular velocity-high torque distribution area where we can see a clear distinction with \ac{NaN} values.
+    In both modes, the efficiency is almost similar albeit from Fig. \ref{fig:Standard Deviation of Efficiency KPI(Mirrored Map)}, I note it is not the case for the dataset. 
+    This is evident from low angular velocity-high torque distribution area where I can see a clear distinction with \ac{NaN} values.
     Since these are \ac{FEA} simulations, it is probably an effect of a post processing step taken by the Motor builder.
     This observation made us decide on dropping the negative Efficiency \ac{KPI} and to focus on only predicting the positive Efficiency \ac{KPI}.\\
     The latter can be mirrored to replicate the efficiency when it is in generating mode if necessary.
-    However over the course of this thesis, we donot do so, as it is not relevant to evaluate a duplicate again.
+    However over the course of this thesis, I donot do so, as it is not relevant to evaluate a duplicate again.
     \item \textbf{Maximum deviation at low torques, extreme angular velocities}\\
-    From Fig. \ref{fig:Standard Deviation of Efficiency KPI}, we can observe the deviation is at its peak at low torques, extreme angular velocities. 
-    In Fig. \ref{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals}, we can observe the distributions shows maximum skewness towards 
+    From Fig. \ref{fig:Standard Deviation of Efficiency KPI}, I can observe the deviation is at its peak at low torques, extreme angular velocities. 
+    In Fig. \ref{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals}, I can observe the distributions shows maximum skewness towards 
     extreme angular velocities and is relatively stable between 4000 and 6000 rpm. 
-    We discuss the modelling of this information in Section \ref{sec:Loss for 3D KPI} on how we integrate this finding into teaching over model. 
+    I discuss the modelling of this information in Section \ref{sec:Loss for 3D KPI} on how I integrate this finding into teaching over model. 
     \item \textbf{Efficiency values beyond the Efficiency Envelope}\\
-    We also can observe that beyond the Efficiency envelope, there are no efficiency values and can be translated as blank values in the grid or \ac{NaN} values 
-    in the padded Efficiency matrix, we incorporate this information in Section \ref{sec:Loss for 3D KPI}.
+    I also can observe that beyond the Efficiency envelope, there are no efficiency values and can be translated as blank values in the grid or \ac{NaN} values 
+    in the padded Efficiency matrix, I incorporate this information in Section \ref{sec:Loss for 3D KPI}.
     \item \textbf{Considerable deviation along the Efficiency Envelope}\\
-    In addition, we notice skewness at the border of the curve within the grid, we discuss in Section \ref{sec:Post Processing} how we handle this scenario.
+    In addition, I notice skewness at the border of the curve within the grid, I discuss in Section \ref{sec:Post Processing} how I handle this scenario.
     \item \textbf{Efficiency \ac{KPI} envelope is dependent on its equivalent Torque \ac{KPI} curve}\\
-    As we had noted already in Figures \ref{fig:Torque Curve},\ref{fig:Efficiency Grid} the Efficiency \ac{KPI} envelope is completely dependent on its equivalent 
+    As I had noted already in Figures \ref{fig:Torque Curve},\ref{fig:Efficiency Grid} the Efficiency \ac{KPI} envelope is completely dependent on its equivalent 
     Torque \ac{KPI} curve. The area beneath the boundary of which is looked into by the \ac{EM} manufacturers to determine the car's efficiency in the drive range.
-    This is yet another finding we use in Post Processing as is further elaborated in Section \ref{sec:Post Processing}
+    This is yet another finding I use in Post Processing as is further elaborated in Section \ref{sec:Post Processing}
     \item \textbf{The Efficiency grid for all samples look almost alike} \\
-    We make this assumption by noting that standard deviation at its maximal is at 3. This gives us leverage to decide on choosing the Baseline model which will 
+    I make this assumption by noting that standard deviation at its maximal is at 3. This gives us leverage to decide on choosing the Baseline model which will 
     be further elaborated in Section \ref{sec:Results with Baseline}.
 \end{enumerate}
 
 
-Reading each sheet from the excel files particularly the grids take up a lot of time and compute, hence we read the files as a onetime job when creating the 
+Reading each sheet from the excel files particularly the grids take up a lot of time and compute, hence I read the files as a onetime job when creating the 
 tabular data for training  and store them into pythonic objects for faster access for training.
 Both the input and target values for the Torque \ac{KPI} are stored locally as csv files whereas those of the Efficiency \ac{KPI} is stored as separate csv files per 
 variant considering it is in the form of a 2\ac{D} array.
 The csv files are then concatenated and stored into an array conserving dimensionality by padding \ac{NaN} values to match dimensionality of the grid 
 corresponding to the Torque \ac{KPI} with the largest torque value.
-In our case the value is 280 computed internally from the dataset but this is subject to change as we receive more data and there is a provision handy to override it 
+In my case the value is 280 computed internally from the dataset but this is subject to change as I receive more data and there is a provision handy to override it 
 on demand. The array is then saved locally for easy access and loading during training.
 
-Initially we tried to set \ac{NaN} values as an incredibly high value hoping the model would concern this as a default value instead of \ac{NaN}.
+Initially I tried to set \ac{NaN} values as an incredibly high value hoping the model would concern this as a default value instead of \ac{NaN}.
 However, it resulted in poor predictions as the model must have been confused and tried to increase its spread of predictions to cover this large value and so all 
 true values were also predicted to be close to this dummy value.
-Fortunately, we have come up with a better way of handling this scenario and we elaborate in Section \ref{sec:Loss for 3D KPI} how we tackle it.
+Fortunately, I have come up with a better way of handling this scenario and I elaborate in Section \ref{sec:Loss for 3D KPI} how I tackle it.
 
 \section{Scaling}\label{sec:Scaling}
 
 Scaling is a common practice done before training a neural network. 
 Standard scaling is the most prevalent scaling mechanism used for normalization as it results in a Gaussian Distribution centered around the mean.
-We have used the same for the input features to bring them to a common scale. 
+I have used the same for the input features to bring them to a common scale. 
 
 The Scaling is formulated mathematically as in Equation \ref{eq:Standard Scaling}
 \begin{equation}
@@ -646,39 +646,40 @@ The Scaling is formulated mathematically as in Equation \ref{eq:Standard Scaling
 \end{equation} 
 where $x$ is the Input, $\mu$ the Mean and $\sigma$ the Standard Deviation.
 For the Input features both Mean and Standard deviation are calculated across columns. 
-This is attributed to the fact we have columns with different ranges for the input since we concern each feature a column mentioned in Section \ref{subsec:Deep Dive into Input Parameters}.
+This is attributed to the fact I have columns with different ranges for the input since I consider each feature a column mentioned in 
+Section \ref{subsec:Deep Dive into Input Parameters}.
 
-We decided against scaling the targets owing to below 2 reasons :
+I decided against scaling the targets owing to below 2 reasons :
 \begin{enumerate}[nosep]
     \item They do not enter the network architecture but are only used during loss calculation.
-    \item If we scale the target we will have to scale each example from the train dataset and then average the calculated scaling parameters.
+    \item If I scale the target then I will have to scale each example from the train dataset and then average the calculated scaling parameters.
     % This in turn would mean 1 scaling parameter i.e, mean and standard deviation each for the entire dataset.
-    It is not a good practice to do so as we will have lost a lot of originality in each example and is now introducing noise to new examples notably when they have a different data distribution.
-    \item For the Efficiency \ac{KPI} we have loss regularization Equation \ref{eq:Y2 Maximum Efficiency Regularization} that has a constraint 
-    check on the maximum range of efficiency values that can be predicted. If we had scaled the target, the constraint check would not be feasible to 
+    It is not a good practice to do so as I will have lost a lot of originality in each example and is now introducing noise to new examples notably when they have a different data distribution.
+    \item For the Efficiency \ac{KPI} I have loss regularization Equation \ref{eq:Y2 Maximum Efficiency Regularization} that has a constraint 
+    check on the maximum range of efficiency values that can be predicted. If I had scaled the target, the constraint check would not be feasible to 
     implement as the maximum value that the constraint takes would also have to be scaled with the same scaler for comparison.
 \end{enumerate}
 
-During our experimentations where we initially scaled the targets, we observed then that the network required substantially less effort to learn and consequently lower learning rate and fewer epochs.
-Since this comes at a tradeoff of losing precision, we continued with the original targets.
-Eeven if we were to scale the targets, although Standard Scaling seems to be the best approach as it approximates a gaussian centered around the mean.
+During my experimentations where I initially scaled the targets, I observed then that the network required substantially less effort to learn and consequently lower learning rate and fewer epochs.
+Since this comes at a tradeoff of losing precision, I continued with the original targets.
+Even if I were to scale the targets, although Standard Scaling seems to be the best approach as it approximates a gaussian centered around the mean.
 On the other hand, MinMax Scaler would have bound the data to be within the min and max of the data computed from the training dataset.
 
 \section{Dataset splitting}\label{sec:Dataset splitting}
-We convert the data to floating point tensors for better precision and collate them into a Tensor Dataset.
-We have also partitioned the dataset to have about 50 samples for test and the remaining is used for 5 fold cross validation with 80:20 split for training and validation. 
-The reason we have a separate test dataset from the validation is to ensure that there is no data leakage as we do not want to 
-overfit the test dataset with the hyperparameters we choose during training. 
+I convert the data to floating point tensors for better precision and collate them into a Tensor Dataset.
+I have also partitioned the dataset to have about 50 samples for test and the remaining is used for 5 fold cross validation with 80:20 split for training and validation. 
+The reason I have a separate test dataset from the validation is to ensure that there is no data leakage as I do not want to 
+overfit the test dataset with the hyperparameters I choose during training. 
 Across the 5 fold training runs, 4 sets would comprise of the training set and 1 of the test set which would be different for each fold run.
-Therefore we expect to cover most grounds on training and have good monitoring on the model's performance for each fold.
+Therefore weI expect to cover most grounds on training and have good monitoring on the model's performance for each fold.
 Cross Validation also enables us to be able to monitor the network's overall stability and thus validate the model's generalization performance.
-We have also used Data loaders to split the dataset into batches that fits into our \ac{GPU} memory.
+I have also used Data loaders to split the dataset into batches that fits into the \ac{GPU} memory.
 
 \chapter{Modelling \& Evaluation}
 
-For our multi regression problem, we train a \ac{MLP} on the tabular representation of the data.
+For the multi regression problem, I train a \ac{MLP} on the tabular representation of the data.
 
-\section{\ac{MLP} Model}\label{sec:MLP Model}
+\section{Multi Layer Perceptron Model}\label{sec:MLP Model}
 
 % \ac{MLP} is a feed forward network with no recurrent connections back to previous layers.
 % The first layer of the network is the input layer, which distributes the input values to each neuron in the first hidden
@@ -688,45 +689,45 @@ For our multi regression problem, we train a \ac{MLP} on the tabular representat
 
 % the weights and biases are adjusted so that the model fits the training data
 
-For the \ac{MLP} model, we use a single model with input features corresponding to all the features in the tabular topology invariant representation of the data.
+For the \ac{MLP} model, I use a single model with input features corresponding to all the features in the tabular topology invariant representation of the data.
 The model architecture is build to predict both the Torque \ac{KPI} and Efficiency \ac{KPI}s by having 2 separate output layers for each of the \ac{KPI}s. 
-Since the Torque \ac{KPI}'s targets are relatively learnable than that of the Efficiency \ac{KPI}'s targets we have experimented with fewer feed forward layers in the former than in the latter. \\
-We have a hyperparameter to control the number of neurons in each hidden layer this can be tuned and is further discussed in Section \ref{tab:Hyperparameter Tunings}.
+Since the Torque \ac{KPI}'s targets are relatively learnable than that of the Efficiency \ac{KPI}'s targets I have experimented with fewer feed forward layers in the former than in the latter. \\
+I have a hyperparameter to control the number of neurons in each hidden layer this can be tuned and is further discussed in Section \ref{tab:Hyperparameter Tunings}.
 % A point of consideration is the hidden size for the shared layers and the MLP Torque layers cannot be varied much. This is further discussed in \ref{tab:Hyperparameter Tunings}.\\
 \ac{ReLU} layers are also added in between to serve as the activation function and produce non-linearities and thus noise in the network. 
 Dropout layers ensure that not all neurons in each layer are used up during training to prevent the model from memorizing the data and hence overfitting.  
-We have 2 hyperparameters to control the dropout rate at which we freeze the neurons when training also to be discussed in Table \ref{tab:Hyperparameter Tunings}.
-We use dropout for the shared layers of the \ac{MLP} and for the layers corresponding to Efficiency \ac{KPI}.
+I have 2 hyperparameters to control the dropout rate at which I freeze the neurons when training also to be discussed in Table \ref{tab:Hyperparameter Tunings}.
+I use dropout for the shared layers of the \ac{MLP} and for the layers corresponding to Efficiency \ac{KPI}.
 Batch normalization layers are used to normalize the input from the \ac{ReLU} activations applied on it and so mitigate internal co-variate shift to the next layer and hence speed up the training process.\\
 Thus both batch normalization and dropout layers stabilize the network training.
 Fig. \ref{fig:MLP Model Architecture} gives an outline on how the \ac{MLP} Model architecture is designed. 
-We discuss each component of the architecture below :
+I discuss each component of the architecture below :
 \begin{enumerate}
     \item \textbf{Input} \\
-    The input layer takes in all features of the tabular data which is 89 in our case as scaled tensors.
+    The input layer takes in all features of the tabular data which is 89 in my case as scaled tensors.
     \item \textbf{MLP Shared} \\
-    The MLP Shared block is a sequential block comprising of 2 Linear Layers with the input features and neurons of each hidden layer to be a hyperparameter we tune.
-    We do not increase the number of neurons in the hidden layers within this block as it needs to be in the range of input features and output features(in this case Torque \ac{KPI}).
-    Furthermore we have Batch Normalization layers between each linear and \ac{ReLU} activation function in addition to drop out layers.
-    The dropout rate for the layers in this block is relatively higher as we want to encourage the model to focus largely on learning the generality of the data.
+    The MLP Shared block is a sequential block comprising of 2 Linear Layers with the input features and neurons of each hidden layer to be a hyperparameter I tune.
+    I do not increase the number of neurons in the hidden layers within this block as it needs to be in the range of input features and output features(in this case Torque \ac{KPI}).
+    Furthermore I have Batch Normalization layers between each linear and \ac{ReLU} activation function in addition to drop out layers.
+    The dropout rate for the layers in this block is relatively higher as I want to encourage the model to focus largely on learning the generality of the data.
     The 2 Linear Layers enable the network to learn a rich representation of the data during the initial feature extraction phase.
     \item \textbf{MLP Torque} \\
     This block comprises of a Linear Layer with the output feature to be the size of the Torque \ac{KPI} and a \ac{ReLU} activation function.
-    We use a \ac{ReLU} activation function at the end of the output as the target values are inherently always positive values and exploit \ac{ReLU}'s behavior of clipping negative values to 0.
+    I use a \ac{ReLU} activation function at the end of the output as the target values are inherently always positive values and exploit \ac{ReLU}'s behavior of clipping negative values to 0.
     \item \textbf{MLP Efficiency} \\
     This block comprises of 3 Linear Layers with the output feature to be the size of the Efficiency \ac{KPI}.
-    Here we also increase the neurons of the hidden layers as we are not limited by the dimensionality of the output feature.
+    Here I also increase the neurons of the hidden layers as I am not limited by the dimensionality of the output feature.
     This would enable the model to be more strong and grasp the complex patterns in the data better.
-    As usual we have batch normalization, dropout and \ac{ReLU} activation functions between the 1st two Linear layers.
-    The dropout rate for the layers in this block is relatively lower as we want to encourage the model to learn the specific nature of the grid towards the end.
-    For the Last Linear layer we have the output features corresponding to the target dimensions and a \ac{ReLU} activation again as the target values are inherently 
+    As usual I have batch normalization, dropout and \ac{ReLU} activation functions between the 1st two Linear layers.
+    The dropout rate for the layers in this block is relatively lower as I want to encourage the model to learn the specific nature of the grid towards the end.
+    For the Last Linear layer I have the output features corresponding to the target dimensions and a \ac{ReLU} activation again as the target values are inherently 
     always positive values and it again encourages the model to adhere to this fact.
     \item \textbf{Torque \ac{KPI}} \\
     The number of output features correspond to the target size 191 which is infact the range of angular velocities from 0 to 19000 rpm at equal spaced intervals of 2000rpm.
-    Although the targets for the Torque \ac{KPI} are an array of integer values, we use the float tensor and not integer tensor to represent the data otherwise 
+    Although the targets for the Torque \ac{KPI} are an array of integer values, I use the float tensor and not integer tensor to represent the data otherwise 
     it would become a classification problem and not a regression problem as it should be. 
     \item \textbf{Efficiency \ac{KPI}} \\
-    The number of output features correspond to the target size which in our case is the shape of the padded collated array we had created in Section \ref{subsec:Deep Dive into 3D KPI}
+    The number of output features correspond to the target size which in my case is the shape of the padded collated array I had created in Section \ref{subsec:Deep Dive into 3D KPI}
 \end{enumerate}
 
 \begin{figure}[H]
@@ -737,10 +738,10 @@ We discuss each component of the architecture below :
 \end{figure}
 
 \section{Loss Functions}\label{sec:Loss Functions}
-The \ac{MSE} loss is the error metric used for our problem with the intention that the squared losses penalize the model and inturn encourage it to 
+The \ac{MSE} loss is the error metric used for the problem with the intention that the squared losses penalize the model and inturn encourage it to 
 minimize the objective function even further. In addition to its contribution in exaggerating the loss by its square, \ac{MSE} also ensures that deviations are 
 positive and do not confuse the model by negating the losses of opposing signs. 
-\subsection{Loss for Torque \ac{KPI}}\label{sec:Loss for 2D KPI}
+\subsection{Loss for Torque KPI}\label{sec:Loss for 2D KPI}
 
 The \ac{MSE} loss for the Torque \ac{KPI} is formulated mathematically as in Equation \ref{eq:Y1 Loss}
 % Mean Squared Error (\ac{MSE}) Loss for 2D KPI
@@ -752,11 +753,11 @@ The \ac{MSE} loss for the Torque \ac{KPI} is formulated mathematically as in Equ
 where, \(n\) is \ac{EM} samples, \(h\) is the columns of the 1D Torque vector, \(y_{ij}\) and $\hat{y_{ij}}$ are the ij-th ground truth and prediction respectively for 
 the torque at each operating point.
 
-To encourage the model to learn the nature of the curve, we have experimented with 2 Loss Regularization techniques. 
+To encourage the model to learn the nature of the curve, I have experimented with 2 Loss Regularization techniques. 
 Both of which are L2 Regularization to be in sync with the dynamics of the \ac{MSE} loss.
 \begin{enumerate}
 \item \textbf{Smoothening Loss Regularization} \\
-To smoothen out the curve for the Torque \ac{KPI} we apply a loss regularization factor to ensure that the torque values at neighboring operating points are 
+To smoothen out the curve for the Torque \ac{KPI} I apply a loss regularization factor to ensure that the torque values at neighboring operating points are 
 as similar as possible. This is formulated mathematically as in Equation \ref{eq:Y1 Smoothening Loss Regularization}.
 \begin{equation}
     \text{$\mathcal{Y}_1$ Smoothening Loss Regularization} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{h-1} \sum_{j=1}^{h-1}
@@ -768,7 +769,7 @@ as similar as possible. This is formulated mathematically as in Equation \ref{eq
 \end{equation}
 If the difference in magnitude of consecutive values in the predicted array is greater than 1, then the loss is penalized by the square of the difference.
 \item \textbf{Decreasing Loss Regularization} \\
-The Torque curve closely resembles a decreasing sigmoidal curve and hence we use this knowledge to penalize the loss for increasing consecutive values within the prediction. 
+The Torque curve closely resembles a decreasing sigmoidal curve and hence I use this knowledge to penalize the loss for increasing consecutive values within the prediction. 
 This is intended to ensure that the torque values making up th Torque curve at each operating point is less than or equal to its prior operating point.
 This is formulated mathematically as in Equation \ref{eq:Y1 Declining Loss Regularization}.
 \begin{equation}
@@ -781,12 +782,12 @@ equal to its prior element.
 %[https://homofaciens.de/technics-electric-motors-torque-curve_en.html]
 % We add regularization term to help learn the parameters.
 \end{enumerate}
-We have not combined both the above regularizations as they donot complement each other. This is because the loss regularized by Equation 
+I have not combined both the above regularizations as they donot complement each other. This is because the loss regularized by Equation 
 \ref{eq:Y1 Smoothening Loss Regularization} will not necessarily be a decreasing curve.
 This holds true for the regularization in Equation \ref{eq:Y1 Declining Loss Regularization} as it may not necessarily have gradual transitions in the curve.
-Nevertheless, we perform ablation studies with both the regularizations and report the results obtained in Table \ref{tab:Ablation Studies}
+Nevertheless, I perform ablation studies with both the regularizations and report the results obtained in Table \ref{tab:Ablation Studies}
 
-\subsection{Loss for Efficiency \ac{KPI}}\label{sec:Loss for 3D KPI}
+\subsection{Loss for Efficiency KPI}\label{sec:Loss for 3D KPI}
 
 The \ac{MSE} loss for the Efficiency \ac{KPI} ca n be translated as in Equation \ref{eq:Y2 Loss}.
 \begin{equation}
@@ -802,41 +803,41 @@ The \ac{MSE} loss for the Efficiency \ac{KPI} ca n be translated as in Equation 
 \end{equation}
 where, \(M_{ijk}\) is Mask matrix, \(w\) is the rows of 2\ac{D} vector and \(h\) the columns of 2\ac{D} vector.
 % The Efficiency \ac{KPI} is a 3\ac{D} plot of real numbers representing percentage values and is always in the range of 0-100\%.\\
-Based on one of our observation in Section \ref{subsec:Deep Dive into 3D KPI} on the efficiency values beyond the Efficiency envelope having blank values, 
-which we had also padded them to be \ac{NaN} values we construct a binary mask matrix to ignore them in the loss calculation.
+Based on one of the observation in Section \ref{subsec:Deep Dive into 3D KPI} on the efficiency values beyond the Efficiency envelope having blank values, 
+which I had also padded them to be \ac{NaN} values I construct a binary mask matrix to ignore them in the loss calculation.
 As \ac{ANN} cannot be trained to predict \ac{NaN} values the binary mask is constructed such that values corresponding to \ac{NaN} in the target have value 0 and all other values as 1.
 Mathematically, this process can be expressed as is in Equation \ref{eq:Mask matrix} and thus ensure that the \ac{NaN} values are ignored in the loss calculation. 
 The mask is then multiplied with both the target and its respective prediction. 
 
-We have also modelled 2 Loss Regularization techniques to encourage the model to learn the nature of the Efficiency \ac{KPI} curve.
+I have also modelled 2 Loss Regularization techniques to encourage the model to learn the nature of the Efficiency \ac{KPI} curve.
 \begin{enumerate}
 \item \textbf{Maximum Efficiency Loss Regularization} \\
-To ensure that the efficiency values do not exceed 100, we modify the objective functions mathematically as in Equation \ref{eq:Y2 Maximum Efficiency Regularization}.
+To ensure that the efficiency values do not exceed 100, I modify the objective functions mathematically as in Equation \ref{eq:Y2 Maximum Efficiency Regularization}.
 \begin{equation}
 \text{$\mathcal{Y}_2$ Maximum Efficiency Regularization} = \frac{1}{n} \sum_{i=1}^{n}\frac{1}{w} \frac{1}{h} \sum_{j=1}^{w} \sum_{k=1}^{h}\left(\sigma(|\hat{y}_{ijk}| - 100)\right)^2 
 \label{eq:Y2 Maximum Efficiency Regularization}
 \end{equation} 
 \vspace{0.2cm} % Adjusts vertical space between equation and text
-When the efficiency values of the prediction exceed 100, we penalize the overall loss by squared magnitude of the difference of the prediction from its ground truth.
+When the efficiency values of the prediction exceed 100, I penalize the overall loss by squared magnitude of the difference of the prediction from its ground truth.
 \ac{ReLU} again assists to clips the difference if it is negative which is the scenario when the efficiency values are less than or equal to 100 when a violation is not warranted. \\
 Needless to say the efficiency values are percentage values and can only take up values in the range of 0-100\%.
-We refrain from instructing the model to not have values less than 0 since we mask \ac{NaN} values as 0 and the model will for sure attempt to predict values close to 0.
-Moreover, these predictions are not relevant for us as after generating all predictions we finally slice off the Efficiency grid to be of the shape of the Torque curve 
+I refrain from instructing the model to not have values less than 0 since I mask \ac{NaN} values as 0 and the model will for sure attempt to predict values close to 0.
+Moreover, these predictions are not relevant for us as after generating all predictions I finally slice off the Efficiency grid to be of the shape of the Torque curve 
 which implies that the values predicted in place of \ac{NaN} are irrelevant. This is discussed more elaborately in Section \ref{sec:Post Processing}.
-Therefore, we do not see the need to needlessly punish the model for making mistakes for values we eventually donot use as pessimistic decisions could discourage the model 
+Therefore, I do not see the need to needlessly punish the model for making mistakes for values I eventually donot use as pessimistic decisions could discourage the model 
 from realistic learning and thus affect its focus on predicting the other values in the Efficiency grid correctly.
 \item \textbf{Efficiency Grid Loss Regularization} \\
-Additionally, to encourage the model to learn the nature of the Efficiency \ac{KPI} from our observations gathered in Section \ref{subsec:Deep Dive into 3D KPI} and from 
-the regions in Fig. \ref{fig:Standard Deviation of Efficiency KPI} which showed the most standard deviation, we have tried to incorporate all of 
+Additionally, to encourage the model to learn the nature of the Efficiency \ac{KPI} from the observations gathered in Section \ref{subsec:Deep Dive into 3D KPI} and from 
+the regions in Fig. \ref{fig:Standard Deviation of Efficiency KPI} which showed the most standard deviation, I have tried to incorporate all of 
 the below learnings via the loss function as $\mathcal{Y}_2$ Regularization techniques.
 \begin{enumerate}
 \item \textbf{Efficiency at Maximum Torque Loss Regularization} \\
-We cannot incorporate regularizing the loss to have the decreasing envelope of the Torque curve and so we only focus on what we can effectively teach the model which 
-herein is the stable portion of the Torque curve typically until Angular Velocity of 5000 rpm. This is derived from an observation we make on the shape of the Torque 
+I cannot incorporate regularizing the loss to have the decreasing envelope of the Torque curve and so I only focus on what I can effectively teach the model which 
+herein is the stable portion of the Torque curve typically until Angular Velocity of 5000 rpm. This is derived from an observation I make on the shape of the Torque 
 curve in Section \ref{subsec:Deep Dive into 2D KPI}.
-To ensure that the shape of the Efficiency \ac{KPI} is maintained, we also regularize the loss for the maximum torque value.
-To do so, we have attempted to retrieve the last rows of our Efficiency \ac{KPI} and those of its target values and penalize the squared difference to have higher weight.
-We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_MM_Max_Torque}
+To ensure that the shape of the Efficiency \ac{KPI} is maintained, I also regularize the loss for the maximum torque value.
+To do so, I have attempted to retrieve the last rows of the Efficiency \ac{KPI} and those of its target values and penalize the squared difference to have higher weight.
+I formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_MM_Max_Torque}
 \begin{equation}
     \text{$\mathcal{Y}_2$ Loss Regularization Max Torque} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{t_{1}} \sum_{j=-t_{1}}^{w} \frac{1}{h} \sum_{k=1}^{h} (y_{ijk} - \hat{y}_{ijk})^2
     \label{eq:Y2_Loss_Regularization_MM_Max_Torque}
@@ -846,7 +847,7 @@ The intention of including the threshold value is to give the model the flexibil
 push the model to get this region right by having 0s for values in prediction but not in target.
 \item \textbf{Efficiency at Low Angular Velocity Loss Regularization} \\
 It is a known fact that at Torque 0 Nm, the corresponding efficiency values for the motor is 0\%. Consequently the efficiency values close to this torque will be low.
-To force the model to pay more attention at lower angular velocities, we have regularized the loss for the first few columns of each row of the predicted Efficiency grid 
+To force the model to pay more attention at lower angular velocities, I have regularized the loss for the first few columns of each row of the predicted Efficiency grid 
 and penalize the squared difference with that of its target. We formularize it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Low_Speed}:
 \begin{equation}
     \text{$\mathcal{Y}_2$ Loss Regularization Low Angular Velocity} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{w} \sum_{j=1}^{w} \frac{1}{t_{2}} \sum_{k=1}^{t_{2}} (y_{ijk} - \hat{y}_{ijk})^2
@@ -856,11 +857,11 @@ where, \(t_{2}\) is the Threshold for Low Angular Velocities. The number of firs
 The intention of including the threshold value here is to give the model the flexibility to search the relevant portion of the Efficiency grid determined by the threshold 
 and push the model to get the region of low angular velocities right by penalizing this region more.
 \item \textbf{Efficiency at Low Torque Loss Regularization} \\
-At extreme speeds we find a greater deviation in the efficiency values particularly towards higher speeds. This is because we have fewer efficiency values as speed 
+At extreme speeds I find a greater deviation in the efficiency values particularly towards higher speeds. This is because I have fewer efficiency values as speed 
 increases beyond a range since not all torque values participate.
-To force the model to be more careful at low torque, we have regularized the loss for the first few rows of each column of the Efficiency \ac{KPI} and penalize the 
+To force the model to be more careful at low torque, I have regularized the loss for the first few rows of each column of the Efficiency \ac{KPI} and penalize the 
 squared difference with that of the target. 
-We formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Low_Torque}:
+I formulate it mathematically as in Equation \ref{eq:Y2_Loss_Regularization_Low_Torque}:
 \begin{equation}
     \text{$\mathcal{Y}_2$ Loss Regularization Low Torque} = \frac{1}{n} \sum_{i=1}^{n} \frac{1}{t_{3}} \sum_{j=1}^{t_{3}} \frac{1}{h} \sum_{k=1}^{h} (y_{ijk} - \hat{y}_{ijk})^2
     \label{eq:Y2_Loss_Regularization_Low_Torque}
@@ -871,9 +872,9 @@ and push the model to get the regions of low Torques right by penalizing this re
 
 The above $\mathcal{Y}_2$ Regularizations are indeed purely \ac{MSE} but with higher weights for specific regions of the Efficiency \ac{KPI}.
 Consequently being L2 Regularizations it goes hand in hand with \ac{MSE} Loss calculated in Equation \ref{eq:Y2 Loss}.
-The thresholds \(t_{1}\),\(t_{2}\) and \(t_{3}\) are tunable hyperparameters that we can optimize if we observe the relevant ports of the Efficiency \ac{KPI}'s visualization 
+The thresholds \(t_{1}\),\(t_{2}\) and \(t_{3}\) are tunable hyperparameters that I can optimize if I observe the relevant ports of the Efficiency \ac{KPI}'s visualization 
 not adhering to the expected look of the Efficiency grid.
-We aggregate all the above regularizations to form the $\mathcal{Y}_2$ Loss Regularization as in Equation \ref{eq:Y2 Efficiency Grid Loss Regularization}
+I aggregate all the above regularizations to form the $\mathcal{Y}_2$ Loss Regularization as in Equation \ref{eq:Y2 Efficiency Grid Loss Regularization}
 \begin{equation}
     \begin{split}
     \text{$\mathcal{Y}_2$ Efficiency Grid Loss Regularization} = \text{$\mathcal{Y}_2$ Loss Regularization Max Torque} \\
@@ -898,18 +899,18 @@ where, \(\lambda_{\text{1y1}}\) is $\mathcal{Y}_1$ Smoothening Loss Regularizati
         \(\lambda_{\text{y21}}\) is $\mathcal{Y}_2$ Maximum Efficiency Loss Regularization Parameter, \(\lambda_{\text{y21}}\) is $\mathcal{Y}_2$ Efficiency Grid Loss Regularization Parameter, 
         \(wt\) is $\mathcal{Y}_1$ Loss Weightage, \(1-wt\) is $\mathcal{Y}_2$ Loss Weightage. \\
 
-We have added a Weightage parameter that controls the contribution of the $\mathcal{Y}_1$ Loss and $\mathcal{Y}_2$ Loss to the Total Loss. There are 2 reasons why this is useful for us :
+I have added a Weightage parameter that controls the contribution of the $\mathcal{Y}_1$ Loss and $\mathcal{Y}_2$ Loss to the Total Loss. There are 2 reasons why this is useful for us :
 \begin{enumerate}[nosep]
     \item  When the targets are not of the same scale. \\
     Without scaling, the losses for both targets Torque and Efficiency \ac{KPI}s being of different ranges are drastically different.\\
-    We circumvent this by weighing up the loss of the target not performing better on validation dataset and weighing down the loss of the 
+    I circumvent this by weighing up the loss of the target not performing better on validation dataset and weighing down the loss of the 
     targets by the factor of how much its value range varies.
     \item When the prediction accuracy of one \ac{KPI} is substantially more vital than the other. \\
     Our task demands the same as the Efficiency \ac{KPI} is post processed to be within the shape of the Torque \ac{KPI}. \\
-    Therefore, in theory have higher weightage for the Torque \ac{KPI} as its loss in performing well is costlier but as its value range is relatively higher we make decisions from monitoring the perdiction performances.\\
-    We reflect on these decisions based on whether the envelope of the Efficiency \ac{KPI} grid is more valuable that the efficiency values within it.\\
-    To counter the Torque \ac{KPI} loss dominating the total loss, we have implemented quite a few regularization techniques to the Efficiency \ac{KPI} loss.\\
-    Ultimately we decided on prioritizing the efficiency values.
+    Therefore, in theory have higher weightage for the Torque \ac{KPI} as its loss in performing well is costlier but as its value range is relatively higher I make decisions from monitoring the perdiction performances.\\
+    I reflect on these decisions based on whether the envelope of the Efficiency \ac{KPI} grid is more valuable that the efficiency values within it.\\
+    To counter the Torque \ac{KPI} loss dominating the total loss, I have implemented quite a few regularization techniques to the Efficiency \ac{KPI} loss.\\
+    Ultimately I decided on prioritizing the efficiency values.
 \end{enumerate}
 Furthermore, the weightage parameters for both target is designed to sum upto 1 keeping in mind improved training stability as a result of normalized weights. \\
 Finally the aggregated loss is backpropagated.
@@ -922,15 +923,15 @@ The optimizer acts once the loss is backpropagated across training each batch of
 The optimizer also uses the learning rate to control the step size with which the model parameters are updated.
 
 \section{Evaluation Metrics}
-The evaluation metrics we have regarded for our regression problem is the average of the \ac{RMSE}. 
-Therefore, the model with the least prediction scores ie, closest to 0 is ideal for our application. 
-Although, we use \ac{RMSE} as the metric for both evaluation and loss functions yet the loss regularizations play a strong role on top of \ac{RMSE}.
-Needless to mention for the Efficiency \ac{KPI}, we have the Masking mechanism as per Equation \ref{eq:Mask matrix} which does not exists for the evaluation function of the 
-same \ac{KPI} which in a way shows a pessimistic view of the model's performance. This is particularly prominent during training however during inference we make use of 
-not \ac{NaN} differencing to mask out values beyond the Efficiency envelope. While training we donot have visibility of the Efficiency envelope until its Torque \ac{KPI} 
+The evaluation metrics I have regarded for the regression problem is the average of the \ac{RMSE}. 
+Therefore, the model with the least prediction scores ie, closest to 0 is ideal for the application. 
+Although, I use \ac{RMSE} as the metric for both evaluation and loss functions yet the loss regularizations play a strong role on top of \ac{RMSE}.
+Needless to mention for the Efficiency \ac{KPI}, I have the Masking mechanism as per Equation \ref{eq:Mask matrix} which does not exists for the evaluation function of the 
+same \ac{KPI} which in a way shows a pessimistic view of the model's performance. This is particularly prominent during training however during inference I make use of 
+not \ac{NaN} differencing to mask out values beyond the Efficiency envelope. While training I donot have visibility of the Efficiency envelope until its Torque \ac{KPI} 
 values are generated.
 
-\subsection{Evaluation Metrics for Torque \ac{KPI}}\label{sec:Evaluation Metrics for 2D KPI}
+\subsection{Evaluation Metrics for Torque KPI}\label{sec:Evaluation Metrics for 2D KPI}
 The $\mathcal{Y}_1$ Score for the Torque \ac{KPI} is formulated in Equation \ref{eq:Y1 Score} :
 \begin{equation}
 \text{$\mathcal{Y}_1$ score} = \frac{1}{n} \sum_{i=1}^{n} \underbrace{ \sqrt{\frac{1}{h} \sum_{j=1}^{h} (y_{ij} - \hat{y}_{ij})^2}}_{\mathcal{Y}_1\ RMSE}
@@ -938,7 +939,7 @@ The $\mathcal{Y}_1$ Score for the Torque \ac{KPI} is formulated in Equation \ref
 \end{equation}
 where, \(h\) is the columns of 1D vector and \(\mathcal{Y}_1\ \ac{RMSE}\) is \ac{RMSE} for each test sample.
 
-\subsection{Evaluation Metrics for Efficiency \ac{KPI}}\label{sec:Evaluation Metrics for 3D KPI}
+\subsection{Evaluation Metrics for Efficiency KPI}\label{sec:Evaluation Metrics for 3D KPI}
 The $\mathcal{Y}_2$ score for the Efficiency \ac{KPI} is formulated in Equation \ref{eq:Y2 Score} :
 \begin{equation}
     \text{$\mathcal{Y}_2$ score} = \frac{1}{n} \sum_{i=1}^{n} \underbrace{ \sqrt{\frac{1}{w} \frac{1}{h} \sum_{j=1}^{w} \sum_{k=1}^{h} (y_{ijk} - \hat{y}_{ijk})^2}}_{\mathcal{Y}_2\ RMSE}
@@ -949,26 +950,26 @@ where, \(w\) is the rows of 2\ac{D} vector, \(h\) is columns of 2\ac{D} vector a
 
 \section{Post Processing}\label{sec:Post Processing}
 The mean and standard deviation from the train-validation datasets are applied to transform the test dataset to maintain uniformity in the predictions generated.
-In the case of new files not part of the segregated test dataset we first convert it into the tabular representation our model consumes and then apply the scaling.
-This is why we preserve the same scalers used during training as we not only evaluate our dedicated test dataset but also for clients to use on demand. 
+In the case of new files not part of the segregated test dataset I first convert it into the tabular representation the model consumes and then apply the scaling.
+This is why I preserve the same scalers used during training as I not only evaluate the dedicated test dataset but also for clients to use on demand. 
 
-Furthermore as we are predicting a padded matrix to ensure dimensionality sync across different Efficiency \ac{KPI}s, the grid contains values even outside the boundary of the Efficiency \ac{KPI}.
-First we tried to slice of the grid to ignore 0 values for all rows excluding the 1st row as per the Equation \ref{eq:Y2_Loss_Regularization_Low_Speed}.
-We hoped the Mask constructed from equation \ref{eq:Mask matrix} would force the model to learn 0s for however it tried to approximate close to 0 and was almost never 0.
-Hence, we decided to slice the shape of the Torque \ac{KPI} curve from the Efficiency \ac{KPI} by counting the number of columns a row to have based on consecutive values in the curve.
+Furthermore as I am predicting a padded matrix to ensure dimensionality sync across different Efficiency \ac{KPI}s, the grid contains values even outside the boundary of the Efficiency \ac{KPI}.
+First I tried to slice of the grid to ignore 0 values for all rows excluding the 1st row as per the Equation \ref{eq:Y2_Loss_Regularization_Low_Speed}.
+I hoped the Mask constructed from equation \ref{eq:Mask matrix} would force the model to learn 0s for however it tried to approximate close to 0 and was almost never 0.
+Hence, I decided to slice the shape of the Torque \ac{KPI} curve from the Efficiency \ac{KPI} by counting the number of columns a row to have based on consecutive values in the curve.
 This brings us back to the point that it is imperative the prediction of the Torque \ac{KPI} is close to perfect as the envelope of the Efficiency \ac{KPI} inherently is dependent on it.
 However if in the worst case scenario where the y1 and y2 predictions are so starkly different that Efficiency \ac{KPI} cannot be sliced off from 
-the Torque \ac{KPI} because the former is smaller than the latter then we decide not to slice the Efficiency \ac{KPI} and instead use the predictions as is.
+the Torque \ac{KPI} because the former is smaller than the latter then I decide not to slice the Efficiency \ac{KPI} and instead use the predictions as is.
 
 \newpage 
 
 % Masking NaN values
 \chapter{Experiments and Results}
 
-\section{Experiments with \ac{MLP}}\label{sec:Experiments with MLP}
+\section{Experiments with MLP}\label{sec:Experiments with MLP}
 
-After optimizing over an exhaustive random search of the hyperparameter space, we present them in Table \ref{tab:Hyperparameter Tunings} by monitoring the model's 
-performance across 5 fold cross validation. We use different splits for each round of training and tune the hyperparameters on the validation set. 
+After optimizing over an exhaustive random search of the hyperparameter space, I present them in Table \ref{tab:Hyperparameter Tunings} by monitoring the model's 
+performance across 5 fold cross validation. I use different splits for each round of training and tune the hyperparameters on the validation set. 
 The final splits are saved locally and can be used later to ensure reproducibility. 
 
 \begin{table}[H]
@@ -999,17 +1000,17 @@ The final splits are saved locally and can be used later to ensure reproducibili
     \label{tab:Hyperparameter Tunings}
 \end{table}
 
-We are using a learning rate scheduler which reduces the learning rate exponentially by the \textit{lr gamma} to decay learning as training progresses across epochs.
+I am using a learning rate scheduler which reduces the learning rate exponentially by the \textit{lr gamma} to decay learning as training progresses across epochs.
 This is to ensure that the model does not overshoot after few cycles of training.
-We also would like to point out that the 2 outputs typically would thrice on different learning rates and might be a better approach to have separate learning rates in addition 
+I also would like to point out that the 2 outputs typically would thrice on different learning rates and might be a better approach to have separate learning rates in addition 
 to separate loss functions.
-The \textit{batch size} is limited to the capacity of our \ac{GPU} memory. We use the maximum batch size to train faster and therefore use 72 after which we hit the 
-memory roof of our GPU.
-The \textit{hidden size} refers to the number of neurons in the hidden layers of the \ac{MLP} model. We have experimented with just 2 hidden sizes as we are 
+The \textit{batch size} is limited to the capacity of the \ac{GPU} memory. I use the maximum batch size to train faster and therefore use 72 after which I hit the 
+memory roof of the GPU.
+The \textit{hidden size} refers to the number of neurons in the hidden layers of the \ac{MLP} model. I have experimented with just 2 hidden sizes as I am 
 constrained by the fact that the number of neurons must be between the range of input features and output features which was discussed in Section \ref{sec:MLP Model}.
 In addition it has to be of the multiples of 8 as \ac{GPU}s are most optimized for the same.
 Dropout rate during training is controlled by the parameter \textit{$p_{y1}$} for shared layers and \textit{$p_{y2}$} for layers specific to Efficiency \ac{KPI}. 
-This is discussed in Section \ref{sec:MLP Model}. We are not so much concerned of the data being dropped in larger extent than anticipated for the Torque \ac{KPI} 
+This is discussed in Section \ref{sec:MLP Model}. I am not so much concerned of the data being dropped in larger extent than anticipated for the Torque \ac{KPI} 
 because it is relatively simpler to learn and the value range is comparatively larger leading its loss to dominate the total loss.
 \textit{$\lambda_{1y1}$}, \textit{$\lambda_{2y1}$}, \textit{$\lambda_{y21}$} and \textit{$\lambda_{y22}$} parameters control the regularization weight for the 
 regularization terms for the Torque \ac{KPI} and Efficiency \ac{KPI} respectively detailed in Equation \ref{eq:Total Loss}.
@@ -1017,12 +1018,12 @@ The thresholds \textit{$t_{1}$}, \textit{$t_{2}$} and \textit{$t_{3}$} are used 
 regularization terms to learn the nature of the Efficiency \ac{KPI} as detailed in Section \ref{sec:Loss for 3D KPI}.
 The weightage parameter to control the direction of loss is denoted by \textit{wt} and is also discussed in Equation \ref{eq:Total Loss}.
 
-We also observe that a simple architecture of the model is not a significant downside for limited data set as it seems to learn the patterns within the data 
-especially since we supplement the loss regularization with more knowledge.
+I also observe that a simple architecture of the model is not a significant downside for limited data set as it seems to learn the patterns within the data 
+especially since I supplement the loss regularization with more knowledge.
 Our main \ac{MLP} model only uses the loss regularization parameters \textit{$\lambda_{2y1}$} and \textit{$\lambda_{y2}$} ie, it does not consider the Smoothing curve 
-regularization for the Torque \ac{KPI} whose performance we will separately discuss in Section \ref{sec:Ablation Studies}.
+regularization for the Torque \ac{KPI} whose performance I separately discuss in Section \ref{sec:Ablation Studies}.
 
-We chose a 3rd party application \texttt{Wandb}\footnote{Weights \& Biases - \url{https://wandb.ai/}} to log metrics from the training run and to monitor model performance across the 5 folds.
+I chose a 3rd party application \texttt{Wandb}\footnote{Weights \& Biases - \url{https://wandb.ai/}} to log metrics from the training run and to monitor model performance across the 5 folds.
 All 5 folds are monitored and shown in the Figures as training and validation occurs 5 times on different combinations of cross validation splits independent per fold.
 
 Fig. \ref{fig:Training Loss Metrics} illustrates the loss at work as training progresses across epochs. 
@@ -1055,9 +1056,9 @@ Fig. \ref{fig:Aggregated Training Loss} depicts the weighted sum of losses discu
     \label{fig:Training Loss Metrics}
 \end{figure}
 
-From the training plots we see that the model has converged after having run for 10 epochs with a total run time of 3 MNIUTES VERIFY:
+From the training plots it can be seen that the model has converged after having run for 10 epochs with a total run time of 3 MNIUTES VERIFY:
 Even though the weightage assigned to the Efficiency \ac{KPI} is significantly more in addition to loss regularization parameter, it seems to have stopped learning 
-beyond a threshold and so we hypothesize to further increase the weightage of the Efficiency \ac{KPI}.
+beyond a threshold and so I hypothesize to further increase the weightage of the Efficiency \ac{KPI}.
 The Torque \ac{KPI} shows promise in learning better but it would be at the cost of overfitting the Efficiency \ac{KPI}.
 \begin{figure}[H]
     \centering
@@ -1094,9 +1095,9 @@ Therefore the other plots are moved to Appendix \ref{sec:Experimental setup} for
 
 Our observations from the validation plots are : LIST THEM
 
-We have also enabled saving the best performant fold locally so it can be loaded on demand by the client when in need to only run inference.\\
-As the value ranges for both the \ac{KPI}s are starkly different, we give a glimpse of the percentage difference
-We have narrowed down scoring to follow the criteria as recorded in Table \ref{tab:Scoring Criteria}.
+I have also enabled saving the best performant fold locally so it can be loaded on demand by the client when in need to only run inference.\\
+As the value ranges for both the \ac{KPI}s are starkly different, I give a glimpse of the percentage difference
+I have narrowed down scoring to follow the criteria as recorded in Table \ref{tab:Scoring Criteria}.
 \begin{table}[H]
     \centering
     \begin{tabularx}{1\linewidth}{|X|X|X|X|X|X|X|X|X|X|}
@@ -1120,13 +1121,13 @@ This is deduced from the Equations \ref{eq:Y1 Percentage Difference} and \ref{eq
     \label{eq:Y2 Percentage Difference}
 \end{equation}
 
-From our observations the target values for Torque \ac{KPI} range between 50-280 and those of the Efficiency \ac{KPI} range between 0-100.
-The scoring of the $\mathcal{Y}_2$ at inference is slightly different from that of training in the sense that for inference, we have the Torque \ac{KPI} to 
+From my observations the target values for Torque \ac{KPI} range between 50-280 and those of the Efficiency \ac{KPI} range between 0-100.
+The scoring of the $\mathcal{Y}_2$ at inference is slightly different from that of training in the sense that for inference, I have the Torque \ac{KPI} to 
 accurately slice of the envelope from the Efficiency \ac{KPI}. Also need to ensure how the difference works for NAN especially at inference coz 
-for Training there are no NANs and in targets it would be 0. But for training, we cant slice the envelope as we donot have the Torque curve yet.--TO BE REMMOVED
+for Training there are no NANs and in targets it would be 0. But for training, I cannot slice the envelope as I donot have the Torque curve yet.--TO BE REMMOVED
 
-\section{Results with \ac{MLP}}\label{sec:Results with MLP}
-\subsection{Torque \ac{KPI} Results with \ac{MLP}}\label{sec:2D Torque Curve Results with MLP}
+\section{Results with MLP}\label{sec:Results with MLP}
+\subsection{Torque KPI Results with MLP}\label{sec:2D Torque Curve Results with MLP}
 
 \begin{figure}[H]
     \centering
@@ -1136,16 +1137,16 @@ for Training there are no NANs and in targets it would be 0. But for training, w
 \end{figure}
 
 Fig. \ref{fig:MLP Training Results for 2D KPI(Torque)} illustrates 6 test dataset predicted Torque values and their corresponding ground truths displayed against their 
-angular velocities. We also depict the difference and percentage difference on a twin y axis to give a rough overview of the prediction deviations from the targets.
+angular velocities. I also depict the difference and percentage difference on a twin y axis to give a rough overview of the prediction deviations from the targets.
 As the percentage difference formulated in Equation \ref{eq:Y1 Percentage Difference} would always result in positive values, they appear above the 0 line dotted separator.
-Although we do see deviations, we notice for most of the cases, the predictions are such that the torque values predicted have smaller values than its respective ground truths.
+Although deviations can be seen, I notice for most of the cases, the predictions are such that the torque values predicted have smaller values than its respective ground truths.
 In addition, the \ac{RMSE} equivalent to the $\mathcal{Y}_1$ score tells us that for 50\% of the plots shown, the predictions are off by about 5\% from the target values as per 
 Table \ref{tab:Scoring Criteria}.
 
 Fig. \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)} shows us the Average \ac{RMSE} and element wise \ac{RMSE} for the test dataset performance with the \ac{MLP}. 
-This figure closely resembles the skeleton of the Fig. \ref{fig:Standard Deviation of 2D KPI} in terms of what is displayed. The only difference we can highlight is 
+This figure closely resembles the skeleton of the Fig. \ref{fig:Standard Deviation of 2D KPI} in terms of what is displayed. The only difference I can highlight is 
 that the \ac{RMSE} with that of the ground truth is plotted instead of standard deviation on the twin y-axis in red.
-Overall our inferences are the predictions closely resemble the trajectory of the target values although they fluctuate. Experimenting with the hyperparameters 
+Overall my inferences are the predictions closely resemble the trajectory of the target values although they fluctuate. Experimenting with the hyperparameters 
 \textit{$\lambda_{1y1}$} and \textit{$\lambda_{2y1}$} has potential to improve this anomaly. In addition, granting a higher weight \textit{wt} can also help in this direction.
 
 \begin{figure}[H]
@@ -1180,7 +1181,7 @@ The histogram looks the same in shape for both the figures however the finer det
     \label{fig:Y1 Evaluation Statistics MLP}
 \end{figure}
 
-The observation we can deduce is that the \ac{RMSE}s are almost evenly distributed between 0.5-12.5 thus encompassing a range of 0-6\% difference with the target values.
+The observation I can deduce is that the \ac{RMSE}s are almost evenly distributed between 0.5-12.5 thus encompassing a range of 0-6\% difference with the target values.
 
 \begin{figure}[H]
     \centering
@@ -1190,13 +1191,13 @@ The observation we can deduce is that the \ac{RMSE}s are almost evenly distribut
 \end{figure}
 
 Fig. \ref{fig:MLP Training Deviation across Folds for Torque KPI} gives a good view of how the torque curve for each folds prediction represented in dotted lines deviate 
-from the mean of all the folds predicted torque curve. We remark that each predicted torque curve is as close as can be to the mean of all the folds torque curves.
+from the mean of all the folds predicted torque curve. I remark that each predicted torque curve is as close as can be to the mean of all the folds torque curves.
 This figure is a good indicator of the model's generalization capability and also sheds light to the model's stability.
-We also take care to note that we have used only 1 sample from the test dataset for inference across all folds.
-A noteworthy point is that we have left the output predictions for the Torque curve to remain as floating point values even when the target values are integers 
-to preserve data precision. We give the client the flexibility to turn this on/off demand.
+I also take care to note that I have used only 1 sample from the test dataset for inference across all folds.
+A noteworthy point is that I have left the output predictions for the Torque curve to remain as floating point values even when the target values are integers 
+to preserve data precision. The client has the flexibility to turn this on/off demand.
 
-\subsection{Efficiency \ac{KPI} Results with \ac{MLP}}\label{sec:3D Efficiency Grid Results with MLP}
+\subsection{Efficiency KPI Results with MLP}\label{sec:3D Efficiency Grid Results with MLP}
 Fig. \ref{fig:Efficiency KPI Predictions Vs Targets with MLP} shows 3 sample predictions of the Efficiency \ac{KPI} from the test dataset alongside its ground truth.
 Torque is displayed against its angular velocities and all efficiency values within the envelope can be viewed as differing colors in a contour plot. 
 The figures are augmented with a scale showing the efficiency values in percentage across varying levels.
@@ -1225,7 +1226,7 @@ The figures are augmented with a scale showing the efficiency values in percenta
     \label{fig:Efficiency KPI Predictions Vs Targets with MLP}
 \end{figure} 
 
-We also took the liberty of displaying the error margin as the overlap difference of the predicted and target efficiency values for the aforementioned samples. 
+I also took the liberty of displaying the error margin as the overlap difference of the predicted and target efficiency values for the aforementioned samples. 
 The margins of the errors can be seen as levels referring to the difference in efficiencies to the right of the each subplot. The 3 subplots are the prediction, target 
 and the difference between the previous two respectively such that all of them are displayed side by side for easy comparison. 
 
@@ -1259,12 +1260,12 @@ The curve being sliced off irregularly is the effect of us trying to retain the 
 This could be having negative impacts for the Efficiency \ac{KPI}  when the predictions for the Torque \ac{KPI} are not perfect.
 This is yet again a decision to be made based on which of the 2 targets to prioritize. 
 
-We visualize the images for the same samples in Fig. \ref{fig:Efficiency KPI Predictions Vs Targets Vs Difference with MLP} however in a smaller scale to accommodate 
+I visualize the images for the same samples in Fig. \ref{fig:Efficiency KPI Predictions Vs Targets Vs Difference with MLP} however in a smaller scale to accommodate 
 a 3rd figure denoting difference overlap. Thus, the figures in \ref{fig:Efficiency KPI Predictions Vs Targets with MLP} serve to give a larger view for comparing and 
 contrasting the predictions and its targets.
 
-Additionally, we calculate the \ac{RMSE} and differences of prediction from the target by truncating the predicted and ground truth matrices to be of common shape.
-We also replace \ac{NaN} values with 0s in either if it occurs as the Efficiency \ac{KPI}'s were padded with \ac{NaN}'s to be of the same shape but originally 
+Additionally, I calculate the \ac{RMSE} and differences of prediction from the target by truncating the predicted and ground truth matrices to be of common shape.
+I also replace \ac{NaN} values with 0s in either if it occurs as the Efficiency \ac{KPI}'s were padded with \ac{NaN}'s to be of the same shape but originally 
 had no values as was discussed in Section \ref{subsec:Deep Dive into 3D KPI}.
 
 \begin{figure}[H]
@@ -1276,35 +1277,35 @@ had no values as was discussed in Section \ref{subsec:Deep Dive into 3D KPI}.
 
 Fig. \ref{fig:MLP Standard Deviation of 3D KPI(Efficiency) across Angular Velocity Intervals with MLP} illustrates the standard deviation across different 
 angular velocity ranges for the \ac{MLP} predictions as error bar plots.
-In comparison to Fig. \ref{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals} we infer that as the speed angular 
+In comparison to Fig. \ref{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals} I infer that as the speed angular 
 velocity increases the target deviations of efficiency values are not so accurately captured by the model.
 
 Efficiency \ac{KPI} is harder to evaluate scoring being a 3\ac{D} plot. There exists 191 angular velocity ranges holding efficiency values.
-Since it is infeasible the deviations of the efficiency with respect to all angular velocity intervals, we visualize the Efficiency prediction deviation 
+Since it is infeasible the deviations of the efficiency with respect to all angular velocity intervals, I visualize the Efficiency prediction deviation 
 with its respective targets only for certain angular velocities across the entire torque range in Fig. \ref{fig:MLP RMSE Evaluation for Efficiency KPI}. Therefore, the 
 whole figure encompasses 6 subplots for specific angular velocities.
 The figure shows the mean Efficiency values and the \ac{RMSE} surrounding it for few samples from the test dataset.
 The angular velocities are chosen at equal intervals of 2000 rpm. The Efficiency values are usual range from 0 to 100\% percentage whereas the torque values are shown 
 from 0 to approximately 250 Nm which could be the maximum torque value for samples predicted from few random samples of the test dataset.
 The \ac{RMSE} of each prediction from its target can be viewed on the twin y-axis.
-We can observe that the most deviation occurs towards the higher torque values for each corresponding angular velocity i.e., where the Efficiency envelope starts to taper off.
+I can observe that the most deviation occurs towards the higher torque values for each corresponding angular velocity i.e., where the Efficiency envelope starts to taper off.
 This anomaly can be explained by the Torque \ac{KPI} predictions not being up to mark as it is responsible for trimming the edges of the envelope.
 However it is not only the border of the envelope a question of concern here but also for neighboring values of the envelope namely from 1/4th the 
 angular velocity onwards ie., close to 6000 rpm. 
-We donot have any way to teach the model this part of the grid with loss regularization because we cannot estimate the envelope dimensionality having already padded 
+I donot have any way to teach the model this part of the grid with loss regularization because I cannot estimate the envelope dimensionality having already padded 
 the targets to be of the maximum shape referred in Section \ref{subsec:Deep Dive into 3D KPI}. The reason why it deteriorates from 1/4th the angular velocity onwards is 
-because the Efficiency \ac{KPI}s envelope starts to converge from around 6000 rpm as we can see in Fig. \ref{fig:Efficiency Grid}.
-Nevertheless, we see on average among the angular velocities, the \ac{RMSE} is close to 5 which is 5\% deviation from the target values as per Table \ref{tab:Scoring Criteria}.
+because the Efficiency \ac{KPI}s envelope starts to converge from around 6000 rpm as can be seen in Fig. \ref{fig:Efficiency Grid}.
+Nevertheless, I see on average among the angular velocities, the \ac{RMSE} is close to 5 which is 5\% deviation from the target values as per Table \ref{tab:Scoring Criteria}.
 
-With the additional loss regularization of constraining efficiency values to be with 100\% as per Equation \ref{eq:Y2 Maximum Efficiency Regularization}, we can now emphasize 
+With the additional loss regularization of constraining efficiency values to be with 100\% as per Equation \ref{eq:Y2 Maximum Efficiency Regularization}, I can now emphasize 
 that the efficiency values donot exceed 100. This is evident from the Figures in \ref{fig:MLP RMSE Evaluation for Efficiency KPI} otherwise the mean efficiency would not be constrained 
-within each of the subplots, which we force to only display between 0-100\%. Additionally, the figures in \ref{fig:Efficiency KPI Predictions Vs Targets with MLP} and 
+within each of the subplots, which I force to only display between 0-100\%. Additionally, the figures in \ref{fig:Efficiency KPI Predictions Vs Targets with MLP} and 
 \ref{fig:Efficiency KPI Predictions Vs Targets Vs Difference with MLP} would also highlight this anomaly if it occurs since the levels of the contours are also fixed to 
 be between 0-100\%. Any values beyond this range would be visualized haphazardly.
 
 To summarize the relatively higher errors are at located in the operating area along the shape of the torque curve.
-Observations from the predictions helped to correct few discrepancies in our development for instance in the Efficiency grid we replaced 0s with \ac{NaN} values which 
-we later understood were both represented different in the grid. Since Efficiency values can take up values only between 0-100\%, we regard the same as constant 
+Observations from the predictions helped to correct few discrepancies in my development for instance in the Efficiency grid I replaced 0s with \ac{NaN} values which 
+I later understood were both represented different in the grid. Since Efficiency values can take up values only between 0-100\%, I regard the same as constant 
 across plots and use it as a baseline for determining the levels in the contour plot.
 
 \begin{figure}[H]
@@ -1347,15 +1348,15 @@ On an average the \ac{RMSE} is close to 13, which is 13\% deviation from the tar
 
 Fig. \ref{fig:MLP Training Deviation across Folds for Efficiency KPI} illustrates how each fold's prediction of efficiency deviates with the mean of the predictions 
 of all folds against different angular velocities. Once again, to overcome the limitation of not being able to evaluate for all angular velocities, the Figure hosts only 6 
-subplots for specific angular velocities. From visual inspection we can say the predictions are close enough to the mean of all the Folds predictions.
-This figure is a good indicator of the model's generalization performance and needless to mention we have used only 1 sample here for inference from the test dataset.
+subplots for specific angular velocities. From visual inspection I can say the predictions are close enough to the mean of all the Folds predictions.
+This figure is a good indicator of the model's generalization performance and needless to mention I have used only 1 sample here for inference from the test dataset.
 
 \section{Results with Baseline}\label{sec:Results with Baseline}
 
-From our observations on how the predictions closely resembled that of the target values in Section \ref{subsec:Deep Dive into 2D KPI} and 
-\ref{subsec:Deep Dive into 3D KPI}, we have developed a Baseline model which is intrinsically the average of all samples of the train dataset.
+From my observations on how the predictions closely resembled that of the target values in Section \ref{subsec:Deep Dive into 2D KPI} and 
+\ref{subsec:Deep Dive into 3D KPI}, I have developed a Baseline model which is intrinsically the average of all samples of the train dataset.
 
-\subsection{Torque \ac{KPI} Results with Baseline}\label{sec:3D Efficiency Grid Results with Baseline}
+\subsection{Torque KPI Results with Baseline}\label{sec:3D Efficiency Grid Results with Baseline}
 
 The $\mathcal{Y}_1$ Baseline score for the Efficiency \ac{KPI} is formulated in Equation \ref{eq:Y1 Baseline Score} :
 
@@ -1367,7 +1368,7 @@ where, \(\bar{y}\) is the Baseline Average mean, \(h\) is the columns of 1D vect
 
 Fig. \ref{fig:Baseline RMSE Evaluation for 2D KPI(Torque)} shows the Average \ac{RMSE} and element wise \ac{RMSE} for the test dataset performance with the 
 Baseline Model. The figure is similar in structure as the Fig. \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)}, the distinction is in the values being displayed. 
-herein, we show the mean of the predictions from Baseline Model and \ac{RMSE} surrounding it for few samples from the test dataset. Additionally, in the twin y-axis, 
+herein, I show the mean of the predictions from Baseline Model and \ac{RMSE} surrounding it for few samples from the test dataset. Additionally, in the twin y-axis, 
 the \ac{RMSE} of the Baseline predictions from its target is displayed in dotted lines.
 
 \begin{figure}[H]
@@ -1377,10 +1378,10 @@ the \ac{RMSE} of the Baseline predictions from its target is displayed in dotted
     \label{fig:Baseline RMSE Evaluation for 2D KPI(Torque)}
 \end{figure}
 
-We can see that the deviations are at its most towards the beginning of the curve which steadily decreases along the curve. We also observe that there are no 
+I can see that the deviations are at its most towards the beginning of the curve which steadily decreases along the curve. We also observe that there are no 
 fluctuations in the curve as compared to the Predictions from \ac{MLP} model in Fig. \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)}.
 
-\subsection{Efficiency \ac{KPI} Results with Baseline}\label{sec:3D Efficiency Grid Results with Baseline}
+\subsection{Efficiency KPI Results with Baseline}\label{sec:3D Efficiency Grid Results with Baseline}
 
 The $\mathcal{Y}_2$ Baseline score for the Efficiency \ac{KPI} is formulated in Equation \ref{eq:Y2 Baseline Score} :
 \begin{equation}
@@ -1391,8 +1392,8 @@ where, \(w\) is the rows of 2\ac{D} vector, \(h\) is the columns of 2\ac{D} vect
 
 Fig. \ref{fig:Baseline RMSE Evaluation for Efficiency KPI} gives a neat visualization of the Baseline Efficiency \ac{RMSE} with its respective targets for certain angular velocities  
 across the entire torque range. This figure is yet again similar in structure to the Fig. \ref{fig:MLP RMSE Evaluation for Efficiency KPI} however the efficiency values 
-shown now are the predictions of the Baseline model. We infer from the plots that the targets have essentially the same efficiency values across the entire grid.
-We arrive at this conclusion from the fact that the only region where we see significant deviation is at the Efficiency \ac{KPI} envelope and we attribute this 
+shown now are the predictions of the Baseline model. I infer from the plots that the targets have essentially the same efficiency values across the entire grid.
+I arrive at this conclusion from the fact that the only region where I see significant deviation is at the Efficiency \ac{KPI} envelope and I attribute this 
 pattern to stem from the corresponding Torque \ac{KPI}'s curve. Thus, the efficiency values are almost the same for more than 3/4th of the grid across all samples.
 \begin{figure}[H]
     \centering
@@ -1403,12 +1404,12 @@ pattern to stem from the corresponding Torque \ac{KPI}'s curve. Thus, the effici
 
 \section{Results with Smoothening Loss Regularization}\label{sec:Results with Smoothening Loss Regularization}
 
-\subsection{Torque \ac{KPI} Results with Smoothening Loss Regularization}\label{subsec:2D Torque Results with Smoothening Loss Regularization}
+\subsection{Torque KPI Results with Smoothening Loss Regularization}\label{subsec:2D Torque Results with Smoothening Loss Regularization}
 
 Fig. \ref{fig:Smoothening Torque RMSE Evaluation for 2D KPI(Torque)} shows the Average \ac{RMSE} and element wise \ac{RMSE} for the test dataset performance 
 with the MLP Model with Smoothening Curve regularization discussed in Equation \ref{eq:Y1 Smoothening Loss Regularization}.
-We can see that the deviations are at its peak towards the beginning of the curve. 
-We also observe that there are fluctuations in the curve but relatively less when compared to Fig. \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)}.
+I can see that the deviations are at its peak towards the beginning of the curve. 
+I also observe that there are fluctuations in the curve but relatively less when compared to Fig. \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\textwidth]{./ReportImages/RMSE_MLP_Smoothening_y1.png} 
@@ -1417,7 +1418,7 @@ We also observe that there are fluctuations in the curve but relatively less whe
 \end{figure}
 
 \section{Results with No Loss Regularization}\label{sec:Results with No Loss Regularization}
-\subsection{Torque \ac{KPI} Results with No Loss Regularization}\label{subsec:2D Torque Results with No Loss Regularization}
+\subsection{Torque KPI Results with No Loss Regularization}\label{subsec:2D Torque Results with No Loss Regularization}
 
 Fig. \ref{fig:No Loss Regularization RMSE Evaluation for 2D KPI(Torque)} shows the Average \ac{RMSE} and element wise \ac{RMSE} for the test dataset 
 performance with the MLP Model without any regularizations.
@@ -1429,13 +1430,13 @@ performance with the MLP Model without any regularizations.
     \label{fig:No Loss Regularization RMSE Evaluation for 2D KPI(Torque)}
 \end{figure}
 
-We can see that the deviations are at its peak towards the beginning of the curve however the \ac{RMSE} for most samples is close to negligible.
-We also note there are fewer fluctuations in the curve as compared to the Predictions with Loss Regularizations.
+I can see that the deviations are at its peak towards the beginning of the curve however the \ac{RMSE} for most samples is close to negligible.
+I also note there are fewer fluctuations in the curve as compared to the Predictions with Loss Regularizations.
 This conclusion prompts us to omit the loss regularization for the Torque \ac{KPI}.
 
-\subsection{Efficiency \ac{KPI} Results with No Loss Regularization}\label{subsec:3D Efficiency Results with No Loss Regularization}
+\subsection{Efficiency KPI Results with No Loss Regularization}\label{subsec:3D Efficiency Results with No Loss Regularization}
 
-We can clearly note the missing effect of loss regularization constraining maximum efficiency values in Fig. 
+I can clearly note the missing effect of loss regularization constraining maximum efficiency values in Fig. 
 /ref{fig:No Loss Regularization Standard Deviation for Efficiency KPI across Angular Velocity Intervals} at an angular velocity of 12000rpm.
 
 \begin{figure}[H]
@@ -1447,7 +1448,7 @@ We can clearly note the missing effect of loss regularization constraining maxim
 
 Fig. \ref{fig:No Loss Regularization RMSE Evaluation for Efficiency KPI} gives a neat visualization of the Baseline Efficiency \ac{RMSE} with its respective targets 
 for certain angular velocities across the entire torque range. The angular velocities are chosen at equal intervals of 2000 rpm.
-We remark similar patterns to the ones generated with loss regularization in place. This fuels us to also omit the loss regularizations for the Efficiency \ac{KPI}.
+I remark similar patterns to the ones generated with loss regularization in place. This fuels us to also omit the loss regularizations for the Efficiency \ac{KPI}.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/rmse_eta_no_lossreg_MLP.png} 
@@ -1457,7 +1458,7 @@ We remark similar patterns to the ones generated with loss regularization in pla
 
 \section{Ablation Studies}\label{sec:Ablation Studies}
 
-We conduct comprehensive ablation studies on the \ac{MLP} model with different loss regularizations and the Baseline model for both our targets.
+I conduct comprehensive ablation studies on the \ac{MLP} model with different loss regularizations and the Baseline model for both our targets.
 
 \begin{minipage}[t]{\textwidth}
     \begin{table}[H]
@@ -1478,14 +1479,14 @@ We conduct comprehensive ablation studies on the \ac{MLP} model with different l
 
 \vspace{1em} % Adjust the space here, e.g., 1em or 2em
 
-Results in Table \ref{tab:Ablation Studies} indicate that our \ac{MLP} model without loss regularizations performance is in par with the Baseline model on the Torque 
+Results in Table \ref{tab:Ablation Studies} indicate that my \ac{MLP} model without loss regularizations performance is in par with the Baseline model on the Torque 
 \ac{KPI} and has outperformed it on the Efficiency \ac{KPI}. This could be because the regularizations are restrictive and discourage the model to learn better.
-The enriched ablation studies we undertook demonstrate the robustness of our method across varying hyperparameter settings.
-The inferences shown are strictly speaking from the Double V Magnet Topology which assumed the bulk of the data we had received.
+The enriched ablation studies I undertook demonstrate the robustness of the method across varying hyperparameter settings.
+The inferences shown are strictly speaking from the Double V Magnet Topology which assumed the bulk of the data I had received.
 
 \section{Time Comparison}\label{sec:Time Comparison}
 
-We also show a glimpse of the time conserved with surrogate modelling and relate both approaches how we have demonstrated in the flowchart in Fig. 
+I also show a glimpse of the time conserved with surrogate modelling and relate both approaches how I have demonstrated in the flowchart in Fig. 
 \ref{fig:EM Design Flowchart}.
 
 \begin{minipage}[t]{\textwidth}
@@ -1506,9 +1507,9 @@ We also show a glimpse of the time conserved with surrogate modelling and relate
 \vspace{1em} % Adjust the space here, e.g., 1em or 2em
 
 Considering the limitations in dataset, conducting thorough examinations of a substantial volume is typically unfeasible. 
-Therefore, the primary purpose of the thesis is to study the possibility of modelling the \ac{KPI}s predictions and our learnings from it.
+Therefore, the primary purpose of the thesis is to study the possibility of modelling the \ac{KPI}s predictions and my learnings from it.
 
-We also bring to attention that the time of taking 5 minutes to generate \ac{KPI}s per design using the Current Approach highlighted in Fig. 
+I also bring to attention that the time of taking 5 minutes to generate \ac{KPI}s per design using the Current Approach highlighted in Fig. 
 \ref{fig:EM Design Flowchart} is only possible by running the simulator across High Performance Computing machines of nearly 1500 CPU cores in parallel. 
 As the number of cores decrease the simulation would take minutes to hours to converge. Additionally, it is the \ac{FEA} simulator in the block that is the culprit of 
 consuming time. Another pointer to note is in reality the time needed to generate \ac{KPI}s with Surrogate Modelling is in the range of milliseconds. 
@@ -1516,11 +1517,11 @@ However most time is utilized during the dataset creation in Data Preprocessing 
 significant chunk of time close to 18 seconds whereas only 5 seconds is required to generate the prediction and display both \ac{KPI}s.
 The computing time of the \ac{ANN} surrogate models varied between 50.3 to 68 ms/case, which makes the surrogates 2,911 to 2,154 times faster than the FE reference simulation, 
 respectively. As opposed to \ac{FEA} simulations, the time required to generate predictions for several motor designs is memory bound 
-and computation is not so much of a bottleneck since we can potentially run both training and inference across multiple GPUs in parallel.
+and computation is not so much of a bottleneck since I can potentially run both training and inference across multiple GPUs in parallel.
 
-We have used Python 3.10.14 for our development and the \texttt{Pytorch}\footnote{\url{https://pytorch.org/}} Pytorch library compatible with Cuda.
-The model was trained on a NVIDIA Tesla V100 \ac{GPU} with 32 GB Memory and the machine we used had 16 CPUs of the Intel(R) Xeon(R) Silver 4208 CPU @ 2.10GHz 
-with allocated disk space of 50 GB for our experiments.
+I have used Python 3.10.14 for my development and the \texttt{Pytorch}\footnote{\url{https://pytorch.org/}} Pytorch library compatible with Cuda.
+The model was trained on a NVIDIA Tesla V100 \ac{GPU} with 32 GB Memory and the machine I used had 16 CPUs of the Intel(R) Xeon(R) Silver 4208 CPU @ 2.10GHz 
+with allocated disk space of 50 GB for my experiments.
 Source code is available at \texttt{\href{https://github.com/Lilly-25/Masters-Thesis}{Github Repository}}\footnote{\url{https://github.com/Lilly-25/Masters-Thesis}}.
 % the \href{https://github.com/Lilly-25/Masters-Thesis}{GitHub Repository}.
 
@@ -1535,7 +1536,7 @@ Source code is available at \texttt{\href{https://github.com/Lilly-25/Masters-Th
 \section{Introduction}\label{sec:Introduction}
 
 Tabular representation of data in itself cannot account for the spatiality of an \ac{EM} design especially on how its different components interact with one another. 
-Therefore we presume modelling our usecase as a graph will be more reasonable so that we can exploit graph dynamics and aggregate features that are semantically similar.
+Therefore I presume modelling the usecase as a graph will be more reasonable so that I can exploit graph dynamics and aggregate features that are semantically similar.
 A graph can be composed of nodes and edges with their corresponding features in addition to the graph attributes.
 The graph attributes contain the information relevant to the graph as a whole whereas the node features captures the information of the node's role in the network and 
 likewise the edge features captures the information of the edge's role in the network. Graphs also take into account their respective neighborhoods.
@@ -1589,7 +1590,7 @@ Researchers have broadly classified \ac{GNN}s following 2 distinct paradigms:
 \end{figure}
 Fig. \ref{fig:Homogeneous Graph} and Fig. \ref{fig:Heterogeneous Graph} distinguishes the 2 graphs.
 
-\subsection{\ac{MP}}\label{subsec:MP}
+\subsection{Message Passing}\label{subsec:MP}
 
 \ac{GNN}s in general function by making use of \ac{MP} which is a recursive algorithm that aims to learn a representation vector for each node. 
 \ac{MP} is based on the graph structure and initial node features. Over each hop of successive neighborhoods in the graph, the information of 
@@ -1601,7 +1602,7 @@ Therefore, the final representation will be rich enough to have captured all the
 \begin{figure}[H]
     \centering
     \includegraphics[width=.6\textwidth]{./ReportImages/MessagePassing.png} 
-    \caption{Message Passing in \ac{GNN}s (Ref. \cite{PINO-2022})} 
+    \caption{Message Passing in \ac{GNN}s (Source : \cite{PINO-2022})} 
     \label{fig:Message Passing in GNNs}
 \end{figure}
 
@@ -1627,13 +1628,13 @@ Some of the well known \ac{GNN} tasks can be seen in Fig. \ref{fig:GNN Predictio
     \item Community Detection - Classifies groups of nodes into clusters. One scenario of application is to detect mutual communities in a social network.
     \item Graph Embedding - Embeds high dimensional graph into a lower dimensional space to be able to visually inspect it better. Visualizing huge corpus of text as 
     knowledge graph in lower dimension, enables one to detect communities of topics and subtopics in each cluster.
-    \item Graph Generation - Generates synthetic graphs based on initial graph representation. An application we can relate to is the inverse formulation of our problem modelled as a graph.
+    \item Graph Generation - Generates synthetic graphs based on initial graph representation. An application I can relate to is the inverse formulation of our problem modelled as a graph.
 \end{enumerate}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{./ReportImages/GraphTasks.png} 
-    \caption{\ac{GNN} Tasks \href{https://www.datacamp.com/tutorial/comprehensive-introduction-graph-neural-networks-gnns-tutorial}{(\texttt{Source})} }
+    \caption{\ac{GNN} Tasks (Source : https://www.datacamp.com/tutorial/comprehensive-introduction-graph-neural-networks-gnns-tutorial) }
     \label{fig:GNN Predictions}
 \end{figure}
 
@@ -1642,19 +1643,19 @@ and interdependency between objects Ref. \cite{GNN-2019}.
 These networks are generally represented by a giant graph in which case graph batching, splitting are unique. However our task requires us to build 1 graph each for each \ac{EM} variant.
 
 \subsection{Case Study Structure}\label{subsec:Case Study Structure}
-We organize the structure of the case study as follows:
-First, we provide an introduction on \ac{GNN}s in general in Introduction.
-We then delve into finer details of the Heterogeneous \ac{GNN}s in Section \ref{sec:Heterogeneous GNN} and formulate definitions mathematically.
-Next, we review Literature done on Heterogeneous \ac{GNN}s in Section \ref{sec:HGNN Literature Review}.
-After which we present the methodology in Section \ref{sec:EM Heterogeneous GNN Model} and share our view on how to create the heterogeneous graph for our usecase.
-Lastly, we wrap up with a brief discussion of the pros and cons of using heterogeneous \ac{GNN}s in Section \ref{sec:EM Heterogeneous GNN Discussion}.
+I organize the structure of the case study as follows:
+First, I provide an introduction on \ac{GNN}s in general in Introduction.
+I then delve into finer details of the Heterogeneous \ac{GNN}s in Section \ref{sec:Heterogeneous GNN} and formulate definitions mathematically.
+Next, I review Literature done on Heterogeneous \ac{GNN}s in Section \ref{sec:HGNN Literature Review}.
+After which I present the methodology in Section \ref{sec:EM Heterogeneous GNN Model} and share our view on how to create the heterogeneous graph for our usecase.
+Lastly, I wrap up with a brief discussion of the pros and cons of using heterogeneous \ac{GNN}s in Section \ref{sec:EM Heterogeneous GNN Discussion}.
 
-\section{Heterogeneous \ac{GNN}}\label{sec:Heterogeneous GNN}
+\section{Heterogeneous GNN}\label{sec:Heterogeneous GNN}
 
 Graphs are ubiquitously heterogeneous because of its capability to have different node and edge types on top of its inherent graph feature to abstract and model 
 relations between objects.
 Heterogeneous \ac{GNN}s also takes into account homophily wherein nodes close on a network have similar embeddings Ref. \cite{HGNN-2020} this is in essence the structural 
-property and is true for all \ac{GNN}s. We largely adopt the commonly used notations from Ref. \cite{ML HGNN-2023} and reformulate it slightly for our task. \\
+property and is true for all \ac{GNN}s. I largely adopt the commonly used notations from Ref. \cite{ML HGNN-2023} and reformulate it slightly for our task. \\
 
 \textbf{Heterogeneous Networks}
 
@@ -1760,8 +1761,8 @@ Multiple \ac{MP} operations are done across different metapaths which are finall
 Each metapath captures the proximity of nodes in a graph from a specific semantic view Ref. \cite{HGNN-2020}.
 
 % During runtime, the \ac{MP}-\ac{GNN} algorithm would need to iterate over edge type dictionaries during message computation and over node type dictionaries during node updates.
-\section{\ac{GNN} Literature Review}\label{sec:HGNN Literature Review}
-We review the works of Heterogeneous \ac{GNN} in this section.
+\section{GNN Literature Review}\label{sec:HGNN Literature Review}
+I review the works of Heterogeneous \ac{GNN} in this section.
 
 \subsection{Subgraphs}\label{subsec:HGNN Subgraphs}
 Existing works for instance Yu \textit{et al.} in Ref. \cite{PR-HGNN-2024} model heterogeneous graphs by splitting the graph into multiple 
@@ -1784,7 +1785,7 @@ and does message passing over multi-hop neighborhood of nodes.
 Such meta relations are shallow embeddings and not as deep as the meta paths as was clarified by Yang \textit{et al.} in Ref. \cite{HGNN-2020}. \\
 Additionally Chana \textit{et al.} in Ref. \cite{EHR HGNN-2024} has used heterogeneous \ac{GNN}s to model the heterogeneity and sparsity in Electronic 
 Health Records of patients. This work claims to learn the multi-task nature and also takes into account the relational features of the dataset which is arguably the 
-most important factor in this domain for example past medical history. However we note that although this paper uses meta relations it does not factor in edge features.\\
+most important factor in this domain for example past medical history. However I note that although this paper uses meta relations it does not factor in edge features.\\
 
 \subsection{Oversmoothing}\label{subsec:HGNN Oversmoothing}
 Li \textit{et al.} in Ref. \cite{GCN-2018} demystifies the \ac{GCN} and addresses the Laplacian oversmoothing concern by self-training or co-training the model.
@@ -1835,119 +1836,28 @@ The authors of Ref. \cite{HGNNRM-2023} propose a relevance measure to capture th
 bypassing the need of having semantically meaningfull metapaths. Context path is principally a path linking two nodes of the same type however the intermediary nodes in the 
 path are auxillary nodes of different types. The nodes making up the context path are weighted with varying importance scores on the basis of their corresponding relevance measure.
 
-\section{\ac{EM} Heterogeneous \ac{GNN} Modelling}\label{sec:EM Heterogeneous GNN Model}
-We find the Heterogeneous graph to be most apt for our use case with its different node and edge types as it preserves both the structural and semantics of our data. 
-This property is crucial in modelling our use case as we will then have similar node types-edge types per topology. 
+\section{EM Heterogeneous GNN Modelling}\label{sec:EM Heterogeneous GNN Model}
+I find the Heterogeneous graph to be most apt for our use case with its different node and edge types as it preserves both the structural and semantics of our data. 
+This property is crucial in modelling our use case as I will then have similar node types-edge types per topology. 
 In contrast Homogeneous graphs would lead to suboptimal results as it cannot factor in the heterogeneity and thus the semantic nature of the usecase fully. 
 
 Given the \ac{EM} data $\mathcal{D}$ , our goal is to construct a heterogeneous graph $\mathcal{H}$ from $\mathcal{D}$. Let $\mathcal{Y}_1$, $\mathcal{Y}_2$ on 
-$\mathcal{H}$ be the 2 \ac{KPI}s we need to learn from $\mathcal{D}$. We aim to train a multi-task \ac{GNN} model $\mathcal{M}$ such that $\mathcal{M}$ can deliver 
+$\mathcal{H}$ be the 2 \ac{KPI}s I need to learn from $\mathcal{D}$. We aim to train a multi-task \ac{GNN} model $\mathcal{M}$ such that $\mathcal{M}$ can deliver 
 high performance on $\mathcal{Y}_1$ and $\mathcal{Y}_2$.
 
-\subsection{\ac{EM} Heterogeneous Graph Construction}\label{subsec:EM Heterogeneous Graph Construction}
-Inspired by the promising advantages of Heterogeneous \ac{GNN}, we took the effort of costructing the graph for only the Double V Magnet Topology.
-We construct the heterogeneous graph adaptable for each of the \ac{EM} variants as a \texttt{NetworkX}\footnote{\url{https://networkx.org/}} graph.
+\subsection{EM Heterogeneous Graph Construction}\label{subsec:EM Heterogeneous Graph Construction}
+Inspired by the promising advantages of Heterogeneous \ac{GNN}, I took the effort of costructing the graph for only the Double V Magnet Topology.
+I construct the heterogeneous graph adaptable for each of the \ac{EM} variants as a \texttt{NetworkX}\footnote{\url{https://networkx.org/}} graph.
 
-\begin{enumerate}
-    \item Node Types \\
-    \( T_v = \{ v, vm, r, s, sw\} \) \\
-    The node type mapping functions of each node type in the graph are as follows :
-
-    \begin{table}[H]
-        \centering
-        \begin{tabular}{|p{0.2\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
-        \hline 
-        {\bf Node Type (\(\nu\))} & {\bf Nodes (\( v^{\nu} \))} & {\bf Node Features(\( X^{\nu}\))}  \\
-        \hline
-        Rotor Airgap (\( \nu_v \)) & v11, v12, v21, v22 &
-        lmsov, lth1v, lth2v, r1v, r11v, r2v, r3v, r4v, rmt1v, rmt4v, rlt1v, rlt4v, hav, \newline
-        lmsov1, lth1v1, lth2v1, r1v1, r11v1, r2v1, r3v1, r4v1, rmt1v1, rmt4v1, rlt1v1, rlt4v1, hav1 \\
-        \hline
-        Rotor Magnet (\( \nu_{vm} \)) & 
-        v1m1, v1m2, v2m1, v2m2 & 
-        mbv, mhv, rmagv, mbv1, mhv1, rmagv1 \\
-        \hline
-        Radius (\( \nu_r \)) & 
-        rr, ra, o & 0 \\
-        \hline
-        Stator Poles (\( \nu_s \)) & 
-        s1, s2, s3, s4, s5, s6 & 
-        b\_nng, b\_nzk, b\_s, h\_n, h\_s, r\_sn, r\_zk, r\_ng \\
-        \hline
-        Stator Windings (\( \nu_{sw} \)) & 
-        s1w1, s1w2, s1w3, s1w4, \newline
-        s2w1, s2w2, s2w3, s2w4, \newline
-        s3w1, s3w2, s3w3, s3w4, \newline
-        s4w1, s4w2, s4w3, s4w4, \newline
-        s5w1, s5w2, s5w3, s5w4, \newline
-        s6w1, s6w2, s6w3, s6w4 & 
-        bhp, hhp, rhp \\
-        \hline
-        \end{tabular}
-        \caption{\ac{GNN} Node Types}
-        \label{tab:GNN Node Types}
-    \end{table}
-
-    \item Edge Types \\
-    \( T_e = \{ a, d1, d2, d4\} \)\\
-    The edge type mapping functions of each edge type in the graph are as follows: \\
-
-    \begin{table}[H]
-        \centering
-        \begin{tabular}{|p{0.2\textwidth}|p{0.35\textwidth}|p{0.25\textwidth}|}
-        \hline 
-        {\bf Edge Type (\(\epsilon\))} & {\bf Edges (\( e^{\epsilon} \))} & {\bf Edge Features (\( R^{\epsilon}\))}  \\
-        \hline
-        \multirow{2}{0.2\textwidth}{Angular/Radian Edges (\( \epsilon_a \))} & \( e_{v1m1, v1m2} \) & deg\_phiv1 \\
-                                                                & \( e_{v2m1, v2m2} \) & deg\_phiv2 \\
-        \hline
-        \multirow{5}{0.2\textwidth}{Distance Edge with 1 feature (\( \epsilon_{d1} \))} & \( e_{v21,rr} \), \( e_{v22,rr} \) & dsrv2 \\
-                    & \( e_{rr,s1} \), \( e_{rr,s2} \), \( e_{rr,s3} \), \( e_{rr,s4} \), \( e_{rr,s5} \), \( e_{rr,s6} \) & airgap \\
-                    & \( e_{s1,s1w1} \), \( e_{s1,s1w2} \), \( e_{s1,s1w3} \), \( e_{s1,s1w4} \), \( e_{s2,s2w1} \), \( e_{s2,s2w2} \),
-                    \( e_{s2,s2w3} \), \( e_{s2,s2w4} \), \( e_{s3,s3w1} \), \( e_{s3,s3w2} \), \( e_{s3,s3w3} \), \( e_{s3,s3w4} \),
-                    \( e_{s4,s4w1} \), \( e_{s4,s4w2} \), \( e_{s4,s4w3} \), \( e_{s4,s4w4} \), \( e_{s5,s5w1} \), \( e_{s5,s5w2} \),
-                    \( e_{s5,s5w3} \), \( e_{s5,s5w4} \), \( e_{s6,s6w1} \), \( e_{s6,s6w2} \), \( e_{s6,s6w3} \), \( e_{s6,s6w4} \) & dhphp \\
-                    &\( e_{s1w1,s1w2} \), \( e_{s1w2,s1w3} \), \( e_{s1w3,s1w4} \), \( e_{s2w1,s2w2} \), \( e_{s2w2,s2w3} \), \( e_{s2w3,s2w4} \),
-                    \( e_{s3w1,s3w2} \), \( e_{s3w2,s3w3} \), \( e_{s3w3,s3w4} \), \( e_{s4w1,s4w2} \), \( e_{s4w2,s4w3} \), \( e_{s4w3,s4w4} \), 
-                    \( e_{s5w1,s5w2} \), \( e_{s5w2,s5w3} \), \( e_{s5w3,s5w4} \), \( e_{s6w1,s6w2} \), \( e_{s6w2,s6w3} \), \( e_{s6w3,s6w4} \) & dhpng \\
-                    &\( e_{o,ra} \) & r\_a \\
-        
-        \hline
-        \multirow{3}{0.2\textwidth}{Distance Edge with 2 features (\( \epsilon_{d2} \))} & \( e_{v11, v12} \), \( e_{v21, v22} \) & dsmv1, dsmuv1 \\
-                                                                & \( e_{v11, rr} \), \( e_{v12, rr} \) & amtrv1, dsrv1 \\
-                                                                & \( e_{o, rr} \) & $r_i - airgap$ \\
-
-        \hline
-        \multirow{3}{0.2\textwidth}{Distance Edge with 4 features (\( \epsilon_{d4} \))} & \( e_{v11, v1m1} \), \( e_{v12, v1m2} \) & lmav1, lmiv1, lmov1, lmuv1 \\
-                                            &  \( e_{v21, v2m1} \), \( e_{v22, v2m2} \) & lmav2, lmiv2, lmov2, lmuv2 \\
-                                            &  \( e_{s1, ra} \), \( e_{s2, ra} \), \( e_{s3, ra} \), \( e_{s4, ra} \), \( e_{s5, ra} \), \( e_{s6, ra} \)   &  \(r_a - (r_i + h_n, h_zk) \)\\
-
-        \hline
-        \end{tabular}
-        \caption{\ac{GNN} Edge Types}
-        \label{tab:GNN Edge Types}
-    \end{table}
-
-    We define the meta relations as well for each of the edge type.
-
-\end{enumerate}
-
-Fig. \ref{fig:HetGraph} shows the heterogeneous graph we constructed
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1\textwidth]{./ReportImages/graph.png} 
-    \caption{HetGraph}
-    \label{fig:HetGraph}
-\end{figure}
 The count of certain parameters within the motor such as stator poles with its corresponding stator windings and rotor magnets is made more comprehendable to the 
 model having new nodes and edges whereas for the \ac{MLP} architecture this information is represented as yet another number in a separate column. 
-By leveraging the relational features introduced by the meta relations, we can obtain a good graph representation of the data.
-We then learn the constructed heterogeneous graph through a heterogeneous \ac{GNN} model.  
+By leveraging the relational features introduced by the meta relations, I can obtain a good graph representation of the data.
+I then learn the constructed heterogeneous graph through a heterogeneous \ac{GNN} model.  
 
-Furthermore, we presume graph representation of the data will be more logical than tabular representation due to its ability to grasp the connections within the \ac{EM} structural properties better.
+Furthermore, I presume graph representation of the data will be more logical than tabular representation due to its ability to grasp the connections within the \ac{EM} structural properties better.
 This would be even more realistic with achieving topology invariance than the tabular representation and conserve memory and compute in the long run.
-However, we realize that our problem cannot be solved using Homogeneous \ac{GNN} which is relatively simpler and is built on a single node and edge type.
-In order to model our problem as a graph, we need to represent it as a Heterogeneous graph. 
+However, I realize that our problem cannot be solved using Homogeneous \ac{GNN} which is relatively simpler and is built on a single node and edge type.
+In order to model our problem as a graph, I need to represent it as a Heterogeneous graph. 
 
 \ac{GNN}s are relatively more expressive models as they can acapture the variability and complexity of our data better.
 However, \ac{GNN} in general have not been to less explored even so more the heterogeneous \ac{GNN}.
@@ -1958,40 +1868,43 @@ involves one large graph with multiple node and edge types.
 However, our problem involves creation of multiple heterogeneous graphs ie, 1 per \ac{EM} variant.\\
 Therefore, the applicability of Heterogeneous \ac{GNN}s for our problem is to be seen.
 
-Our thesis is loosely inspired from Ref. \cite{ML HGNN-2023} which has strived to extend \ac{MP} into Heterogeneous \ac{GNN}s.\\
+Our thesis is loosely inspired from Ref. \cite{ML HGNN-2023} which has strived to extend \ac{MP} into Heterogeneous \ac{GNN}s.
 
 \section{Summary}\label{sec:EM Heterogeneous GNN Discussion}
-We are faced with a dilemma most common when designing Heterogeneous \ac{GNN}s with predefined Metapaths.
-The challenge is to choose whether we want to represent each component of the \ac{EM} as dedicated nodes and edges to preserve the semantics of the data and be moren flexible 
+I am faced with a dilemma most common when designing Heterogeneous \ac{GNN}s with predefined Metapaths.
+The challenge is to choose whether I want to represent each component of the \ac{EM} as dedicated nodes and edges to preserve the semantics of the data and be moren flexible 
 across topologies or to define reasonabley sized metapaths. As the nodes and edges increases, the metapath length exponentially increases.
 This makes computation tricky since for each metapath, the \ac{MP} is done across the nodes and edges its composed of.
-As we donot have enough domain knowledge in \ac{EM} modelling, our metapaths comprised of the stator , rotor and the its combination components.
+As I donot have enough domain knowledge in \ac{EM} modelling, our metapaths comprised of the stator, rotor and the its combination components.
+Additionally metapaths are defined at node-edge level and not on their types level. This situation makes it difficult to define metapaths for different topologies.
+Although the topologies can be represented as different graphs with unique number of nodes and edges for the common node and edge types
 
 \chapter{Conclusion}
 
 \section{General Discussion}\label{sec:General Discussion}
 This thesis offers a fresh outlook to the possibility of modelling the performance of an \ac{EM} using \ac{GNN}s.
-We have developed a topology invariant \ac{MLP} model to predict 2 \ac{KPI}'s of an \ac{EM} from its parameteric requirements. 
+I have developed a topology invariant \ac{MLP} model to predict 2 \ac{KPI}'s of an \ac{EM} from its parameteric requirements. 
 It would be very beneficial to \ac{EM} manufacturers to understand the operating range of the vehicle using the motor and make calculated assumptions of whether to manufacture it.\\
 This work enables \ac{EM} designers to generate \ac{KPI}'s at almost both negligible costs and minimal time.
 Thus offering an escape from the cons of using \ac{FEA} simulations. It also exhibits almost close accuracy to \ac{FEA} simulations with significantly better run time efficiency PROVE\\
-It also lays the foundation for future work on being able to generate electric motor design parameters conditioned on the 2 KPIs we predicted.
-We envision that our study will provide new perspectives to researchers engaging in the field of electric motor design and hope our contribution will aid in the same.\\
-Alternatively we could also build 2 models one for each \ac{KPI} and thus feed in the dependent predictions when training the latter. 
-However, it would be computationally expensive and does not help in the scenario when we might need to generate \ac{EM} parametric descriptions.
-Additionally we deemed it unnecessary as the dimensions of the Efficiency grid vary with the Torque curve and not necessarily the Efficiency values. 
-
+It also lays the foundation for future work on being able to generate electric motor design parameters conditioned on the 2 KPIs I had predicted.
+I envision that the study will provide new perspectives to researchers engaging in the field of electric motor design and hope my contribution will aid in the same.\\
+Alternatively I could also build 2 models one for each \ac{KPI} and thus feed in the dependent predictions when training the latter. 
+However, it would be computationally expensive and does not help in the scenario when I might need to generate \ac{EM} parametric descriptions.
+Additionally I deemed it unnecessary as the dimensions of the Efficiency grid vary with the Torque curve and not necessarily the Efficiency values. 
+A contribution I make is to predict the efficiency map based on the Torque curve. To my knowledge, works on predicting the efficiency map has not 
+been dependent on any other performance characteristic of the \ac{EM} let alone its parametric description.
 
 \section{Future Improvements}\label{sec:Future Improvements}
-I would suggest the following improvements to our study : 
+I would suggest the following improvements to my study : 
 
 \begin{enumerate}[nosep]
     \item Build a model that uses the Torque \ac{KPI} prediction to predict its corresponding Efficiency \ac{KPI}. 
-    \item Although we have designed the model to be topology invariant for 3 topologies, we only had sufficient data from Double V Topology to draw evaluations from.
-    Further evaluations on the other topologies would be beneficial to critically assess our model's performance.
+    \item Although I have designed the model to be topology invariant for 3 topologies, I only had sufficient data from Double V Topology to draw evaluations from.
+    Further evaluations on the other topologies would be beneficial to critically assess my model's performance.
     \item Another interesting study would be to benchmark model performance when one backpropagates the losses for each \ac{KPI} individually rather than weighing them.
-    \item Additionally, the motivation of building a topology invariant model was the reason we have considered building a heterogeneous graph to model the data. The machinery is elaborated in Section \ref{sec:EM Heterogeneous GNN Model}.
-    Such a model could serve as yet another ablation study to our problem.
+    \item Additionally, the motivation of building a topology invariant model was the reason I have considered building a heterogeneous graph to model the data. The machinery is elaborated in Section \ref{sec:EM Heterogeneous GNN Model}.
+    Such a model could serve as yet another ablation study to my problem.
 \end{enumerate}
 
 \newpage 
@@ -2028,8 +1941,6 @@ with the same dataset in the future.
 \subsection{Data Summary Statistics}
 \label{subsec:Data Summary Statistics}
 
-
-%Median a column??
 \begin{longtable}{|p{1.75cm}|p{0.75cm}|p{1.8cm}|p{1.8cm}|p{3.10cm}|p{1cm}|p{1cm}|p{1cm}|}
 
     \hline
@@ -2210,8 +2121,8 @@ Hence, the imbalanced topologies parameters would have relatively not so reliabl
 \section{GNN Terminologies}
 \label{sec:GNN Terminologies}
 
-We largely adopt the commonly used notations from Ref. \cite{GNN-2019} and reformulate it slightly to meet our needs.
-We use bold uppercase characters to denote matrices and bold lowercase characters to denote vectors.\\
+I have largely adopt the commonly used notations from Ref. \cite{GNN-2019} and reformulate it slightly to meet my needs.
+I use bold uppercase characters to denote matrices and bold lowercase characters to denote vectors.\\
 
 \textbf{Graphs}
 
@@ -2256,7 +2167,7 @@ The Transformation Operator is a feature map or a learnable matrix of weights, \
 For Graph signals, \( V = [v_1, v_2, \dots, v_n], v_i  \in \mathbb{R}^F \), the updated Graph Signals is \( V' = RV\theta \) 
 where \( RV \) is the weighted sum of graph signals neighbourhood. \( RV \) also ensures only nodes with edges is considered.
 
-In contrast to \ac{CNN}s fixed shape kernel which considers pixels locality we have an increasing shaped kernel for \ac{GNN}s, this is clear in the Fig. \ref{fig:GNN Kernel Filter}. 
+In contrast to \ac{CNN}s fixed shape kernel which considers pixels locality I have an increasing shaped kernel for \ac{GNN}s, this is clear in the Fig. \ref{fig:GNN Kernel Filter}. 
 The fixed shaped kernel does not work for graphs  as they are irregular in size and not constrained to pixel dimensions as images are. 
 It is also called a Polynomial Graph Filter or Radial Filter and can be expressed as $V' = \sigma (\sum_{k=0}^{K}R^{k}V\theta^{k})$ 
 
@@ -2276,6 +2187,99 @@ $\bar{e}'_i = \rho_{e \to v}(E'_i)$, $\bar{e}' = \rho_{e \to u}(E')$, $\bar{v}' 
 A huge benefit of \ac{GNN}s in practical use cases is that they are inductive rather 
 than transductive. While transductive model can only be used on the specific data that was present during training, inductive models can be applied to entirely new 
 data without having to be retrained. This is defended by Johannessen \textit{et al.} in Ref. \cite{ML HGNN-2023}.
+
+\section{Heterogeneous Graph Neural Networks}
+\begin{enumerate}
+    \item Node Types \\
+    \( T_v = \{ v, vm, r, s, sw\} \) \\
+    The node type mapping functions of each node type in the graph are as follows :
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{|p{0.2\textwidth}|p{0.3\textwidth}|p{0.3\textwidth}|}
+        \hline 
+        {\bf Node Type (\(\nu\))} & {\bf Nodes (\( v^{\nu} \))} & {\bf Node Features(\( X^{\nu}\))}  \\
+        \hline
+        Rotor Airgap (\( \nu_v \)) & v11, v12, v21, v22 &
+        lmsov, lth1v, lth2v, r1v, r11v, r2v, r3v, r4v, rmt1v, rmt4v, rlt1v, rlt4v, hav, \newline
+        lmsov1, lth1v1, lth2v1, r1v1, r11v1, r2v1, r3v1, r4v1, rmt1v1, rmt4v1, rlt1v1, rlt4v1, hav1 \\
+        \hline
+        Rotor Magnet (\( \nu_{vm} \)) & 
+        v1m1, v1m2, v2m1, v2m2 & 
+        mbv, mhv, rmagv, mbv1, mhv1, rmagv1 \\
+        \hline
+        Radius (\( \nu_r \)) & 
+        rr, ra, o & 0 \\
+        \hline
+        Stator Poles (\( \nu_s \)) & 
+        s1, s2, s3, s4, s5, s6 & 
+        b\_nng, b\_nzk, b\_s, h\_n, h\_s, r\_sn, r\_zk, r\_ng \\
+        \hline
+        Stator Windings (\( \nu_{sw} \)) & 
+        s1w1, s1w2, s1w3, s1w4, \newline
+        s2w1, s2w2, s2w3, s2w4, \newline
+        s3w1, s3w2, s3w3, s3w4, \newline
+        s4w1, s4w2, s4w3, s4w4, \newline
+        s5w1, s5w2, s5w3, s5w4, \newline
+        s6w1, s6w2, s6w3, s6w4 & 
+        bhp, hhp, rhp \\
+        \hline
+        \end{tabular}
+        \caption{\ac{GNN} Node Types}
+        \label{tab:GNN Node Types}
+    \end{table}
+
+    \item Edge Types \\
+    \( T_e = \{ a, d1, d2, d4\} \)\\
+    The edge type mapping functions of each edge type in the graph are as follows: \\
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{|p{0.2\textwidth}|p{0.35\textwidth}|p{0.25\textwidth}|}
+        \hline 
+        {\bf Edge Type (\(\epsilon\))} & {\bf Edges (\( e^{\epsilon} \))} & {\bf Edge Features (\( R^{\epsilon}\))}  \\
+        \hline
+        \multirow{2}{0.2\textwidth}{Angular/Radian Edges (\( \epsilon_a \))} & \( e_{v1m1, v1m2} \) & deg\_phiv1 \\
+                                                                & \( e_{v2m1, v2m2} \) & deg\_phiv2 \\
+        \hline
+        \multirow{5}{0.2\textwidth}{Distance Edge with 1 feature (\( \epsilon_{d1} \))} & \( e_{v21,rr} \), \( e_{v22,rr} \) & dsrv2 \\
+                    & \( e_{rr,s1} \), \( e_{rr,s2} \), \( e_{rr,s3} \), \( e_{rr,s4} \), \( e_{rr,s5} \), \( e_{rr,s6} \) & airgap \\
+                    & \( e_{s1,s1w1} \), \( e_{s1,s1w2} \), \( e_{s1,s1w3} \), \( e_{s1,s1w4} \), \( e_{s2,s2w1} \), \( e_{s2,s2w2} \),
+                    \( e_{s2,s2w3} \), \( e_{s2,s2w4} \), \( e_{s3,s3w1} \), \( e_{s3,s3w2} \), \( e_{s3,s3w3} \), \( e_{s3,s3w4} \),
+                    \( e_{s4,s4w1} \), \( e_{s4,s4w2} \), \( e_{s4,s4w3} \), \( e_{s4,s4w4} \), \( e_{s5,s5w1} \), \( e_{s5,s5w2} \),
+                    \( e_{s5,s5w3} \), \( e_{s5,s5w4} \), \( e_{s6,s6w1} \), \( e_{s6,s6w2} \), \( e_{s6,s6w3} \), \( e_{s6,s6w4} \) & dhphp \\
+                    &\( e_{s1w1,s1w2} \), \( e_{s1w2,s1w3} \), \( e_{s1w3,s1w4} \), \( e_{s2w1,s2w2} \), \( e_{s2w2,s2w3} \), \( e_{s2w3,s2w4} \),
+                    \( e_{s3w1,s3w2} \), \( e_{s3w2,s3w3} \), \( e_{s3w3,s3w4} \), \( e_{s4w1,s4w2} \), \( e_{s4w2,s4w3} \), \( e_{s4w3,s4w4} \), 
+                    \( e_{s5w1,s5w2} \), \( e_{s5w2,s5w3} \), \( e_{s5w3,s5w4} \), \( e_{s6w1,s6w2} \), \( e_{s6w2,s6w3} \), \( e_{s6w3,s6w4} \) & dhpng \\
+                    &\( e_{o,ra} \) & r\_a \\
+        
+        \hline
+        \multirow{3}{0.2\textwidth}{Distance Edge with 2 features (\( \epsilon_{d2} \))} & \( e_{v11, v12} \), \( e_{v21, v22} \) & dsmv1, dsmuv1 \\
+                                                                & \( e_{v11, rr} \), \( e_{v12, rr} \) & amtrv1, dsrv1 \\
+                                                                & \( e_{o, rr} \) & $r_i - airgap$ \\
+
+        \hline
+        \multirow{3}{0.2\textwidth}{Distance Edge with 4 features (\( \epsilon_{d4} \))} & \( e_{v11, v1m1} \), \( e_{v12, v1m2} \) & lmav1, lmiv1, lmov1, lmuv1 \\
+                                            &  \( e_{v21, v2m1} \), \( e_{v22, v2m2} \) & lmav2, lmiv2, lmov2, lmuv2 \\
+                                            &  \( e_{s1, ra} \), \( e_{s2, ra} \), \( e_{s3, ra} \), \( e_{s4, ra} \), \( e_{s5, ra} \), \( e_{s6, ra} \)   &  \(r_a - (r_i + h_n, h_zk) \)\\
+
+        \hline
+        \end{tabular}
+        \caption{\ac{GNN} Edge Types}
+        \label{tab:GNN Edge Types}
+    \end{table}
+
+    I have define the meta relations as well for each of the edge type.
+
+\end{enumerate}
+
+Fig. \ref{fig:HetGraph} shows the heterogeneous graph I had constructed
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{./ReportImages/graph.png} 
+    \caption{HetGraph}
+    \label{fig:HetGraph}
+\end{figure}
 
 \listoffigures
 
