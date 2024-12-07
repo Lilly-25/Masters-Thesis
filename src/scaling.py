@@ -1,26 +1,18 @@
 import numpy as np
-class MinMaxScaler: # Not used anymore
-    def fit(self, x, flatten):
-        # Calculate maximum and minimum values, ignoring NaNs
-        max_values = np.nanmax(x, axis=0)
-        min_values = np.nanmin(x, axis=0)
+class MinMaxScaler:
+    def fit(self, x):
+        max_value = np.nanmax(x)
+        min_value = np.nanmin(x)
+        return min_value, max_value
 
-        # Avoid division by 0, when max and min are same only 1 element in the column in that case after scaling value becomes 0
-        range_values = max_values - min_values
-        if not flatten:
-            range_values[range_values == 0] = 1
-        else:
-            if range_values == 0:
-                range_values = 1
+    def transform(self, x, min_value, max_value):
+        # Apply Min-Max scaling and centralize to [-0.5, 0.5]
+        normalized = (x - min_value) / (max_value - min_value)
+        return np.where(np.isnan(x), np.nan, normalized - 0.5)
 
-        return min_values, range_values
-
-    def transform(self, x, min_values, range_values):
-        # Apply the Min-Max scaling, preserving NaNs
-        return np.where(np.isnan(x), np.nan, (x - min_values) / range_values)
-
-    def inverse_transform(self, z, min_values, range_values):
-        return z * range_values + min_values
+    def inverse_transform(self, z, min_value, max_value):
+        # Reverse centralization and scaling
+        return (z + 0.5) * (max_value - min_value) + min_value
 
 class StdScaler:
     def fit(self, x):
