@@ -211,8 +211,8 @@ class mlp_kpi3d_trainer:
         train_labels_y2 = torch.cat(train_labels_y2)
         
         train_score_y2 = self.y2_avg_score(train_outputs_y2, train_labels_y2)
-        
-        train_score = train_score_y1 + train_score_y2
+        train_score = self.w_y1*train_score_y1 + self.w_y2*train_score_y2
+        #train_score = train_score_y1 + train_score_y2
         
         return train_loss, train_loss_y1, train_loss_y2, train_score, train_score_y1, train_score_y2
 
@@ -266,7 +266,8 @@ class mlp_kpi3d_trainer:
         
         val_score_y2 = self.y2_avg_score(val_outputs_y2, val_labels_y2)
         
-        val_score = val_score_y1 + val_score_y2
+        val_score = self.w_y1*val_score_y1 + self.w_y2*val_score_y2
+        #val_score = val_score_y1 + val_score_y2
         
         return val_loss, val_loss_y1, val_loss_y2,val_score, val_score_y1, val_score_y2
         
