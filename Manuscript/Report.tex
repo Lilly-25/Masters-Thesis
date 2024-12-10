@@ -1178,7 +1178,7 @@ Likewise the training plots evaluation metrics are displayed in Fig. \ref{fig:Tr
     \label{fig:Validation Evaluation Metrics}
 \end{figure} 
 
-The following are the observations I infer from monitoring the training and validation plots:
+The following are the observations I infer from monitoring the above plots:
 
 \begin{enumerate}[nosep]
     \item The difference in the both losses and scores at which training and validation begins for both \ac{KPI}s can be attributed to larger value range for 
@@ -1702,7 +1702,7 @@ and computation is not so much of a bottleneck since I can potentially run both 
 
 I have used Python 3.10.14 for my development and the \texttt{Pytorch}\footnote{\url{https://pytorch.org/}} library compatible with cuda.
 The model was trained on a NVIDIA Tesla V100 \ac{GPU} with 32 GB Memory and the machine I used had 16 physical CPU cores of the Intel(R) Xeon(R) Silver 
-4208 CPU operating at 2.10 GHz with allocated disk space of 50 GB for my experiments.
+4208 CPU operating at 2.10 GHz with allocated disk space of 50 GB for my experiments.\\
 Source code is available at \texttt{\href{https://github.com/Lilly-25/Masters-Thesis}{Github Repository}}\footnote{\url{https://github.com/Lilly-25/Masters-Thesis}}.
 
 \chapter{Graph Modelling} 
@@ -1854,13 +1854,13 @@ Similar to nodes, the edge features $r_{uv}^{\varepsilon}$ can also have differe
 
 If $|T_v| = |T_e| = 1$, it implies there is only 1 node and edge type then the graph degenerates into a homogeneous graph as stated by the authors of Ref. \cite{SE HGNN-2023}.
 
-'Heterogeneous \ac{GNN}s aim to learn a representation vector $\mathbf{h}^{(L)}_v \in \mathbb{R}^{d_L}$ for each node $v$ after $L$ -layer transformations, 
+`Heterogeneous \ac{GNN}s aim to learn a representation vector $\mathbf{h}^{(L)}_v \in \mathbb{R}^{d_L}$ for each node $v$ after $L$ -layer transformations, 
 based on the graph structure and the initial node feature $\mathbf{h}^{(0)}_v \in \mathbb{R}^{d_0}$'  as stated by  Lv \textit{et al.} in Ref. \cite{REF HGNN-2021}.\\
 
 Fig. \ref{fig:Heterogeneous GNN Terminologies} illustrates each of the below terminologies to relate better.  \\
 Fig. \ref{fig:Metapath} shows a metapath connecting 4 nodes whereas Fig. \ref{fig:Metarelation} dissects the metapath to only connect 2 nodes.
 Fig. \ref{fig:MetapathNeighbors} illustrates the neighbors of the nodes in the metapath and Fig. \ref{fig:MetapathNeighbors} connects the nighbors of a particular node 
-to form its subgraph. 
+to form its subgraph. \\
 
 \textbf{Metarelation}
 
@@ -2044,8 +2044,9 @@ involves one large graph with multiple node and edge types. These networks are g
 However, the problem involves creation of multiple heterogeneous graphs i.e., 1 per \ac{EM} variant. Therefore, the applicability of Heterogeneous \ac{GNN}s for the 
 problem is yet to be seen.\\
 
-In addition, I refer to Section \ref{sec:GNN Terminologies} where the terminologies in \ac{GNN} are more elaborartely defined.
+In addition, I refer to Section \ref{subsec:GNN Terminologies} where the terminologies in \ac{GNN} are more elaborately defined.
 Our thesis is loosely inspired from Ref. \cite{ML HGNN-2023} which has strived to extend \ac{MP} into Heterogeneous \ac{GNN}s.
+Finally with the heterogeneous graph, a heterogeneous \ac{GNN} model can be developed using \texttt{Pytorch Geometric}\footnote{\url{https://pyg.org/}} with cuda.
 
 \section{Summary}\label{sec:EM Heterogeneous GNN Discussion}
 I am faced with a dilemma most common when designing Heterogeneous \ac{GNN}s with predefined metapaths.
@@ -2254,7 +2255,8 @@ In addition the \textit{N} and \textit{simQ} parameters are count of Stator pole
 1481 examples are of the Double V Magnet Topology apart from which 3 examples each for the other 2 topologies.
 Hence, the imbalanced topologies parameters would have relatively not so reliable statistics.\\ 
 
-\section{Technical Details}
+\subsection{Technical Details}
+\label{subsec:Technical Details}
 
 Reading each sheet from the excel files particularly the grids take up a lot of time and compute, hence I read the files as a onetime job when creating the 
 tabular data for training  and store them into pythonic objects for faster access for training.
@@ -2265,7 +2267,7 @@ corresponding to the Torque \ac{KPI} with the largest torque value.
 In my case the value is 280 computed internally from the dataset but this is subject to change as I receive more data and there is a provision to override it 
 on demand. The array is then saved locally for easy access and loading during training.
 
-\section{Experimental setup}
+\section{MLP Experimental setup}
 \label{sec:Experimental setup}
 
 \subsection{Monitoring Plots}
@@ -2329,7 +2331,19 @@ The loss also starts off high and tapers off quickly although due to the value r
 
 \subsection{Ablation Studies Results}
 \label{subsec:Ablation Studies Results}
-I have generated predictions for each of the models for a unique sample and visualize them below for comparision with its ground truth.
+I have generated predictions for each of the models for a unique sample and visualize them in Fig. \ref{fig:KPI Predictions for all Models for the same sample} for 
+comparision with its ground truth.\\
+From the 5 model predictions, it can be concluded that Fig. \ref{KPI_Predictions_with_Baseline}followed by Fig. \ref{KPI_Predictions_with_MLP_Efficiency} resembles 
+the ground truth Fig. \ref{Target KPIs} the most. Although, contours are visible for Fig. \ref{KPI_Predictions_with_MLP_Efficiency} it is not as much prominient as 
+Fig. \ref{fig:KPI Predictions for all Models for the same sample}.
+However, Fig. \ref{fig:KPI Predictions for all Models for the same sample} evaluation scores indicate that its predictions are misinterpretted by being within ther range 
+of the contours though not the exact values. 
+Fig. \ref{KPI_Predictions_with_No_Loss} highlights disparity in the Efficiency grid at low angular velocities but its Torque Curve resembles the ground truth the most evident 
+from the start of the curve. 
+Fig. \ref{KPI_Predictions_with_Smoothening} and Fig. \ref{KPI_Predictions_with_Decreasing} have the largest deviation of the Torque curve from the ground truth. Subsequently, 
+its effect on the Efficiency map is visible with the abrupt slicing of the curve at the beginning in Fig. \ref{KPI_Predictions_with_Decreasing}.
+Additionally, in Fig. \ref{KPI_Predictions_with_Smoothening}, the efficiency grid overall appears much larger than anticipated indicating that larger efficiency values were predicted.
+
 \begin{figure}[H]
     \centering
     \begin{subfigure}{1\textwidth}
@@ -2376,8 +2390,11 @@ I have generated predictions for each of the models for a unique sample and visu
     \label{fig:KPI Predictions for all Models for the same sample}
 \end{figure}
 
-\section{GNN Terminologies}
-\label{sec:GNN Terminologies}
+\section{GNN Supplementary Information}
+\label{sec:GNN Supplementary Information}
+
+\subsection{GNN Terminologies}
+\label{subsec:GNN Terminologies}
 
 I have largely adopt the commonly used notations from Ref. \cite{GNN-2019} and reformulate it slightly to meet my needs.
 I use bold uppercase characters to denote matrices and bold lowercase characters to denote vectors.\\
@@ -2436,21 +2453,13 @@ It is also called a Polynomial Graph Filter or Radial Filter and can be expresse
     \label{fig:GNN Kernel Filter}
 \end{figure}
 
-A \ac{GNN} block contains three update functions, \( \phi \), and three aggregation functions, \( \rho \) for the nodes, edges and graph attributes, Ref. \cite{GNNs-2018}
+\subsection{EM Heterogeneous graph construction}
+\label{subsec:EM Heterogeneous graph construction}
 
-$e'_k = \phi_e(e_k, v_{r_k}, v_{s_k}, u)$, $v'_i = \phi_v(\bar{e}'_i, v_i, u)$, $u' = \phi_u(\bar{e}', \bar{v}', u)$
-
-$\bar{e}'_i = \rho_{e \to v}(E'_i)$, $\bar{e}' = \rho_{e \to u}(E')$, $\bar{v}' = \rho_{v \to u}(V')$
-
-A huge benefit of \ac{GNN}s in practical use cases is that they are inductive rather 
-than transductive. While transductive model can only be used on the specific data that was present during training, inductive models can be applied to entirely new 
-data without having to be retrained. This is defended by Johannessen \textit{et al.} in Ref. \cite{ML HGNN-2023}.
-
-\section{Heterogeneous Graph Neural Networks}
 \begin{enumerate}
     \item Node Types \\
     \( T_v = \{ v, vm, r, s, sw\} \) \\
-    The node type mapping functions of each node type in the graph are as follows :
+    The nodes and its features are segregated by its type and listed as follows :
 
     \begin{table}[H]
         \centering
@@ -2458,29 +2467,29 @@ data without having to be retrained. This is defended by Johannessen \textit{et 
         \hline 
         {\bf Node Type (\(\nu\))} & {\bf Nodes (\( v^{\nu} \))} & {\bf Node Features(\( X^{\nu}\))}  \\
         \hline
-        Rotor Airgap (\( \nu_v \)) & v11, v12, v21, v22 &
-        lmsov, lth1v, lth2v, r1v, r11v, r2v, r3v, r4v, rmt1v, rmt4v, rlt1v, rlt4v, hav, \newline
-        lmsov1, lth1v1, lth2v1, r1v1, r11v1, r2v1, r3v1, r4v1, rmt1v1, rmt4v1, rlt1v1, rlt4v1, hav1 \\
+        Rotor Airgap (\( \nu_v \)) & $v11, v12, v21, v22$ &
+        $lmsov, lth1v, lth2v, r1v, r11v,$ \newline $ r2v, r3v, r4v, rmt1v, rmt4v, $ \newline $ rlt1v, rlt4v, hav,
+        lmsov1, lth1v1,$ \newline $ lth2v1, r1v1, r11v1, r2v1, r3v1, $ \newline $ r4v1, rmt1v1, rmt4v1, rlt1v1, $ \newline $ rlt4v1, hav1$ \\
         \hline
         Rotor Magnet (\( \nu_{vm} \)) & 
-        v1m1, v1m2, v2m1, v2m2 & 
-        mbv, mhv, rmagv, mbv1, mhv1, rmagv1 \\
+        $v1m1, v1m2, v2m1, v2m2$ & 
+        $mbv, mhv, rmagv, mbv1, mhv1, $ \newline $ rmagv1$ \\
         \hline
         Radius (\( \nu_r \)) & 
-        rr, ra, o & 0 \\
+        $rr, ra, o$ & $0$ \\
         \hline
         Stator Poles (\( \nu_s \)) & 
-        s1, s2, s3, s4, s5, s6 & 
-        b\_nng, b\_nzk, b\_s, h\_n, h\_s, r\_sn, r\_zk, r\_ng \\
+        $s1, s2, s3, s4, s5, s6$ & 
+        $b\_nng, b\_nzk, b\_s, h\_n, h\_s, r\_sn, $ \newline $ r\_zk, r\_ng$ \\
         \hline
         Stator Windings (\( \nu_{sw} \)) & 
-        s1w1, s1w2, s1w3, s1w4, \newline
-        s2w1, s2w2, s2w3, s2w4, \newline
-        s3w1, s3w2, s3w3, s3w4, \newline
-        s4w1, s4w2, s4w3, s4w4, \newline
-        s5w1, s5w2, s5w3, s5w4, \newline
-        s6w1, s6w2, s6w3, s6w4 & 
-        bhp, hhp, rhp \\
+        $s1w1, s1w2, s1w3, s1w4,$ \newline
+        $s2w1, s2w2, s2w3, s2w4,$ \newline
+        $s3w1, s3w2, s3w3, s3w4,$ \newline
+        $s4w1, s4w2, s4w3, s4w4,$ \newline
+        $s5w1, s5w2, s5w3, s5w4,$ \newline
+        $s6w1, s6w2, s6w3, s6w4$ & 
+        $bhp, hhp, rhp$ \\
         \hline
         \end{tabular}
         \caption{\ac{GNN} Node Types}
@@ -2489,7 +2498,7 @@ data without having to be retrained. This is defended by Johannessen \textit{et 
 
     \item Edge Types \\
     \( T_e = \{ a, d1, d2, d4\} \)\\
-    The edge type mapping functions of each edge type in the graph are as follows: \\
+    The edges and its features are segregated by its type and listed as follows :
 
     \begin{table}[H]
         \centering
@@ -2497,28 +2506,28 @@ data without having to be retrained. This is defended by Johannessen \textit{et 
         \hline 
         {\bf Edge Type (\(\epsilon\))} & {\bf Edges (\( e^{\epsilon} \))} & {\bf Edge Features (\( R^{\epsilon}\))}  \\
         \hline
-        \multirow{2}{0.2\textwidth}{Angular/Radian Edges (\( \epsilon_a \))} & \( e_{v1m1, v1m2} \) & deg\_phiv1 \\
-                                                                & \( e_{v2m1, v2m2} \) & deg\_phiv2 \\
+        \multirow{2}{0.2\textwidth}{Angular/Radian Edges (\( \epsilon_a \))} & \( e_{v1m1, v1m2} \) & $deg\_phiv1$ \\
+                                                                & \( e_{v2m1, v2m2} \) & $deg\_phiv2$ \\
         \hline
-        \multirow{5}{0.2\textwidth}{Distance Edge with 1 feature (\( \epsilon_{d1} \))} & \( e_{v21,rr} \), \( e_{v22,rr} \) & dsrv2 \\
-                    & \( e_{rr,s1} \), \( e_{rr,s2} \), \( e_{rr,s3} \), \( e_{rr,s4} \), \( e_{rr,s5} \), \( e_{rr,s6} \) & airgap \\
+        \multirow{5}{0.2\textwidth}{Distance Edge with 1 feature (\( \epsilon_{d1} \))} & \( e_{v21,rr} \), \( e_{v22,rr} \) & $dsrv2$ \\
+                    & \( e_{rr,s1} \), \( e_{rr,s2} \), \( e_{rr,s3} \), \( e_{rr,s4} \), \( e_{rr,s5} \), \( e_{rr,s6} \) & $airgap$ \\
                     & \( e_{s1,s1w1} \), \( e_{s1,s1w2} \), \( e_{s1,s1w3} \), \( e_{s1,s1w4} \), \( e_{s2,s2w1} \), \( e_{s2,s2w2} \),
                     \( e_{s2,s2w3} \), \( e_{s2,s2w4} \), \( e_{s3,s3w1} \), \( e_{s3,s3w2} \), \( e_{s3,s3w3} \), \( e_{s3,s3w4} \),
                     \( e_{s4,s4w1} \), \( e_{s4,s4w2} \), \( e_{s4,s4w3} \), \( e_{s4,s4w4} \), \( e_{s5,s5w1} \), \( e_{s5,s5w2} \),
-                    \( e_{s5,s5w3} \), \( e_{s5,s5w4} \), \( e_{s6,s6w1} \), \( e_{s6,s6w2} \), \( e_{s6,s6w3} \), \( e_{s6,s6w4} \) & dhphp \\
+                    \( e_{s5,s5w3} \), \( e_{s5,s5w4} \), \( e_{s6,s6w1} \), \( e_{s6,s6w2} \), \( e_{s6,s6w3} \), \( e_{s6,s6w4} \) & $dhphp$ \\
                     &\( e_{s1w1,s1w2} \), \( e_{s1w2,s1w3} \), \( e_{s1w3,s1w4} \), \( e_{s2w1,s2w2} \), \( e_{s2w2,s2w3} \), \( e_{s2w3,s2w4} \),
                     \( e_{s3w1,s3w2} \), \( e_{s3w2,s3w3} \), \( e_{s3w3,s3w4} \), \( e_{s4w1,s4w2} \), \( e_{s4w2,s4w3} \), \( e_{s4w3,s4w4} \), 
-                    \( e_{s5w1,s5w2} \), \( e_{s5w2,s5w3} \), \( e_{s5w3,s5w4} \), \( e_{s6w1,s6w2} \), \( e_{s6w2,s6w3} \), \( e_{s6w3,s6w4} \) & dhpng \\
+                    \( e_{s5w1,s5w2} \), \( e_{s5w2,s5w3} \), \( e_{s5w3,s5w4} \), \( e_{s6w1,s6w2} \), \( e_{s6w2,s6w3} \), \( e_{s6w3,s6w4} \) & $dhpng$ \\
                     &\( e_{o,ra} \) & r\_a \\
         
         \hline
-        \multirow{3}{0.2\textwidth}{Distance Edge with 2 features (\( \epsilon_{d2} \))} & \( e_{v11, v12} \), \( e_{v21, v22} \) & dsmv1, dsmuv1 \\
-                                                                & \( e_{v11, rr} \), \( e_{v12, rr} \) & amtrv1, dsrv1 \\
+        \multirow{3}{0.2\textwidth}{Distance Edge with 2 features (\( \epsilon_{d2} \))} & \( e_{v11, v12} \), \( e_{v21, v22} \) & $dsmv1, dsmuv1$ \\
+                                                                & \( e_{v11, rr} \), \( e_{v12, rr} \) & $amtrv1, dsrv1$ \\
                                                                 & \( e_{o, rr} \) & $r_i - airgap$ \\
 
         \hline
-        \multirow{3}{0.2\textwidth}{Distance Edge with 4 features (\( \epsilon_{d4} \))} & \( e_{v11, v1m1} \), \( e_{v12, v1m2} \) & lmav1, lmiv1, lmov1, lmuv1 \\
-                                            &  \( e_{v21, v2m1} \), \( e_{v22, v2m2} \) & lmav2, lmiv2, lmov2, lmuv2 \\
+        \multirow{3}{0.2\textwidth}{Distance Edge with 4 features (\( \epsilon_{d4} \))} & \( e_{v11, v1m1} \), \( e_{v12, v1m2} \) & $lmav1, lmiv1, lmov1, lmuv1$ \\
+                                            &  \( e_{v21, v2m1} \), \( e_{v22, v2m2} \) & $lmav2, lmiv2, lmov2, lmuv2$ \\
                                             &  \( e_{s1, ra} \), \( e_{s2, ra} \), \( e_{s3, ra} \), \( e_{s4, ra} \), \( e_{s5, ra} \), \( e_{s6, ra} \)   &  \(r_a - (r_i + h_n, h_zk) \)\\
 
         \hline
@@ -2527,15 +2536,13 @@ data without having to be retrained. This is defended by Johannessen \textit{et 
         \label{tab:GNN Edge Types}
     \end{table}
 
-    I have define the meta relations as well for each of the edge type.
-
 \end{enumerate}
 
-Fig. \ref{fig:HetGraph} shows the heterogeneous graph I had constructed
+Fig. \ref{fig:HetGraph} shows the heterogeneous graph I had constructed for the usecase.
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/graph.png} 
-    \caption{HetGraph}
+    \caption{\ac{EM} Heterogeneous Graph}
     \label{fig:HetGraph}
 \end{figure}
 
@@ -2569,11 +2576,11 @@ Fig. \ref{fig:HetGraph} shows the heterogeneous graph I had constructed
     \newblock Fredrik Johannessen, Martin Jullum
     \newblock {\em Finding Money Launderers Using Heterogeneous Graph Neural Networks}.
     \newblock ICDSCA, 25 July 2023.
-    
-    \bibitem[06]{PO GNN-2018}
-    \newblock Damian Owerko, Fernando Gama, Alejandro Ribeiro
-    \newblock {\em Predicting Power Outages Using Graph Neural Networks}.
-    \newblock cs.LG, Nov 2018.
+
+    \bibitem[06]{EMPHGNN-2023}
+    \newblock Lei Xu, Zhen-Yu He, Kai Wang, Chang-Dong Wang, Shu-Qiang Huang
+    \newblock {\em Explicit Message-Passing Heterogeneous Graph Neural Network}.
+    \newblock 7 July 2023.
 
     \bibitem[07]{SM EMT-2020}
     \newblock Mikko Tahkola, Janne Keränen, Denis Sedov, Mehrnaz Farzam Far, Juha Kortelainen
@@ -2642,10 +2649,10 @@ Fig. \ref{fig:HetGraph} shows the heterogeneous graph I had constructed
     \newblock {\em Relational inductive biases, deep learning, and graph networks}.
     \newblock 17 Oct 2018.
 
-    \bibitem[20]{RSHGNN-2019}
-    \newblock Shichao Zhu, Chuan Zhou, Shirui Pan, Xingquan Zhu, Bin Wang
-    \newblock {\em Relation Structure-Aware Heterogeneous Graph Neural Network}.
-    \newblock 2019.
+    \bibitem[20]{SHGNN-2020}
+    \newblock Lingfan Yu, Jiajun Shen, Jinyang Li, Adam Lerer
+    \newblock {\em Scalable Graph Neural Networks for Heterogeneous Graphs}.
+    \newblock cs.LG, 19 Nov 2020.
 
     \bibitem[21]{PR-HGNN-2024}
     \newblock Xingtong Yu, Yuan Fang, Zemin Liu, Xinming Zhang
@@ -2751,16 +2758,6 @@ Fig. \ref{fig:HetGraph} shows the heterogeneous graph I had constructed
     \newblock Hongjoon Ahn, Yongyi Yang, Quan Gan, Taesup Moon, David Wipf
     \newblock {\em Descent Steps of a Relation-Aware Energy Produce Heterogeneous Graph Neural Networks}.
     \newblock NeurIPS, 2022.
-
-    \bibitem[42]{SHGNN-2020}
-    \newblock Lingfan Yu, Jiajun Shen, Jinyang Li, Adam Lerer
-    \newblock {\em Scalable Graph Neural Networks for Heterogeneous Graphs}.
-    \newblock cs.LG, 19 Nov 2020.
-
-    \bibitem[43]{EMPHGNN-2023}
-    \newblock Lei Xu, Zhen-Yu He, Kai Wang, Chang-Dong Wang, Shu-Qiang Huang
-    \newblock {\em Explicit Message-Passing Heterogeneous Graph Neural Network}.
-    \newblock 7 July 2023.
 
 \end{thebibliography}
 
