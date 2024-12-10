@@ -6,6 +6,7 @@ import os
 import pandas as pd
 from matplotlib.colors import Normalize
 import matplotlib.ticker as ticker
+from matplotlib.cm import ScalarMappable
 
 def read_file_1d(file_path, sheet_name):
     # We only need the 1st row from NN and 1st column from MM for plotting
@@ -177,3 +178,80 @@ def scoring_pdiff(percentage_difference, min, max):
 def pdiff_scoring(scores, min, max):
     percentage_differences = [(score / (max-min)) * 100 for score in scores]
     return percentage_differences
+
+def params_analysis(dataframe, title):
+    variance = dataframe.var()
+    norm = Normalize(vmin=variance.min(), vmax=variance.max())
+    colors = plt.cm.plasma(norm(variance.values))
+    parameters = variance.index
+    angles = np.linspace(0, 2 * np.pi, len(parameters), endpoint=False).tolist()
+    fig, ax = plt.subplots(figsize=(8, 8), subplot_kw={'projection': 'polar'})
+    bars = ax.bar(angles, [1] * len(parameters), color=colors, alpha=0.8, width=0.3)
+
+    for bar, angle, label in zip(bars, angles, parameters):
+        rotation = np.degrees(angle)  
+        label_distance = 0.6  
+
+        ax.text(
+            angle, label_distance, label, ha='center', va="center", rotation=rotation,
+            rotation_mode="anchor", fontsize=8, fontweight='bold', color='red'
+        )
+
+    sm = ScalarMappable(cmap="plasma", norm=norm)
+    sm.set_array([])  
+    cbar = plt.colorbar(sm, ax=ax, orientation="horizontal", pad=0.1, shrink=0.8)
+    cbar.set_label("Variance", fontsize=12)
+    
+    ax.set_yticks([])  
+    ax.set_xticks([])  
+
+    plt.savefig(f'./Manuscript/ReportImages/{title}_params.png', bbox_inches='tight')
+    
+def table_all_params(file_path, existing_columns):#Checks the count of paramters in the file across topology too
+    try:
+        df = pd.read_excel(file_path, sheet_name='input_data', header=None)
+        df = df.dropna(how='all').dropna(axis=1, how='all')
+
+        if existing_columns is None: # Tracks column names as parameters
+            existing_columns = set()
+        
+        for _, row in df.iterrows():
+            param = row[0]  
+            if pd.notna(param):
+                if param not in existing_columns:  
+                    existing_columns.add(param)
+                    
+        degree_params = {param for param in existing_columns if param.startswith('deg_')}
+        for degree_param in degree_params:
+            radian_param = degree_param.replace('deg_', 'rad_')  # Replace 'deg_' with 'rad_'
+            existing_columns.remove(degree_param)  # Remove degree-based parameter
+            existing_columns.add(radian_param)  # Add radian-based parameter
+            
+        return existing_columns
+    
+    except Exception as e:
+        print(f"Error processing {os.path.basename(file_path)}: {str(e)}")
+        return existing_columns
+    
+def proportionality_params(df_selected_inputs, existing_columns):
+
+    df_selected_inputs.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
+    df_selected_inputs.drop(df_selected_inputs.columns[0], axis=1, inplace=True)
+
+    total_parameters = len(existing_columns)
+    used_parameters = df_selected_inputs.shape[1] 
+
+    labels = ['Used Parameters', 'Unused Parameters']
+    sizes = [used_parameters, total_parameters - used_parameters]
+    colors = ['#4CAF50', '#D3D3D3']
+
+    plt.figure(figsize=(8, 6))
+    plt.pie(
+        sizes,
+        # labels=labels,
+        autopct='%1.1f%%',
+        colors=colors,
+        startangle=90,
+        textprops={'fontsize': 12, 'weight': 'bold'},  # Bold text
+    )
+    plt.savefig(f'./Manuscript/ReportImages/params_proportionality.png', bbox_inches='tight')
