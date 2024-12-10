@@ -1103,13 +1103,16 @@ regularization for the Torque \ac{KPI}s whose performance I discuss in Sections 
 I have chosen a 3rd party application \texttt{Wandb}\footnote{Weights \& Biases - \url{https://wandb.ai/}} to log metrics from the training run and to monitor model 
 performance across the 5 folds. Training and validation occurs 5 times on different combinations of cross validation splits independent per fold.\\
 
-Fig. \ref{fig:Training Loss Metrics} illustrates the loss at work as training progresses across epochs. 
+Fig. \ref{fig:Training Loss Metrics} illustrates the loss at work as training progresses across epochs for the 5 folds. 
 Fig. \ref{fig:Training Loss for Torque Curve} and Fig. \ref{fig:Training Loss for Efficiency grid} illustrates monitoring of how the losses for both the \ac{KPI}s vary. 
 As was discussed in Equation \ref{eq:Y1 Loss} and Equation \ref{eq:Y2 Loss}, both the \ac{MSE} losses 
 also include their respective loss regularization terms weighted by the tunable regularization coefficients. 
 Fig. \ref{fig:Aggregated Training Loss} depicts the weighted sum of the losses discussed in Equation \ref{eq:Total Loss}.
+The Training loss for the Torque \ac{KPI} starts at an all-time high of 25000 and over 2 epochs seems to have converged to value close to 500.
+Meanwhile, the Training loss for the Efficiency \ac{KPI} starts at 9000 and converges to a value close to 100 by 5 epochs.\\
 The Validations plots for losses also tells us the same tale although the Efficiency \ac{KPI} stops to learn after a certain point and can be monitored in Fig. 
 \ref{fig:Validation Loss Metrics}.
+
 
 \begin{figure}[H]
     \centering
@@ -1140,15 +1143,9 @@ the model's performance on unseen data for the 5 folds. Fig. \ref{fig:Aggregated
 sum of the scores as was formulated in Equation \ref{eq:Aggregated Score} for both the \ac{KPI}s.
 Meanwhile, Fig. \ref{fig:Validation Score for Torque Curve} and Fig. \ref{fig:Validation Score for Efficiency grid} logs monitoring of the evaluation metrics as per the 
 Equation \ref{eq:Y1 Score} and Equation \ref{eq:Y2 Score}.
-Likewise the training plots evaluation metrics are displayed in Fig. \ref{fig:Training Evaluation Metrics}.\\
-
-The following are the observations I infer from monitoring the training and validation plots:
-
-\begin{enumerate}[nosep]
-    \item The model has converged after having run for 10 epochs with a total run time of 2 minutes wherein each fold took around 20 seconds.
-    \item Even though the weightage assigned to the Efficiency \ac{KPI} is significantly more in addition to loss regularization parameter, it seems to have stopped learning 
-    beyond a threshold and so I hypothesize to further increase the weightage of the Efficiency \ac{KPI}.
-\end{enumerate}
+The Torque \ac{KPI} evaluation metrics start at a score of 160 and converge to around 7 by the 7th epoch. Meanwhile, th Efficiency \ac{KPI} evaluation metrics starts off at 
+50 and converge by a score close to 15 by the 4th epoch. The aggregated score starts of at almost similar fashion as the Efficiency \ac{KPI}.\\
+Likewise the training plots evaluation metrics are displayed in Fig. \ref{fig:Training Evaluation Metrics}.
 
 \begin{figure}[H]
     \centering
@@ -1174,25 +1171,39 @@ The following are the observations I infer from monitoring the training and vali
     \label{fig:Validation Evaluation Metrics}
 \end{figure} 
 
+The following are the observations I infer from monitoring the training and validation plots:
+
+\begin{enumerate}[nosep]
+    \item The difference in the both losses and scores at which training and validation begins for both \ac{KPI}s can be attributed to larger value range for 
+    Torque \ac{KPI} ($n$ values). 
+    \item Although the loss regularization increases the loss range for Efficiency \ac{KPI}, it is not so much pronounced due to its relatively smaller value 
+    range ($n^2$ values being as matrix).
+    \item As the loss regularization does not come into play for the evaluation metrics, the value range between the losses and the evaluation are not equivalent. 
+    The other factor which also contributes significantly as cause would be the contrasting train-validation split percentages.
+    \item Evident from both the aggregated loss and scores, the Efficiency \ac{KPI}'s range is more prominent which can be attributed to the weightage parameter $1-wt$.
+    \item The model has converged after having run for 10 epochs with a total run time of 2 minutes wherein each fold took around 20 seconds.
+    \item Even though the weightage parameter $1-wt$ assigned to the Efficiency \ac{KPI} is significantly more in addition to loss regularization parameter, it seems to 
+    have stopped learning beyond a threshold and so I hypothesize to further increase $1-wt$ of the Efficiency \ac{KPI}.\\
+\end{enumerate}
+
 The training loss and validation evaluation plots are most important to us to be able to judge the hyperparameters to optimize. 
-Therefore the other plots are moved to Appendix \ref{sec:Experimental setup} for further reflection.
+Therefore, the other plots are moved to Appendix \ref{sec:Experimental setup} for further reflection.
 I have also enabled saving the best performant fold locally so that it can be loaded on demand by the client when in need to only run inference.
 
 \section{Results with MLP Efficiency KPI Regularization}\label{sec:Results with MLP Efficiency KPI Regularization}
 The model we have used here is the \ac{MLP} model with the Efficiency \ac{KPI} loss regularization terms.
 \subsection{Torque KPI Results}\label{subsec:Torque KPI Results with MLP Efficiency KPI Regularization}
 
+Fig. \ref{fig:MLP Training Results for 2D KPI(Torque)} illustrates 6 samples from the test dataset for the predicted Torque values and their corresponding ground truths 
+displayed against their angular velocities. The difference and percentage difference between the prediction and ground truth are also displayed on a twin y axis to 
+give a rough overview of the prediction deviations from the targets. As the percentage difference formulated in Equation \ref{eq:Y1 Percentage Difference} would 
+always result in positive values, they appear above the 0 line dotted separator.
 \begin{figure}[H]
     \centering
     \includegraphics[width=.9\textwidth]{./ReportImages/KPI2D_predictions.png} 
     \caption{MLP Predictions for Torque \ac{KPI}} 
     \label{fig:MLP Training Results for 2D KPI(Torque)}
 \end{figure}
-
-Fig. \ref{fig:MLP Training Results for 2D KPI(Torque)} illustrates 6 samples from the test dataset for the predicted Torque values and their corresponding ground truths 
-displayed against their angular velocities. The difference and percentage difference between the prediction and ground truth are also displayed on a twin y axis to 
-give a rough overview of the prediction deviations from the targets. As the percentage difference formulated in Equation \ref{eq:Y1 Percentage Difference} would 
-always result in positive values, they appear above the 0 line dotted separator.\\
 
 Fig. \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)} displays the mean, average \ac{RMSE} and element wise \ac{RMSE} for the 10 handpicked samples from the test dataset 
 with its predictions from the model. 
@@ -1210,7 +1221,7 @@ Furthermore, I display a twin y-axis in red showing the \ac{RMSE} with that of t
 Fig. \ref{fig:Y1 Evaluation Statistics MLP} shows the score statistics of the model performance of Torque \ac{KPI} over all 50 samples from the test dataset 
 with the number of test dataset samples on the y-axis.
 The $\mathcal{Y}_1$ \ac{RMSE} from Equation \ref{eq:Y1 Score} is calculated for each sample and shown as a histogram in Fig. \ref{fig:Y1 RMSE}.
-In addition the $\mathcal{Y}_1$ Percentage Difference from Equation \ref{eq:Y1 Percentage Difference} is also calculated for each sample and shown as a histogram in Fig. 
+In addition, the $\mathcal{Y}_1$ Percentage Difference from Equation \ref{eq:Y1 Percentage Difference} is also shown as a histogram in Fig. 
 \ref{fig:Y1 Evaluation Statistics MLP}. The latter is essential to be able to relate to its effect on total range of deviation due to its differing value range. 
 The histogram looks the same in shape for both the figures however the finer details lies within the measure on the x-axis.
 
@@ -1268,41 +1279,6 @@ A noteworthy point on the implementation is that I have left the output predicti
 are integers to preserve data precision during my evaluations. The client has the flexibility to turn this on or off demand. 
 
 \subsection{Efficiency KPI Results}\label{subsec:Efficiency KPI Results with MLP Efficiency KPI Regularization}
-Fig. \ref{fig:Efficiency KPI Predictions Vs Targets with MLP} shows 3 sample predictions of the Efficiency \ac{KPI} from the test dataset alongside its ground truth.
-Torque is displayed against its angular velocities and all efficiency values within the envelope can be viewed as differing colors in a contour plot. 
-The figures are augmented with a scale showing the efficiency values in percentage across varying levels. 
-
-\begin{figure}[H]
-    \centering
-    \begin{subfigure}{1\textwidth}
-        \centering
-        \includegraphics[width=1\textwidth]{./ReportImages/KPI3Dprediction1.png} 
-        \caption{1st Sample} 
-        \label{fig:1st Sample}
-    \end{subfigure}\hfill
-    \begin{subfigure}{1\textwidth}
-        \centering
-        \includegraphics[width=1\textwidth]{./ReportImages/KPI3Dprediction2.png} 
-        \caption{2nd Sample} 
-        \label{fig:2nd Sample}
-    \end{subfigure}\hfill
-    \begin{subfigure}{1\textwidth}
-        \centering
-        \includegraphics[width=1\textwidth]{./ReportImages/KPI3Dprediction3.png} 
-        \caption{3rd Sample} 
-        \label{fig:3rd Sample}
-    \end{subfigure}
-    \caption{Efficiency \ac{KPI} Predictions Vs Targets with \ac{MLP}},
-    \label{fig:Efficiency KPI Predictions Vs Targets with MLP}
-\end{figure} 
-
-I have also taken the liberty of displaying the error margin as the overlap difference 
-of the predicted and target efficiency values for the aforementioned samples in Fig. \ref{fig:Efficiency KPI Predictions Vs Targets Vs Difference with MLP}. 
-The margins of the errors can be seen as levels referring to the difference in efficiencies to the right of each subplot. The 3 subplots are the prediction, target 
-and its difference respectively such that all of them are displayed side by side for easy comparison. \\
-I visualize the images for the same samples in Fig. \ref{fig:Efficiency KPI Predictions Vs Targets Vs Difference with MLP} however in a smaller scale to accommodate 
-a 3rd figure denoting difference overlap. Thus, the figures in \ref{fig:Efficiency KPI Predictions Vs Targets with MLP} serve to give a larger view for comparing and 
-contrasting the predictions and its targets.
 
 \begin{figure}[H]
     \centering
@@ -1328,6 +1304,41 @@ contrasting the predictions and its targets.
     \label{fig:Efficiency KPI Predictions Vs Targets Vs Difference with MLP}
 \end{figure} 
 
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{./ReportImages/KPI3Dprediction1.png} 
+        \caption{1st Sample} 
+        \label{fig:1st Sample}
+    \end{subfigure}\hfill
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{./ReportImages/KPI3Dprediction2.png} 
+        \caption{2nd Sample} 
+        \label{fig:2nd Sample}
+    \end{subfigure}\hfill
+    \begin{subfigure}{1\textwidth}
+        \centering
+        \includegraphics[width=1\textwidth]{./ReportImages/KPI3Dprediction3.png} 
+        \caption{3rd Sample} 
+        \label{fig:3rd Sample}
+    \end{subfigure}
+    \caption{Efficiency \ac{KPI} Predictions Vs Targets with \ac{MLP}}
+    \label{fig:Efficiency KPI Predictions Vs Targets with MLP}
+\end{figure} 
+
+Fig. \ref{fig:Efficiency KPI Predictions Vs Targets Vs Difference with MLP} shows 3 sample predictions of the Efficiency \ac{KPI} from the test dataset alongside its ground truth.
+Torque is displayed against its angular velocities and all efficiency values within the envelope can be viewed as differing colors in a contour plot. 
+The figures are augmented with a scale showing the efficiency values in percentage across varying levels. \\
+I have also taken the liberty of displaying the error margin as the overlap difference 
+of the predicted and target efficiency values for the samples. 
+The margins of the errors can be seen as levels referring to the difference in efficiencies to the right of each subplot. The 3 subplots are the prediction, target 
+and its difference respectively such that all of them are displayed side by side for easy comparison. \\
+
+I visualize the images for the same samples in Fig. \ref{fig:Efficiency KPI Predictions Vs Targets with MLP} however in a larger scale to be able to decipher 
+the intricacies within the Efficiency grid. Thus, these figures serve to give a larger view for comparing and contrasting the predictions and its targets.\\
+
 Fig. \ref{fig:Standard Deviation of Efficiency KPI across Angular Velocity Intervals} depicts the standard deviation across different 
 angular velocity ranges for the model's predictions as error bar plots around the mean at equally spaced intervals of 2000 rpm.
 I restrict the image to only show the Efficiency values from 2000 rpm onwards since at very low angular velocities falling in the range of 0 and 2000 rpm, the efficiency 
@@ -1340,6 +1351,17 @@ values vary drastically from 0\% onwards.
     \label{fig:MLP Standard Deviation of 3D KPI(Efficiency) across Angular Velocity Intervals with MLP}
 \end{figure}
 
+Efficiency \ac{KPI} is relatively more challenging to evaluate scoring being 3\ac{D} with dimensions angular velocity, torque and efficiency. 
+There exists 191 angular velocity ranges containing efficiency values.
+Since it is infeasible to show the deviations of the efficiency with respect to all angular velocity intervals, I visualize the deviation with its respective targets 
+only for certain angular velocities across the entire torque range in Fig. \ref{fig:MLP RMSE Evaluation for Efficiency KPI}. 
+Therefore, the whole figure encompasses 6 subplots for specific angular velocities.\\
+
+The figure shows the mean Efficiency values and the \ac{RMSE} surrounding it for the 10 handpicked samples from the test dataset.
+The angular velocities are chosen at equal intervals of 2000 rpm. The Efficiency values as usual range between 0 and 100\% percentage whereas the torque values are shown 
+from 0 to approximately 250 Nm which could be the maximum torque value from the predictions of the handpicked samples.
+The \ac{RMSE} of each prediction from its target can be viewed on the twin y-axis.
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{./ReportImages/rmse_eta_MLP.png} 
@@ -1347,20 +1369,6 @@ values vary drastically from 0\% onwards.
     \label{fig:MLP RMSE Evaluation for Efficiency KPI}
 \end{figure}
 
-Efficiency \ac{KPI} is relatively more challenging to evaluate scoring being 3\ac{D} with dimensions angular velocity, torque and efficiency. 
-There exists 191 angular velocity ranges containing efficiency values.
-Since it is infeasible to show the deviations of the efficiency with respect to all angular velocity intervals, I visualize the deviation with its respective targets 
-only for certain angular velocities across the entire torque range in Fig. \ref{fig:MLP RMSE Evaluation for Efficiency KPI}. 
-Therefore, the whole figure encompasses 6 subplots for specific angular velocities.\\
-The figure shows the mean Efficiency values and the \ac{RMSE} surrounding it for the 10 handpicked samples from the test dataset.
-The angular velocities are chosen at equal intervals of 2000 rpm. The Efficiency values as usual range between 0 and 100\% percentage whereas the torque values are shown 
-from 0 to approximately 250 Nm which could be the maximum torque value from the predictions of the handpicked samples.
-The \ac{RMSE} of each prediction from its target can be viewed on the twin y-axis.\\
-
-Fig. \ref{fig:Y2 Evaluation Statistics MLP} shows both the Fig. \ref{fig:Y2 RMSE} and Fig. \ref{fig:Y2 Percentage Difference} from Equations \ref{eq:Y2 Score} 
-and \ref{eq:Y2 Percentage Difference} as histogram plots over the entire test dataset of 50 samples with the count of samples on the y-axis.
-The histograms for both the figures are the same, nevertheless the intention is to be able to relate to the scores and percentage difference easily due to differing 
-value ranges of the targets.
 \begin{figure}[H]
     \centering
     \begin{subfigure}{0.5\textwidth}
@@ -1378,6 +1386,11 @@ value ranges of the targets.
     \caption{$\mathcal{Y}_2$ Evaluation Statistics of \ac{MLP}}
     \label{fig:Y2 Evaluation Statistics MLP}
 \end{figure}
+
+Fig. \ref{fig:Y2 Evaluation Statistics MLP} shows both the Fig. \ref{fig:Y2 RMSE} and Fig. \ref{fig:Y2 Percentage Difference} from Equations \ref{eq:Y2 Score} 
+and \ref{eq:Y2 Percentage Difference} as histogram plots over the entire test dataset of 50 samples with the count of samples on the y-axis.
+The histograms for both the figures are the same, nevertheless the intention is to be able to relate to the scores and percentage difference easily due to differing 
+value ranges of the targets.\\
 
 Fig. \ref{fig:MLP Training Deviation across Folds for Efficiency KPI} illustrates how each fold's prediction of efficiency deviates with the mean of the efficiency predictions 
 of all folds against different angular velocities. Once again, to overcome the limitation of not being able to evaluate for all angular velocities, the Figure hosts only 6 
@@ -1400,7 +1413,7 @@ The following are the observations I infer of the Efficiency \ac{KPI} from the m
     the Efficiency Envelope which is the Torque Curve being sliced off irregularly. This is the effect of us trying to retain the Torque \ac{KPI} shape as was 
     discussed in Section \ref{sec:Post Processing}.
     Additionally, it could be having negative impacts for the Efficiency \ac{KPI} when the predictions for the Torque \ac{KPI} are not perfect.
-    This is yet again a decision to be made based on which of the 2 targets to prioritize with the weightage parameter \textit{$wt$}. 
+    This is yet again a decision to be made on which of the 2 targets to prioritize with the weightage parameter \textit{$wt$}. 
     \item Additionally, Fig. \ref{fig:Efficiency KPI Predictions Vs Targets with MLP}, Fig. \ref{fig:Efficiency KPI Predictions Vs Targets Vs Difference with MLP} would also 
     highlight the anomaly of efficiency values exceeding beyond 0-100\% if it occurs since the levels of the contours are fixed likewise. 
     Any values beyond this range would be visualized haphazardly.
@@ -1432,14 +1445,14 @@ I later understood were both represented differently in the contour grid. Since 
 across plots and use it as a baseline for determining the levels in the contour plot.\\
 Additionally, I calculate the \ac{RMSE} and differences of prediction from the target by truncating the predicted and ground truth matrices to be of common shape.
 I also replace \ac{NaN} values with 0s in either the target or prediction if it occurs as the Efficiency \ac{KPI}s were padded with \ac{NaN}s to be of the same shape 
-but originally had no values as was discussed in Section \ref{subsec:Deep Dive into 3D KPI}. MOVE!!
+but originally had no values as was discussed in Section \ref{subsec:Deep Dive into 3D KPI}.
 
 \section{Results with Baseline}\label{sec:Results with Baseline}
 
 From my observations on how the predictions closely resembled that of the target values in Section \ref{subsec:Deep Dive into 2D KPI} and 
 Section \ref{subsec:Deep Dive into 3D KPI}, I have developed a Baseline model which is intrinsically the average of all samples of the training dataset.
 
-\subsection{Torque KPI Results with Baseline}\label{subsec:Torque KPI Results with Baseline}
+\subsection{Torque KPI Results}\label{subsec:Torque KPI Results with Baseline}
 
 The $\mathcal{Y}_1$ Baseline score for the Efficiency \ac{KPI} can be formulated as shown in Equation \ref{eq:Y1 Baseline Score}.
 
@@ -1471,7 +1484,7 @@ The following are the observations that can be inferred for the Torque \ac{KPI}:
     This particular observation is the basis for the rationale that I believe the Baseline model will not serve as a good approximation of the Torque \ac{KPI}.\\
 \end{enumerate}
 
-\subsection{Efficiency KPI Results with Baseline}\label{subsec:Efficiency KPI Results with Baseline}
+\subsection{Efficiency KPI Results}\label{subsec:Efficiency KPI Results with Baseline}
 
 The $\mathcal{Y}_2$ Baseline score for the Efficiency \ac{KPI} can be expressed as shown in Equation \ref{eq:Y2 Baseline Score}.
 \begin{equation}
@@ -1532,7 +1545,14 @@ The following are the observations that can be inferred for the Torque \ac{KPI}:
 \subsection{Torque KPI Results with Decreasing Curve Loss Regularization}\label{subsec:KPI Results with Decreasing curve Loss Regularization}
 The model I have used here is the \ac{MLP} Model with Decreasing Curve regularization discussed in Equation \ref{eq:Y1 Declining Loss Regularization}.\\
 Fig. \ref{fig:Decreasing Torque RMSE Evaluation for 2D KPI(Torque)} shows the Average \ac{RMSE} and element wise \ac{RMSE} for the 10 samples from the test dataset 
-with the model. The structure of the figure is the same as Fig. \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)}.\\
+with the model. The structure of the figure is the same as Fig. \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{./ReportImages/RMSE_MLP_Decreasing_y1.png} 
+    \caption{Decreasing Curve \ac{RMSE} Evaluation for Torque \ac{KPI}} 
+    \label{fig:Decreasing Torque RMSE Evaluation for 2D KPI(Torque)}
+\end{figure}
 
 The following are the observations that can be inferred for the Torque \ac{KPI}:
 \begin{enumerate}[nosep]
@@ -1542,17 +1562,10 @@ The following are the observations that can be inferred for the Torque \ac{KPI}:
     \item The deviations are at its peak towards the beginning of the curve.
 \end{enumerate}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{./ReportImages/RMSE_MLP_Decreasing_y1.png} 
-    \caption{Decreasing Curve \ac{RMSE} Evaluation for Torque \ac{KPI}} 
-    \label{fig:Decreasing Torque RMSE Evaluation for 2D KPI(Torque)}
-\end{figure}
-
 \section{Results with MLP No Loss Regularization}\label{sec:Results with No Loss Regularization}
 The model we have used here is the \ac{MLP} model without any loss regularizations.
 
-\subsection{Torque KPI Results with No Loss Regularization}\label{subsec:Torque KPI Results with No Loss Regularization}
+\subsection{Torque KPI Results}\label{subsec:Torque KPI Results with No Loss Regularization}
 
 Fig. \ref{fig:No Loss Regularization RMSE Evaluation for 2D KPI(Torque)} shows the Average \ac{RMSE} and element wise \ac{RMSE} for the 10 samples from the test dataset 
 of the model without any regularizations. The structure of the figure is the same as Fig. \ref{fig:MLP RMSE Evaluation for 2D KPI(Torque)}.\\
@@ -1572,7 +1585,7 @@ The following are the observations that can be inferred for the Torque \ac{KPI}:
     \item The deviations are at its peak towards the beginning of the curve and gradually decrease when transitioning along the curve.
 \end{enumerate}
 
-\subsection{Efficiency KPI Results with No Loss Regularization}\label{subsec:Efficiency Results with No Loss Regularization}
+\subsection{Efficiency KPI Results}\label{subsec:Efficiency Results with No Loss Regularization}
 
 Fig. \ref{fig:No Loss Regularization RMSE Evaluation for Efficiency KPI} gives a visualization of the Efficiency \ac{RMSE} with its respective targets 
 for certain angular velocities across the entire torque range. The angular velocities are chosen at equal intervals of 2000 rpm. 
@@ -1694,7 +1707,7 @@ Meanwhile, graphs thrive at better representing data in the non-Euclidean domain
 Therefore, I presume modelling my usecase as a graph will be more reasonable so as to exploit its graph dynamics and aggregate features that are semantically similar.
 Additionally, graphs would be even more realistic with achieving topology invariance than the tabular representation and conserve memory and compute in the long run.\\
 
-A graph can be composed of nodes and edges with their corresponding features in addition to the graph attributes.
+A graph is composed of nodes and edges with their corresponding features in addition to the graph attributes.
 The graph attributes contain the information relevant to the graph as a whole whereas the node features captures the information of the node's role in the network and 
 likewise the edge features captures the information of the edge's role in the network. Graphs also take into account their respective neighborhoods.\\
 
@@ -1709,7 +1722,7 @@ likewise the edge features captures the information of the edge's role in the ne
 % Owerko \textit{et al.} demonstrate in Ref. \cite{PO GNN-2018} that power outages rely on sensors in the vicinity and can be attributed to weather conditions 
 % and so can be modelled using \ac{GNN}s. A hallmark of \ac{GNN}s is that they can efficiently learn the architecture parameters from the training data.\\
 
-Researchers have broadly classified \ac{GNN}s following 2 distinct paradigms:
+Researchers have broadly classified \ac{GNN}s into the following 2 distinct paradigms:
 \begin{enumerate}[nosep]
     \item \textbf{Homogeneous \ac{GNN}} \\
         They are designed for graphs with a single type of node and edge. 
@@ -1724,15 +1737,23 @@ Researchers have broadly classified \ac{GNN}s following 2 distinct paradigms:
         In addition to the structural information, Heterogeneous \ac{GNN}s also excel to capture semantic information within the graph.\\
 \end{enumerate}
 
-Fig. \ref{fig:Graph Classification} distinguishes the 2 graphs with equivalent number of nodes and edges by the coloring used for different nodes and edges they possess. 
-Fig. \ref{fig:Heterogeneous Graph} comprises of 6 edge types and 4 node types whereas Fig. \ref{fig:Heterogeneous Graph} comprises of just 1 node type and edge type.
+Meanwhile, there exists Knowledge graphs which are essentially heterogeneous where the nodes are entities and the relationships the edges of the graph.
+They are used for large corpus of text and incorporate semantic meaning well into the graph as text embeddings.
+Knowledge graphs have been gaining popularity as a Retrieval Augmented Generation alternative because of its ability to hold semantic information 
+and generate structured data by traversing multiple hops of each node.
+All knowledge grtaphs are heterogeneous graphs but all heterogeneous graphs are not knowledge graphs.\\
+
+Fig. \ref{fig:Graph Classification} distinguishes the 2 graphs with equivalent number of nodes and edges by the coloring used for different nodes types and edge types 
+they possess.
+Both the figures are of graphs comprising of 7 nodes and 11 edges. 
+Fig. \ref{fig:Heterogeneous Graph} consists of 6 edge types and 4 node types whereas Fig. \ref{fig:Heterogeneous Graph} contains just 1 node type and edge type.
 
 \begin{figure}[H]
     \centering
     \begin{subfigure}{0.35\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/HomogeneousGraph.png}
-        \caption{Homogeneous Graph} % Center the caption here
+        \caption{Homogeneous Graph} 
         \label{fig:Homogeneous Graph}
     \end{subfigure}
     \begin{subfigure}{0.35\textwidth}
@@ -1749,9 +1770,9 @@ Fig. \ref{fig:Heterogeneous Graph} comprises of 6 edge types and 4 node types wh
 
 \ac{GNN}s in general function by making use of \ac{MP} which is a recursive algorithm that aims to learn a representation vector for each node. 
 \ac{MP} is based on the graph structure and initial features per node. Over each successive hop in the graph, the information of neighboring nodes are 
-shared across as messages and aggregated and the initial node is recursively updated with this information. This continues until there are left no more nodes to traverse 
-within the graph. Thus, at the end of the \ac{MP} algorithm, each node in the graph would have a good understanding of the other nodes within the same graph.
-Therefore, the final representation will be rich enough to have captured all the information within the graph and can be used for downstream tasks.\\
+shared across as messages and aggregated after which the initial node is recursively updated with this information. The cycle continues until there are no more nodes 
+left to traverse within the graph. Thus, at the end of the \ac{MP} algorithm, each node in the graph would have a good understanding of the other nodes within the same 
+graph. Therefore, the final representation will be rich enough to have captured all the information within the graph and can be used for downstream tasks.\\
 
 \begin{figure}[H]
     \centering
@@ -1782,12 +1803,12 @@ from one another. Besides a deep \ac{GNN} would have a large number of parameter
 
 \subsection{Applications}\label{subsec:Applications}
 
-Some of the well known \ac{GNN} tasks can be seen in Fig. \ref{fig:GNN Predictions} :
+Some of the well known \ac{GNN} tasks can be seen in Fig. \ref{fig:GNN Predictions} and listed as follows :
 \begin{enumerate}
-    \item Graph Classification - Used for classifying graphs into different categories. Although our usecase is a Graph level Prediction, it is a graph multi-regression 
+    \item Graph Classification - Used for classifying graphs into different categories. Although our usecase is a graph level prediction, it is a graph multi-regression 
     task as we need to predict continuous values as was clarifed in Section \ref{sec:Objective}
-    \item Node Classification - A node's class is predicted based on its proximity with other nodes in its neighborhood. An application could be in Named Entity 
-    Recognition tasks for Knowledge graphs.
+    \item Node Classification - A node's class is predicted based on its proximity with other nodes in its neighborhood, node features among other factors. An application could be in 
+    spam tagging of emails.
     \item Link Prediction - Predict whether there exists relationships between nodes in the graph. A common application is predicting drug treatment based on gene-protein interactions.
     \item Community Detection - Classifies groups of nodes into clusters. One scenario of application is to detect mutual communities in a social network.
     \item Graph Embedding - Embeds high dimensional graph into a lower dimensional space to be able to visually inspect it better. Visualizing huge corpus of text as a 
@@ -1803,12 +1824,6 @@ Some of the well known \ac{GNN} tasks can be seen in Fig. \ref{fig:GNN Predictio
     \label{fig:GNN Predictions}
 \end{figure}
 
-\ac{GNN}s have several applications where data are generated from non-Euclidean domains and are represented as graphs with complex relationships 
-and interdependency between objects Ref. \cite{GNN-2019}.
-These networks are generally represented by a giant graph in which case graph batching, splitting are unique. 
-However our task requires us to build 1 graph each for each \ac{EM} variant.
-In addition, I refer to Section \ref{sec:GNN Terminologies} where the terminologies in \ac{GNN} are more elaborartely defined.
-
 \subsection{Case Study Structure}\label{subsec:Case Study Structure}
 I have organized the outline of the case study to be as follows:
 First, in Section \ref{sec:Introduction}, I provide an introduction to \ac{GNN}s.
@@ -1819,8 +1834,8 @@ Lastly, I wrap up with a brief discussion of the pros and cons of using heteroge
 
 \section{Heterogeneous GNN}\label{sec:Heterogeneous GNN}
 
-Graphs are generally heterogeneous because of its capability to have different node and edge types on top of its inherent graph property to model relationships between objects.
-Heterogeneous \ac{GNN}s also takes into account homophily wherein nodes close on a network have similar embeddings as stated in Ref. \cite{HGNN-2020}.
+Graphs are generally heterogeneous because of its capability to have different node and edge types in addition to its graph property of modelling relationships between objects.
+Heterogeneous \ac{GNN}s also takes into account homophily wherein nodes close on a network have similar embeddings as stated by the writers of Ref. \cite{HGNN-2020}.
 This is in essence the structural property and is true for all \ac{GNN}s. \\
 
 I largely adopt the commonly used notations from Ref. \cite{ML HGNN-2023} and reformulate the definitions slightly for my task as follows. \\
@@ -1845,15 +1860,19 @@ Similar to nodes, the edge features $r_{uv}^{\varepsilon}$ can also have differe
 
 If $|T_v| = |T_e| = 1$, it implies there is only 1 node and edge type then the graph degenerates into a homogeneous graph as stated by the authors of Ref. \cite{SE HGNN-2023}.
 
-Heterogeneous \ac{GNN}s aim to learn a representation vector $\mathbf{h}^{(L)}_v \in \mathbb{R}^{d_L}$ for each node $v$ after $L$ -layer transformations, 
-based on the graph structure and the initial node feature $\mathbf{h}^{(0)}_v \in \mathbb{R}^{d_0}$  as stated by the authors of Ref. \cite{REF HGNN-2021}.\\
+'Heterogeneous \ac{GNN}s aim to learn a representation vector $\mathbf{h}^{(L)}_v \in \mathbb{R}^{d_L}$ for each node $v$ after $L$ -layer transformations, 
+based on the graph structure and the initial node feature $\mathbf{h}^{(0)}_v \in \mathbb{R}^{d_0}$'  as stated by  Lv \textit{et al.} in Ref. \cite{REF HGNN-2021}.\\
 
 Fig. \ref{fig:Heterogeneous GNN Terminologies} illustrates each of the below terminologies to relate better.  \\
+Fig. \ref{fig:Metapath} shows a metapath connecting 4 nodes whereas Fig. \ref{fig:Metarelation} dissects the metapath to only connect 2 nodes.
+Fig. \ref{fig:MetapathNeighbors} illustrates the neighbors of the nodes in the metapath and Fig. \ref{fig:MetapathNeighbors} connects the nighbors of a particular node 
+to form its subgraph. 
 
 \textbf{Metarelation}
 
 For an edge $e = (s, t)$ linking source node $s$ to target node $t$, its meta relation is denoted as $\langle \phi(s), \psi(e), \phi(t) \rangle.$
 Metarelations are the relation triples used in knowledge graphs as it contains richer schema. \\
+It is also interesting to note that the metapath is a sequence of many metarelations.\\
 
 \textbf{Metapath}
 
@@ -1862,7 +1881,7 @@ Metapaths are composite relationships between nodes that help to capture the str
 Given a path $\mathcal{P} = T_{v1} \xrightarrow{T_{e1}} T_{v2} \xrightarrow{T_{e2}} \cdots \xrightarrow{T_{el}} T_{vl}$, 
 if the path describes the composition of edges by its types $T_{e1} \circ T_{e2} \circ \cdots \circ T_{el}$ between nodes of type $T_{v1}$ and $T_{vl}$ and 
 $\circ$ denotes the composition operator then the path is called a metapath. \\
-The length of the metapath can be calculated from its magnitude i.e, \textit{l-1}. \\
+The length of the metapath can be calculated from its magnitude which is \textit{l-1}. \\
 If all the combinations of nodes and edges in the graph are used, then the total number of metapaths would 
 increase exponentially with the number of node and edge types. Hence, the reason to subselect only few metapaths that are significantly most relevant for the task at hand. 
 
@@ -1873,34 +1892,34 @@ The Metapaths in Heterogeneous \ac{GNN}s are divided into 2 streams:
 \begin{enumerate}[nosep]
     \item Metapath based method\\
     It strictly follows the metapaths defined for the network.
-    Each metapath is assumed to be unique in terms of its semantic meaning, therefore this method aggregates inforamtion from each metapath before fusing 
-    information of other metapaths that are not so much semantically related.
+    Here information from each metapath is aggregated before fusing with information of other metapaths that are not so much semantically related.
     \item Metapath free method\\
     There are no metapaths defined for the network and so this method attempts to learn from the graph structure.
     It aggregates message from neighbourhood of the same hop for all node types and so captures both structural and semantic information simultaneously.\\
 \end{enumerate}
 
-It is also interesting to note that the metapath is a sequence of many metarelations.\\
-Multiple \ac{MP} operations are done across different metapaths which are finally aggregated into a new representation for the node as stated in Ref. \cite{ML HGNN-2023}.
-Each metapath captures the proximity of nodes in a graph from a specific semantic view cited in Ref. \cite{HGNN-2020}. \\
+
+When designing a heterogeneous \ac{GNN} based on metapaths, then \ac{MP} operations are done across ech metapaths which are finally aggregated into a new representation for the node as stated in Ref. \cite{ML HGNN-2023}.
+Each metapath captures the proximity of nodes in a graph from a unique semantic perspective as cited by authors of Ref. \cite{HGNN-2020}. \\
 
 \textbf{Metapath-based Neighbors}
 
 Given a node $v_1$ and a metapath $\mathcal{P}$ in a heterogeneous graph, the neighbors \( \mathcal{N}_{v_1}^{\mathcal{P}} \) of 
-node $v_1$ along the meta-path $\mathcal{P}$ are defined as the set of nodes connected to $ v_1$ including $v_1$ via the meta-path $\mathcal{P}$. \\
+node $v_1$ along the meta-path $\mathcal{P}$ are defined as the set of nodes connected to $ v_1$ along the meta-path $\mathcal{P}$ which includes $v_1$. \\
 
 \textbf{Metapath-based Subgraph}
 
 Given a heterogeneous graph, $\mathcal{H}$ with a metapath, $\mathcal{P}$, then the metapath-based subgraph, $\mathcal{H_P}$, is defined as a graph consisting of all 
 its metapath based neighbors. Moreover, $\mathcal{H_P}$ degenerates to a homogeneous subgraph if $\mathcal{P}$ is symmetric.\\
 
-Heterogeneous \ac{GNN} generally work by having separate non linear functions convolve over each edge type during message computation and over each node type when 
-aggregating the learned information. 
-
 The graph structure of $\mathcal{H}$  can be represented by a series of adjacency matrices \(\{A_\varepsilon : \varepsilon \in T_e\}\). 
 For each relation $\varepsilon_{\nu_t \nu_s} \in R$, $A_{\nu_t \nu_s} \in \mathbb{R}^{|V_{\nu_t}| \times |V_{\nu_s}|}$ is the corresponding 
-adjacency matrix where the nonzero values indicate positions of edges $E_{\nu_t \nu_s}$ of the current relation.
-% During runtime, the \ac{MP}-\ac{GNN} algorithm would need to iterate over edge type dictionaries during message computation and over node type dictionaries during node updates.
+adjacency matrix where the nonzero values indicate positions of edges $E_{\nu_t \nu_s}$ of the current relation.\\
+
+Heterogeneous \ac{GNN} generally work by having separate non-linear functions convolve over each edge type during message computation and over each node type when 
+aggregating the learned information. During \ac{MP} in heterogeneous graphs, first the message between nodes of the same type in the hop are aggregated then the non-linear 
+function convolves over each of the aggregated messages. Finally, all messages generated after final convolution which are of the same dimensions are again aggregated 
+and the initial node is updated.
 
 \begin{figure}[H]
     \centering
@@ -1919,7 +1938,7 @@ adjacency matrix where the nonzero values indicate positions of edges $E_{\nu_t 
     \begin{subfigure}{0.35\textwidth}
         \centering
         \includegraphics[width=\textwidth]{./ReportImages/MetapathNeighbors.png}
-        \caption{Metapath based Neighbors} % Center the caption here
+        \caption{Metapath based Neighbors} 
         \label{fig:MetapathNeighbors}
     \end{subfigure}\hfill
     \begin{subfigure}{0.35\textwidth}
@@ -1932,32 +1951,29 @@ adjacency matrix where the nonzero values indicate positions of edges $E_{\nu_t 
     \label{fig:Heterogeneous GNN Terminologies}
 \end{figure}
 
-\section{GNN Literature Review}\label{sec:HGNN Literature Review}
-I try to review the recent works on Heterogeneous \ac{GNN} by categorizing them across the following subsections:
+\section{Heterogeneous GNN Literature Review}\label{sec:HGNN Literature Review}
+I attempt to review the recent works on Heterogeneous \ac{GNN} by categorizing them across the following subsections:
 
 \subsection{Metapaths}\label{subsec:HGNN Metapaths}
-Xu \textit{et al.} in Ref. \cite{EMPHGNN-2023} demonstrated a technique of splitting metapaths from inside out to be able to capture the semantic meaning as much as 
+Xu \textit{et al.} in Ref. \cite{EMPHGNN-2023} demonstrates a technique of splitting metapaths from inside out to be able to capture the semantic meaning as much as 
 possible when developing a semi-supervised \ac{MP} hetergogeneous \ac{GNN}. This is particularly useful when the metapaths are too long and the 
 intermediary paths within the metapaths are prioritized to be the newly created metapaths.\\
 Yang \textit{et al.} in Ref. \cite{SE HGNN-2023} conducted a study on building an efficient Heterogeneous \ac{GNN} by using single layer longer metapaths rather than 
-multilayer smaller metapaths to capture semantic information of the graph. To capture the structural information instead of repeated neighborhood attention, 
-the authors propose to compute the mean aggregate of the neighborhood as part of a preprocessing step thus simplifying the heterogeneous \ac{GNN}. \\
+multilayer smaller metapaths to capture semantic information of the graph. To capture the structural information instead of attention mechanism of neighboring nodes 
+repeatedly, the authors propose to compute the mean aggregate of the neighborhood as part of a preprocessing step thus simplifying the heterogeneous \ac{GNN}. \\
 The authors of Ref. \cite{HGNNRM-2023} propose a relevance measure to capture the sematics of nodes of different types in a heterogeneous graph based on context path 
-bypassing the need of having semantically meaningfull metapaths. Context path is principally a path linking two nodes of the same type however the intermediary nodes in the 
+bypassing the need of having semantically meaningful metapaths. Context path is principally a path linking two nodes of the same type however the intermediary nodes in the 
 path are auxillary nodes of different types. The nodes making up the context path are weighted with varying importance scores on the basis of their corresponding relevance measure.
 
 \subsection{Subgraphs}\label{subsec:HGNN Subgraphs}
 Existing works for instance Yu \textit{et al.} in Ref. \cite{PR-HGNN-2024} model heterogeneous graphs by splitting the graph into multiple 
-homogeneous subgraphs based on their node types each retaining an aspect of its heterogeneity.
-This is ineffective in exploiting hidden rich semantic associations between different types of edges for large scale multi-relational graphs.
-However Zhu \textit{et al.} Ref. \cite{RSHGNN-2019}'s work does not undertake this methodology and is also independent of metapaths making it effective 
-in dealing with large number of complex relations.\\
-Another such work by Zou \textit{et al.} in Ref. \cite{HNNC-2023} proposes a heterogeneous \ac{GNN} for node classification which converts the 
-heterogeneous network into multiple semantic graphs from its defined metapaths. Attention mechanism is leveraged to learn the weight of each of the subgraphs. 
-The polynomial graph convolutional kernel is also described in this paper.\\ 
+homogeneous subgraphs based on their node types each by retaining an aspect of its heterogeneity for each subgraph.
+However, the methodology is ineffective in exploiting hidden rich semantic associations between different types of edges for large scale multi-relational graphs.\\
+Zou \textit{et al.} in Ref. \cite{HNNC-2023} proposes a heterogeneous \ac{GNN} for node classification which converts the 
+heterogeneous network into multiple semantic graphs from its defined metapaths. Attention mechanism is leveraged to learn the weight of each of the subgraphs. \\ 
 Guan \textit{et al.} in Ref. \cite{HGNNSG-2023} presents a methodology to learn a heterogeneous graph by decomposing it into homogeneous and heterogeneous subgraphs from its metapaths 
 as opposed to symmetrical metapaths. This approach was undertaken because of the fear that symmetric metapaths ignore intermediary nodes resulting in node biased learning. 
-The information from each subgraph is finally attention aggregated which would serve as the final representation of the model.
+The information from each subgraph is then attention aggregated which would serve as the final representation of the model.
 
 \subsection{Metarelations}\label{subsec:HGNN Metarelations}
 As was already discussed, modelling Heterogeneous Graphs with metapaths require domain specific knowledge since metapaths are customized. 
@@ -1967,32 +1983,27 @@ and does message passing over multi-hop neighborhood of nodes.
 Such meta relations are shallow embeddings and not as deep as the meta paths as was clarified by Yang \textit{et al.} in Ref. \cite{HGNN-2020}. \\
 Additionally Chana \textit{et al.} in Ref. \cite{EHR HGNN-2024} has used heterogeneous \ac{GNN}s to model the heterogeneity and sparsity in Electronic 
 Health Records of patients. This work claims to learn the multi-task nature and  the relational features of the dataset which is arguably the most important factor in 
-this domain for example past medical history. However it is attention worthy that although this paper uses meta relations it does not factor in edge features.\\
+this domain for example past medical history. However it is noteworthy to point out that although this paper uses meta relations it does not factor in edge features.\\
 
 \subsection{Oversmoothing}\label{subsec:HGNN Oversmoothing}
-Li \textit{et al.} in Ref. \cite{GCN-2018} demystifies the \acl{GCN} (\ac{GCN}) and addresses the Laplacian oversmoothing concern by self-training or co-training the model.
-Nevertheless smoothing makes classification problem easier as over multiple hops the features among different clusters will be the same.
-\ac{GCN} achieves this by breaking down the heterogeneous graph into multiple homogeneous ones, one for each edge type. 
-In each layer, \ac{GCN} is applied to each homogeneous graph, and the resulting node embeddings are element-wise summed to form the final output. 
-In Recurrent \ac{GCN}, during message passing, neighbors under the same edge type will be aggregated and normalized first. 
-A drawback of Recurrent \ac{GCN} is that it does not take node heterogeneity into account. \\
-Ref. \cite{GCN-2018} sheds light on the oversmoothing concern faced by \ac{GCN}.
 \ac{GNN}s often face a dilemma to balance between resisting over-smoothing and capturing long range dependencies within the network.
+Li \textit{et al.} in Ref. \cite{GCN-2018} demystifies the \acl{GCN} (\ac{GCN}) and addresses the Laplacian oversmoothing concern by self-training or co-training the model.
+HNonethelss, smoothing makes classification problem easier because over multiple hops the features among different clusters will be the same.
+\ac{GCN} achieves this by breaking down the heterogeneous graph into multiple homogeneous graphs, one for each edge type. 
+In each layer, \ac{GCN} is applied to the homogeneous graph, and the resulting node embeddings are aggregated element-wise to form the final output. 
 Ahn \textit{et al.} in Ref. \cite{RHGNN-2022} propose to mitigate oversmoothing by introducing skip connections between layers in the network to favor node specific embeddings.
 Similarly in Ref. \cite{REF HGNN-2021}, Lv \textit{et al.} study existing heterogeneous \ac{GNN}s and also cites preactivated residual connections can help resist 
 over-smoothing from occuring.
 
 \subsection{Applications}\label{subsec:HGNN Applications}
 Most of the existing works for example Yang \textit{et al.} demonstrates in Ref. \cite{HGNN-2020} that they do not consider edge features in their model. 
-However Johannessen \textit{et al.} in Ref. \cite{ML HGNN-2023} uses edge features as transactions in a financial network to detect cases of money laundering.
-It also breaks down the large heterogeneous graph into subgraphs based on different node type-edge type combinations. 
-Adsitionally, the paper brings to light that GraphSAGE does not incorporate the edge weights.
-However, the \ac{MP} neural network framework applies a learned \ac{MP} function that utilizes edge features.\\
+However, Johannessen \textit{et al.} in Ref. \cite{ML HGNN-2023} uses edge features as transactions in a financial network to detect cases of money laundering.
+They breaks down the large heterogeneous graph into subgraphs based on different node type-edge type combinations. \\
 Gilmer \textit{et al.} in Ref. \cite{QC-MP-2017} introduces modelling for chemical prediction problems that makes it capable of learning features of molecular graphs 
 and is invariant to graph isomorphism. Graph isomorphism is the property of graph being similar even when the ordering of nodes and edges are different.
 They also suggest that edge features in the network can be learned by introducing hidden states for all edges in the graph and updating them.
 Additionally, the writers have implemented a \ac{MP} network which factors in the edge types.\\
-Bias Amplification is a known problem most prevalent in recommender systems where the model is biased to certain outputs due to the training data statistics.
+Bias Amplification is a known problem most prevalent in recommender systems where the model is biased to certain outputs due to the bias existing in its training data.
 It can be handled much better when a graph is modelled as a heterogeneous graph as is shown in Ref. \cite{EV HGNN-2023}. This is because differing 
 edge types capture varying types of relationships in the graph. The authors of this paper propose a heterogeneous \ac{GNN} to predict the purchase probability of 
 electric vehicles by modelling different characteristics such as charging infrastructure, branding, environmental factors, local policies among others in the form of a 
@@ -2002,41 +2013,44 @@ node types, its corresponding edge type will be unique to similarly connected no
 and is limited to discrete space.\\
 Yu \textit{et al.} in Ref. \cite{SHGNN-2020} addresses the concern where featureless nodes exists by padding 0s, imputing the mean of neighboring nodes and using pretrained graph 
 embeddings as initial features. 
-Alternatively Heterogeneous Graph Transformers can be used to learn the implicit metapaths first from the graph by using feature propagation across multiple layers in its 
-neural network architecture to augment the original graph..TO BE CITED OR Not
+Alternatively, Heterogeneous Graph Transformers can be used to learn the implicit metapaths first from the graph by using feature propagation across multiple layers in its 
+neural network architecture to augment the original graph.\\
 Gao \textit{et al.} in Ref. \cite{HGNNAS-2021} proposes an architercture search for heterogeneous \ac{GNN}s to effectively choose the best network architecture by using 
-reinforcement learning. 
+reinforcement learning. This methodology can also be extended to search the hyperparameter space to find the best hyperparameters for the model.\\
 
-\section{EM Heterogeneous GNN Modelling}\label{sec:EM Heterogeneous GNN Model}
+\section{Heterogeneous GNN Modelling}\label{sec:EM Heterogeneous GNN Model}
 Although I was certain that \ac{GNN}s could best represent our usecse, I realize that our problem cannot be solved using Homogeneous \ac{GNN} which is relatively 
 simpler and is built on a single node and edge type.
 Heterogeneous graph is more apt for our use case with its different node and edge types as it preserves both the structural and semantics of our data. 
-This property is crucial in modelling our use case as there will then be similar number of nodes and edge types per topology. 
+This property is crucial in modelling our use case as there will then be similar number of nodes and edge per topology. 
 In contrast, Homogeneous graphs would lead to suboptimal results as it cannot factor in the heterogeneity and thus the semantic nature of the usecase fully. \\
 
-Given the \ac{EM} data $\mathcal{D}$ , the goal is to construct a heterogeneous graph $\mathcal{H}$ from $\mathcal{D}$. Let $\mathcal{Y}_1$, $\mathcal{Y}_2$ on 
-$\mathcal{H}$ be the 2 \ac{KPI}s that needs to be learned from $\mathcal{D}$. Aim is to train a multi-task \ac{GNN} model $\mathcal{M}$ such that $\mathcal{M}$ can deliver 
+Given the \ac{EM} data $\mathcal{D}$, the goal is to construct a heterogeneous graph $\mathcal{H}$ from $\mathcal{D}$. Let $\mathcal{Y}_1$, $\mathcal{Y}_2$ on 
+$\mathcal{H}$ be the 2 \ac{KPI}s that needs to be learned from $\mathcal{D}$ then the aim would be to train a multi-task \ac{GNN} model $\mathcal{M}$ such that $\mathcal{M}$ can deliver 
 high performance on $\mathcal{Y}_1$ and $\mathcal{Y}_2$.
 
-\subsection{EM Heterogeneous Graph Construction}\label{subsec:EM Heterogeneous Graph Construction}
-Inspired by the promising advantages of Heterogeneous \ac{GNN}, I took the effort of costructing the graph for only the Double V Magnet Topology.
-I construct the heterogeneous graph adaptable for each of the \ac{EM} variants as a \texttt{NetworkX}\footnote{\url{https://networkx.org/}} graph.\\
+\subsection{Heterogeneous Graph Construction}\label{subsec:EM Heterogeneous Graph Construction}
+Inspired by the promising advantages of Heterogeneous \ac{GNN}, I have taken the effort of cnostructing the graph for only the Double V Magnet Topology.
+I create the heterogeneous graph adaptable for each of the \ac{EM} variants as a \texttt{NetworkX}\footnote{\url{https://networkx.org/}} graph.\\
 The count of certain parameters within the motor such as stator poles with its corresponding stator windings and rotor magnets is made more comprehendable to the 
-model having new nodes and edges whereas for the \ac{MLP} architecture this information is represented as yet another number in a separate column. 
+model having new nodes and edges whereas for the \ac{MLP} architecture this information is represented as yet another number in a separate column or as new columns unique 
+to rotor structure. 
 By leveraging the relational features introduced by the meta relations, I can obtain a good graph representation of the data.\\
-The hand drawn sketch of the \ac{EM} cross-section comes in handy when creating the heterogeneous graph. In Tables \ref{tab:GNN Node Types} and \ref{tab:GNN Edge Types}, 
-I illustrate the nodes and edges along with its respective types which I considered to create the graph. I also share the metapaths that I used during development and 
+The hand drawn sketch of the \ac{EM} cross-section comes in handy when creating the heterogeneous graph. In Table \ref{tab:GNN Node Types} and Table \ref{tab:GNN Edge Types}, 
+I illustrate the nodes and edges along with its respective types which I had considered when creating the graph. I also share the metapaths that I used during development and 
 would like to reiterate that this is a study and its results are not to be taken as final.
 I then learn the constructed heterogeneous graph through a heterogeneous \ac{GNN} model.  \\
 
 \ac{GNN}s are relatively more expressive models as they can capture the variability and complexity of our data better.
 However, \ac{GNN} in general have been less to not explored even so more the heterogeneous \ac{GNN}.
-Particularly in the scenario of \ac{EM} Modelling, there has been no publications with \ac{GNN}s.
-Hence the need to check its feasibility and performance with my benchmarks on tabular data.
+Particularly in the scenario of \ac{EM} Modelling, to my knowledge there has been no publications with \ac{GNN}s.
+Hence, the need to check its feasibility and performance with my benchmarks on tabular data.
 Additionally, existing Heterogeneous \ac{GNN}s works for example on recommendation networks, academic networks, information networks, social networks and other applications 
-involves one large graph with multiple node and edge types. 
-However, the problem involves creation of multiple heterogeneous graphs ie, 1 per \ac{EM} variant. Therefore, the applicability of Heterogeneous \ac{GNN}s for the 
+involves one large graph with multiple node and edge types. These networks are generally represented by a giant graph in which case graph batching, splitting are unique. 
+However, the problem involves creation of multiple heterogeneous graphs i.e., 1 per \ac{EM} variant. Therefore, the applicability of Heterogeneous \ac{GNN}s for the 
 problem is yet to be seen.\\
+
+In addition, I refer to Section \ref{sec:GNN Terminologies} where the terminologies in \ac{GNN} are more elaborartely defined.
 Our thesis is loosely inspired from Ref. \cite{ML HGNN-2023} which has strived to extend \ac{MP} into Heterogeneous \ac{GNN}s.
 
 \section{Summary}\label{sec:EM Heterogeneous GNN Discussion}
@@ -2045,8 +2059,6 @@ The challenge is to choose whether I want to represent each component of the \ac
 across topologies or to define reasonably sized metapaths. As the nodes and edges increases, the metapath length exponentially increases.
 This makes computation tricky since for each metapath, the \ac{MP} is done across the nodes and edges its composed of.
 As I do not have enough domain knowledge in \ac{EM} modelling, our metapaths comprised of the stator, rotor and the its combination components.
-Additionally metapaths are defined at node-edge level and not on their types level. This situation makes it difficult to define metapaths for different topologies.
-
 \chapter{Conclusion}
 
 \section{General Discussion}\label{sec:General Discussion}
@@ -2289,6 +2301,10 @@ on demand. The array is then saved locally for easy access and loading during tr
     \label{fig:Training Evaluation Metrics}
 \end{figure}
 
+Fig. \ref{fig:Training Evaluation Metrics} illustrates the evaluation metrics for both the \ac{KPI}s and the aggregated loss during training.
+Fig. \ref{fig:Training Evaluation Metrics} shows that evaluation during training also does not get better after a threshold for both the \ac{KPI}s particularly the 
+Efficiency \ac{KPI} which is the ultimate focus of this work.
+
 \begin{figure}[H]
     \centering
     \begin{subfigure}{0.32\textwidth}
@@ -2312,6 +2328,10 @@ on demand. The array is then saved locally for easy access and loading during tr
     \caption{Validation Loss Metrics}
     \label{fig:Validation Loss Metrics}
 \end{figure}
+
+Fig. \ref{fig:Validation Loss Metrics} illustrates the loss functions at work for both the \ac{KPI}s and the aggregated loss.
+It indicates that the losses reduce for both the \ac{KPI}s of the validation dataset which is 20\% of the whole dataset.
+The loss also starts off high and tapers off quickly although due to the value ranges in y-axis, it appears to still improve very slightly before plateauing.
 
 \subsection{Ablation Studies Results}
 \label{subsec:Ablation Studies Results}
