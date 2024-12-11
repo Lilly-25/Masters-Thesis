@@ -245,13 +245,15 @@ def proportionality_params(df_selected_inputs, existing_columns):
     sizes = [used_parameters, total_parameters - used_parameters]
     colors = ['#4CAF50', '#D3D3D3']
 
-    plt.figure(figsize=(8, 6))
+    plt.figure(figsize=(6, 6))
     plt.pie(
         sizes,
         # labels=labels,
         autopct='%1.1f%%',
         colors=colors,
         startangle=90,
-        textprops={'fontsize': 12, 'weight': 'bold'},  # Bold text
+        textprops={'fontsize': 18, 'weight': 'bold'},  # Bold text
     )
-    plt.savefig(f'./Manuscript/ReportImages/params_proportionality.png', bbox_inches='tight')
+    plt.axis('equal')
+    plt.gca().set_position([0, 0, 1, 1])  
+    plt.savefig(f'./Manuscript/ReportImages/params_proportionality.png', bbox_inches='tight', pad_inches=0.1)
