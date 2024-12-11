@@ -4,9 +4,9 @@
 
 ## 📋 Overview
 
-The aim of the Master Thesis is to train a neural network to learn the parameters of Electric Motors and thus be able to predict its KPIs(key performance indicators). 
+The aim of the Master Thesis is to to verify whether surrogate modelling to replace Finite Element Analysis simulations is feasible.
 
-We have developed and trained a MLP neural network on the tabular representation of data to predict 2 KPIs. 
+We have developed and trained a MLP neural network on the tabular representation of the parametric description of topology invariant electric motor designs in order to predict the 2 Key Performance Indicators (KPI)s. 
 
 The KPIs are 2D and 3D plots on Torque(Mgrenz) curve and Efficiency(ETA) grid.
 
@@ -153,3 +153,4 @@ Evaluation of Predictions are based on RMSE, Deviation of Folds, Difference Over
 ├── main_train.py
 └── .env.local
 ```
+

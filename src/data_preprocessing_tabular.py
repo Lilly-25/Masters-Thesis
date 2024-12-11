@@ -1,5 +1,5 @@
 import pandas as pd
-from src.scaling import StdScaler
+from src.scaling import StdScaler, MinMaxScaler
 import numpy as np
 
 def prep_eta_grid():##Give the directory path as input so the same function can be used for test
@@ -35,6 +35,9 @@ def prep_eta_grid():##Give the directory path as input so the same function can 
     np.save('./data/TabularDataETA.npy', y2)
 
 def data_prep(test_size):
+    
+    input_scaler=StdScaler()
+    targets_scaler=MinMaxScaler()
 
     df_inputs=pd.read_csv('./data/TabularDataInputs.csv')
     df_inputs.rename(columns={'Unnamed: 0':'filename'}, inplace=True)
@@ -69,7 +72,16 @@ def data_prep(test_size):
     y2_complete = np.load('./data/TabularDataETA.npy')
     y2=y2_complete[:-test_size, :, :]###only 1st dimension need to be considered..test
     
-    x_mean, x_stddev=StdScaler().fit(x)
-    x_normalized=StdScaler().transform(x, x_mean, x_stddev)
+    x_mean, x_stddev=input_scaler.fit(x)
+    x_normalized=input_scaler.transform(x, x_mean, x_stddev)
     
     return x_normalized, y1, y2, x_mean, x_stddev, df_x_test, df_y1_test, max_mgrenz, min_mgrenz
+
+    
+    # y1_min, y1_max=targets_scaler.fit(y1)   
+    # y1_normalized=targets_scaler.transform(y1, y1_min, y1_max)
+    
+    # y2_min, y2_max=targets_scaler.fit(y2)
+    # y2_normalized=targets_scaler.transform(y2, y2_min, y2_max)
+    
+    # return x_normalized, y1_normalized, y2_normalized, x_mean, x_stddev, df_x_test, df_y1_test, max_mgrenz, min_mgrenz, y1_min, y1_max, y2_min, y2_max

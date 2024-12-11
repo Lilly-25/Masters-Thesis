@@ -20,9 +20,14 @@ def main(max_torque=None, min_torque=None):
 
     test_size=50
     x_normalized, y1, y2, x_mean, x_stddev, df_test_inputs, df_test_y1_targets, max_mgrenz, min_mgrenz = data_prep(test_size)
+    # x_normalized, y1, y2, x_mean, x_stddev, df_test_inputs, df_test_y1_targets, max_mgrenz, min_mgrenz, y1_min, y1_max, y2_min, y2_max = data_prep(test_size)
     # Store scalers and split test dataset locally to disk
     joblib.dump(x_mean, './Intermediate/x_mean.pkl')
     joblib.dump(x_stddev, './Intermediate/x_stddev.pkl')
+    # joblib.dump(y1_min, './Intermediate/y1_min.pkl')
+    # joblib.dump(y1_max, './Intermediate/y1_max.pkl')
+    # joblib.dump(y2_min, './Intermediate/y2_min.pkl')
+    # joblib.dump(y2_max, './Intermediate/y2_max.pkl')
     joblib.dump(max_torque if max_torque else max_mgrenz, './Intermediate/max_mgrenz.pkl')
     joblib.dump(min_torque if min_torque else min_mgrenz, './Intermediate/min_mgrenz.pkl')
     df_test_inputs.to_pickle('./data/df_test_inputs.pkl')
@@ -43,9 +48,9 @@ def main(max_torque=None, min_torque=None):
     epochs = 10
     lr = 0.075#0.075
     lambda1_y1=0 # Smoothening
-    lambda2_y1=0.5 # Decreasing
-    lambda_y21=5 # Tries to ensure Efficiency calues donot exceed 100
-    lambda_y22=3.75 # Weight for diffferent operating points in the Efficiency grid
+    lambda2_y1=0 # Decreasing
+    lambda_y21=3 # Tries to ensure Efficiency values donot exceed 100
+    lambda_y22=5 # Weight for diffferent operating points in the Efficiency grid
     y2_low_mm_threshold=20
     y2_low_nn_threshold=20
     y2_initial_boundary_threshold = 5 # Threshold to consider MM Max Mgrenz
@@ -97,7 +102,7 @@ def main(max_torque=None, min_torque=None):
             'LR Scheduler Gamma': gamma,
             "Dropout Rate Shared": p_y1,
             "Dropout Rate Y2": p_y2,
-            "Notes": "Included regularizer for Max Efficiency in eta grid",
+            "Notes": "Only y2 reg",
             }, group=str(group_no), name=f"Fold {fold}")
         
         

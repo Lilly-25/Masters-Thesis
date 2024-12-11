@@ -3,13 +3,16 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from src.scaling import StdScaler
+from src.scaling import StdScaler, MinMaxScaler
 from src.utils import cumulative_counts as cumulative_col_count, pdiff_scoring as pdiff_scores
 import matplotlib.ticker as ticker
 from matplotlib.colors import Normalize
 import joblib
 
 def generate_predictions(model, df_inputs_test, df_targets_test, x_mean, x_stddev, device):
+    
+    input_scaler=StdScaler()
+    # targets_scaler=MinMaxScaler()
     
     model=model.to(device)
     model.eval()  # Set the model to evaluation mode
@@ -18,16 +21,18 @@ def generate_predictions(model, df_inputs_test, df_targets_test, x_mean, x_stdde
 
     x_test = df_inputs_test.values
     
-    x_test_normalized = StdScaler().transform(x_test, x_mean, x_stddev)
+    x_test_normalized = input_scaler.transform(x_test, x_mean, x_stddev)
     x_test_tensor = torch.tensor(x_test_normalized, dtype=torch.float32).to(device)
 
     with torch.no_grad():
         predictions = model(x_test_tensor) # Generate predictions
         
     y1 = predictions[0].to('cpu').numpy() # convert to numpy array
+    # y1 = targets_scaler.inverse_transform(y1, y1_min, y1_max)
     print(f"Predictions y1 shape: {y1.shape}")
     
     y2 = predictions[1].to('cpu').numpy() # convert to numpy array
+    # y2 = targets_scaler.inverse_transform(y2, y2_min, y2_max)
     print(f"Predictions y2 shape: {y2.shape}")
 
     target_columns = df_targets_test.columns
@@ -123,7 +128,8 @@ def kpi_plotting(index, nn_kpi_2d,df_predictions_y1, mm_predicted, eta_predicted
     ax2.spines['top'].set_visible(False)
     ax2.spines['right'].set_visible(False)
     ax2.tick_params(axis='both', which='major', labelsize=10)
-
+    
+    plt.savefig(f'./Manuscript/ReportImages/predictions.png', bbox_inches='tight')
     plt.show()
 
 def plot_testdataset_kpi2d(df_targets, df_predictions,start,end, cols):
