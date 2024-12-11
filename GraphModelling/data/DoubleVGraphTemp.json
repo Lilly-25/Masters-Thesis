@@ -1,0 +1,73 @@
+{
+  "node_types": {
+    "v": ["v1", "v2"],
+    "r": ["rr", "ra", "o"],
+    "s": ["s"]
+  },
+  "node_features": {
+    "v": ["lmsov", "lth1v", "lth2v", "r1v", "r11v", "r2v", "r3v", "r4v", "rmt1v", 
+    "rmt4v", "rlt1v", "rlt4v", "hav","mbv", "mhv", "rmagv", "deg_phiv", "dsmv", "dsmuv",
+    "lmav", "lmiv", "lmov", "lmuv"],
+    "r": ["0"],
+    "s": ["b_nng", "b_nzk", "b_s", "h_n", "h_s", "r_sn", "r_zk", "r_ng", "bhp", "hhp", "rhp", "dhphp","dhpng"]
+  },
+  "edge_d1": {
+    "v2,rr": ["dsrv2"],
+    "rr,s": ["airgap"],
+    "o,ra": ["r_a"]
+  },
+  "edge_d2": {
+    "v1,rr": ["amtrv1", "dsrv1"]
+  },
+  "edge_d1_calc_airgap": {
+    "o,rr": ["r_i", "airgap"]
+  },
+  "edge_d1_calc_ss": {
+    "s,ra": ["r_a", "r_i", "h_n", "h_zk"]
+  },
+  "metapaths": {
+    "path1": {
+      "nodes": ["v", "r", "s", "r"]
+    },
+    "path2": {
+      "nodes": ["r","v", "r"]
+    },
+    "path3": {
+      "nodes": ["r", "s", "r"]
+    }
+  },
+  "metapaths_new": {
+    "path1": {
+      "nodes": ["o", "rr", "s", "ra"]
+    },
+    "path2": {
+      "nodes": ["v1", "rr", "v2", "rr", "o"]
+    },
+    "path3": {
+      "nodes": ["v1", "rr", "v2", "rr", "s", "ra", "o"]
+    }
+  },
+  "metapaths_old": {
+    "path1": {
+      "nodes": ["v1", "rr", "o"]
+    },
+    "path2": {
+      "nodes": ["v2", "rr", "o"]
+    },
+    "path3": {
+      "nodes": ["o", "rr", "s", "ra"]
+    },
+    "path4": {
+      "nodes": ["v1", "rr", "v2", "rr", "o"]
+    },
+    "path5": {
+      "nodes": ["v1", "rr", "s", "ra", "o"]
+    },
+    "path6": {
+      "nodes": ["v2", "rr", "s", "ra", "o"]
+    },
+    "path7": {
+      "nodes": ["v1", "rr", "v2", "rr", "s", "ra", "o"]
+    }
+  }
+}
