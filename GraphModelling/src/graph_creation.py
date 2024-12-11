@@ -26,7 +26,7 @@ def create_heterograph(file_path):
         G = nx.MultiDiGraph()  # Use MultiDiGraph for heterogeneous graph
 
         # Load edge dictionaries from the JSON file
-        with open('/home/k64889/Masters-Thesis/data/DoubleVGraph.json', 'r') as f:
+        with open('./data/DoubleVGraph.json', 'r') as f:
             graph_dict = json.load(f)
 
         node_types = graph_dict['node_types']
@@ -237,7 +237,7 @@ def hierarchical_layout(G):
     return pos
 
 def visualize_heterograph(G):
-    plt.figure(figsize=(24, 20))
+    plt.figure(figsize=(40, 38))
  
     color_map = {'v': '#FF6B6B', 'vm': '#FFD93D', 'r': '#4D96FF', 's': '#F9ED69', 
                  'sw': '#6BCB77'}
@@ -258,14 +258,14 @@ def visualize_heterograph(G):
     
     # Draw edge labels
     edge_labels = {(u, v): data['type'] for u, v, data in G.edges(data=True)}
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=6)
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=26, font_weight='bold')
     
     # Draw nodes
-    nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=3000, alpha=0.8, edgecolors='black', linewidths=2)
+    nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=5500, alpha=0.8, edgecolors='black', linewidths=2)
     
     # Add labels (node names)
     labels = {node: node for node in G.nodes()}
-    nx.draw_networkx_labels(G, pos, labels, font_size=8, font_weight='bold')
+    nx.draw_networkx_labels(G, pos, labels, font_size=23, font_weight='bold')
     
     # Create legend elements for nodes
     node_legend_elements = [plt.Line2D([0], [0], marker='o', color='w', label=node_type,
@@ -276,16 +276,45 @@ def visualize_heterograph(G):
     edge_legend_elements = [plt.Line2D([0], [0], color=color, lw=2, label=edge_type)
                             for edge_type, color in edge_color_map.items()]
     
-    # Combine node and edge legend elements
-    all_legend_elements = node_legend_elements + edge_legend_elements
+    # # Combine node and edge legend elements
+    # all_legend_elements = node_legend_elements + edge_legend_elements
     
-    # Add legend to the plot
-    plt.legend(handles=all_legend_elements, title="Node and Edge Types", 
-               loc='center left', bbox_to_anchor=(1, 0.5), fontsize=10, 
-               ncol=2, columnspacing=1, handletextpad=1)
     
-    plt.title("Visualisation of an Electric Motor as a Heterogeneous Graph", fontsize=16, fontweight='bold')
+    # plt.legend(handles=all_legend_elements, title="Nodes and Edge Types", 
+    #            loc='lower center', bbox_to_anchor=(0.5, -0.05), fontsize=34,  
+    #            title_fontsize=30, ncol=10, columnspacing=1.5, handletextpad=1.2) 
+    
+    # Create the first legend for nodes
+    node_legend = plt.legend(
+        handles=node_legend_elements,
+        title="Node Types",
+        loc='lower right',
+        bbox_to_anchor=(0.5, -0.025),  # Position nodes legend
+        fontsize=30,
+        title_fontsize=34,
+        ncol=5,
+        columnspacing=1.5,
+        handletextpad=1.2
+    )
+
+    # Add the first legend to the plot
+    plt.gca().add_artist(node_legend)
+
+    # Create the second legend for edges
+    plt.legend(
+        handles=edge_legend_elements,
+        title="Edge Types",
+        loc='lower left',
+        bbox_to_anchor=(0.5, -0.025),  # Position edges legend below nodes legend
+        fontsize=30,
+        title_fontsize=34,
+        ncol=5,
+        columnspacing=1.5,
+        handletextpad=1.2
+    )
+    
+    # plt.title("Visualisation of an Electric Motor as a Heterogeneous Graph", fontsize=16, fontweight='bold')
     plt.axis('off')
     plt.tight_layout()
-    plt.savefig('./temp/ReportPics/DoubleVGraph.png')
+    plt.savefig('./data/DoubleVGraph.png')
     plt.show()
